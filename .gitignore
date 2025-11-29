@@ -1,0 +1,14 @@
+# IntelliJ
+.idea
+*.iml
+
+# VScode settings
+.vscode/*
+!.vscode/launch.json
+
+infrastructure/docker/volumes/*
+
+# Environments
+.env
+
+.DS_Store
