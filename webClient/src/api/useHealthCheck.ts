@@ -5,7 +5,7 @@ export const useHealthCheck = () => {
     return useQuery({
         queryKey: ["health"],
         queryFn: async () => {
-            const res = await api.get("/health");
+            const res = await api.get("/api/health");
             return res.data;
         },
     });

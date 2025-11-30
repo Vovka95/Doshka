@@ -88,18 +88,16 @@ Inside infrastructure/, create a file named .env:
 ```
 # Web API
 BACKEND_PORT=******
-BACKEND_HOST=******
 
 # Web Client
 FRONTEND_PORT=******
-FRONTEND_HOST=******
 
 # Database
-POSTGRES_USER=******
-POSTGRES_PASSWORD=******
-POSTGRES_DB=******
-POSTGRES_PORT=******
-POSTGRES_HOST=******
+DATABASE_HOST=******
+DATABASE_PORT=******
+DATABASE_USERNAME=******
+DATABASE_PASSWORD=******
+DATABASE_NAME=******
 
 # Node environment
 NODE_ENV=development
@@ -121,6 +119,9 @@ DATABASE_NAME=******
 # JWT
 JWT_SECRET=******
 JWT_EXPIRES_IN=******
+
+# Frontend origine
+FRONTEND_ORIGIN=*****
 ```
 
 Inside webClient/, create a file named .env.frontend:
@@ -140,6 +141,7 @@ VITE_APP_NAME=*****
 
 This will start:
 
--   webApi (NestJS backend) → http://localhost:{BACKEND_PORT}
+-   webApi (NestJS backend) → http://localhost:{BACKEND_PORT}/api
+-   API Swagger Docs → http://localhost:{BACKEND_PORT}/api/docs
 -   webClient (React frontend) → http://localhost:{FRONTEND_PORT}
 -   db (PostgreSQL) → {DATABASE_PORT}
