@@ -119,6 +119,7 @@ DATABASE_NAME=******
 # JWT
 JWT_SECRET=******
 JWT_EXPIRES_IN=******
+JWT_REFRESH_EXPIRES_IN=******
 
 # Frontend origine
 FRONTEND_ORIGIN=*****
