@@ -8,6 +8,8 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { UsersModule } from '../users/users.module';
 
+import { ExpiresIn } from './interfaces/expires-in.type';
+
 @Module({
   imports: [
     UsersModule,
@@ -20,7 +22,7 @@ import { UsersModule } from '../users/users.module';
       ): Promise<JwtModuleOptions> => ({
         secret: configService.getOrThrow<string>('JWT_SECRET'),
         signOptions: {
-          expiresIn: configService.get('JWT_EXPIRES_IN') || '15m',
+          expiresIn: configService.get<ExpiresIn>('JWT_EXPIRES_IN') || '15m',
         },
       }),
     }),
