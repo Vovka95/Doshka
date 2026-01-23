@@ -29,6 +29,11 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Post('logout')
+  async logout(@CurrentUser() user: JwtPayload): Promise<void> {
+    return this.authService.logout(user.sub);
+  }
+
   @Post('refresh')
   refresh(@Body() dto: RefreshTokenDto): Promise<TokenResponseDto> {
     return this.authService.refreshTokens(dto.refreshToken);

@@ -24,7 +24,7 @@ export class User {
   password: string;
 
   @Column({ nullable: true })
-  hashedRefreshToken?: string;
+  hashedRefreshToken?: string | null;
 
   @Column({ default: false })
   isEmailConfirmed: boolean;

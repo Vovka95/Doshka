@@ -64,6 +64,10 @@ export class AuthService {
     return { ...tokens, user: this.usersService.toResponseDto(user) };
   }
 
+  async logout(userId: string) {
+    return this.usersService.updateRefreshToken(userId, null);
+  }
+
   async refreshTokens(refreshToken: string): Promise<TokenResponseDto> {
     let payload: JwtPayload;
 
