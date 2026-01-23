@@ -8,7 +8,7 @@ const configs: TypeOrmModuleOptions = {
   username: process.env.DATABASE_USERNAME,
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
-  synchronize: true, // Dev ONLY
+  synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
   autoLoadEntities: true,
 };
 
