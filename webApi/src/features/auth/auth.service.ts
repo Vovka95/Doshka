@@ -12,6 +12,7 @@ import { UsersService } from '../users/users.service';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import { AuthResponseDto } from './dto/auth-response.dto';
 import { type JwtPayload } from './interfaces/jwt-payload.interface';
 
 import { generateTokens } from './utils/token.utils';
@@ -26,7 +27,7 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async signup(dto: SignupDto) {
+  async signup(dto: SignupDto): Promise<AuthResponseDto> {
     const exsitingUser = await this.usersService.findByEmail(dto.email);
     if (exsitingUser) {
       throw new ConflictException('User with this email already exist');
@@ -52,10 +53,10 @@ export class AuthService {
     );
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 
-    return tokens;
+    return { ...tokens, user: this.usersService.toResponseDto(user) };
   }
 
-  async login(dto: LoginDto) {
+  async login(dto: LoginDto): Promise<AuthResponseDto> {
     const user = await this.usersService.findByEmail(dto.email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
@@ -79,7 +80,7 @@ export class AuthService {
     );
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 
-    return tokens;
+    return { ...tokens, user: this.usersService.toResponseDto(user) };
   }
 
   async getMe(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
@@ -89,7 +90,6 @@ export class AuthService {
       throw new UnauthorizedException('User is not found');
     }
 
-    const { id, email, firstName, lastName, avatarUrl } = foundUser;
-    return { id, email, firstName, lastName, avatarUrl };
+    return this.usersService.toResponseDto(foundUser);
   }
 }

@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 
 import { User } from './entity/user.entity';
 
+import { UserResponseDto } from './dto/user-response.dto';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -28,5 +30,10 @@ export class UsersService {
 
   async findById(userId: string): Promise<User | null> {
     return await this.userRepository.findOne({ where: { id: userId } });
+  }
+
+  toResponseDto(user: User): UserResponseDto {
+    const { id, email, firstName, lastName, avatarUrl } = user;
+    return { id, email, firstName, lastName, avatarUrl };
   }
 }
