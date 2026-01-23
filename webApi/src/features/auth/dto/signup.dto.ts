@@ -17,19 +17,27 @@ import {
 } from 'src/common/constants/auth.constants';
 
 export class SignupDto {
-  @ApiProperty({ example: 'Test' })
+  @ApiProperty({ description: 'First name', required: true, example: 'Test' })
   @IsNotEmpty()
   firstName: string;
 
-  @ApiProperty({ example: 'Test' })
+  @ApiProperty({ description: 'Last name', required: true, example: 'Test' })
   @IsNotEmpty()
   lastName: string;
 
-  @ApiProperty({ example: 'test@test.com' })
+  @ApiProperty({
+    description: 'Email',
+    required: true,
+    example: 'test@test.com',
+  })
   @IsEmail()
   email: string;
 
-  @ApiProperty({ example: 'Password-1234' })
+  @ApiProperty({
+    description: 'Password',
+    required: true,
+    example: 'Password-1234',
+  })
   @MinLength(PASSWORD_MIN_LENGTH)
   @MaxLength(PASSWORD_MAX_LENGTH)
   @Matches(PASSWORD_REGEX.lowercase, {
@@ -46,7 +54,11 @@ export class SignupDto {
   })
   password: string;
 
-  @ApiProperty({ example: 'Password-1234' })
+  @ApiProperty({
+    description: 'Confirm password',
+    required: true,
+    example: 'Password-1234',
+  })
   @Match('password', { message: CONFIRM_PASSWORD_VALIDATIO_ERRORS.match })
   confirmPassword: string;
 }
