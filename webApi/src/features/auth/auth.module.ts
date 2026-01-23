@@ -16,7 +16,7 @@ import { ExpiresIn } from './interfaces/expires-in.type';
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
-      inject: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (
         configService: ConfigService,
       ): Promise<JwtModuleOptions> => ({

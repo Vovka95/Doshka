@@ -1,4 +1,5 @@
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -11,6 +12,7 @@ import { type JwtPayload } from './interfaces/jwt-payload.interface';
 
 import { CurrentUser } from 'src/common/decorators/current-user-decorator';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -26,6 +28,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Get('me')
   async me(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
     return this.authService.getMe(user);

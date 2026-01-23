@@ -1,15 +1,12 @@
-import { IsEmail, MaxLength, MinLength } from 'class-validator';
-
-import {
-  PASSWORD_MAX_LENGTH,
-  PASSWORD_MIN_LENGTH,
-} from 'src/common/constants/auth.constants';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 
 export class LoginDto {
+  @ApiProperty({ example: 'test@test.com' })
   @IsEmail()
   email: string;
 
-  @MinLength(PASSWORD_MIN_LENGTH)
-  @MaxLength(PASSWORD_MAX_LENGTH)
+  @ApiProperty({ example: 'Password-1234' })
+  @IsNotEmpty()
   password: string;
 }
