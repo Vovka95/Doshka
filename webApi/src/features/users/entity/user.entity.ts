@@ -23,8 +23,8 @@ export class User {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ nullable: true })
-  hashedRefreshToken?: string;
+  @Column({ type: 'text', nullable: true })
+  hashedRefreshToken?: string | null;
 
   @Column({ default: false })
   isEmailConfirmed: boolean;

@@ -8,6 +8,8 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
+import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { TokenResponseDto } from './dto/token-response.dto';
 import { type JwtPayload } from './interfaces/jwt-payload.interface';
 
 import { CurrentUser } from 'src/common/decorators/current-user-decorator';
@@ -25,6 +27,18 @@ export class AuthController {
   @Post('login')
   async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Post('logout')
+  async logout(@CurrentUser() user: JwtPayload): Promise<void> {
+    return this.authService.logout(user.sub);
+  }
+
+  @Post('refresh')
+  refresh(@Body() dto: RefreshTokenDto): Promise<TokenResponseDto> {
+    return this.authService.refreshTokens(dto.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)
