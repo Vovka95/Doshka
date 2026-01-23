@@ -29,6 +29,8 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @Post('logout')
   async logout(@CurrentUser() user: JwtPayload): Promise<void> {
     return this.authService.logout(user.sub);
