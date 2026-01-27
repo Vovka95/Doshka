@@ -63,6 +63,10 @@ export class AuthService {
       throwUnauthorizedException(AUTH_ERROR.INVALID_CREDENTIALS);
     }
 
+    if (!user.isEmailConfirmed) {
+      throwUnauthorizedException(AUTH_ERROR.EMAIL_NOT_CONFIRMED);
+    }
+
     const tokens = await this.generateAndStoreTokens(user);
 
     return { ...tokens, user: this.usersService.toResponseDto(user) };
@@ -84,7 +88,7 @@ export class AuthService {
     }
 
     const user = await this.usersService.findById(payload.sub);
-    if (!user || !user.hashedRefreshToken) {
+    if (!user || !user.hashedRefreshToken || !user.isEmailConfirmed) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
