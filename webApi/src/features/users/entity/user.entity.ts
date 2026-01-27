@@ -26,6 +26,9 @@ export class User {
   @Column({ type: 'text', nullable: true })
   hashedRefreshToken?: string | null;
 
+  @Column({ type: 'timestamp', nullable: true })
+  refreshTokenUpdatedAt: Date | null;
+
   @Column({ default: false })
   isEmailConfirmed: boolean;
 
