@@ -8,6 +8,8 @@ RUN npm install
 
 COPY ../../webApi .
 
+RUN npm run build
+
 EXPOSE ${BACKEND_PORT}
 
 CMD ["npm", "run", "start:dev"]
