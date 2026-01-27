@@ -18,8 +18,8 @@ import {
   throwForbiddenException,
   throwUnauthorizedException,
 } from 'src/common/errors/throw-api-error';
-import { AUTH_ERROR } from 'src/common/errors/auth.errors';
-import { ENCRYPTION_ROUNDS } from 'src/common/constants/auth.constants';
+import { AUTH_ERROR, AUTH_PASSWORD } from './constants';
+
 import { generateTokens } from './utils/token.utils';
 
 @Injectable()
@@ -38,7 +38,10 @@ export class AuthService {
       throwConflictException(AUTH_ERROR.EMAIL_ALREADY_EXISTS);
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, ENCRYPTION_ROUNDS);
+    const hashedPassword = await bcrypt.hash(
+      dto.password,
+      AUTH_PASSWORD.HASH_ROUNDS,
+    );
 
     const user = await this.usersService.createUser({
       ...dto,
@@ -122,7 +125,7 @@ export class AuthService {
     });
     const hashedRefreshToken = await bcrypt.hash(
       tokens.refreshToken,
-      ENCRYPTION_ROUNDS,
+      AUTH_PASSWORD.HASH_ROUNDS,
     );
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 
