@@ -19,8 +19,8 @@ import { type JwtPayload } from './interfaces/jwt-payload.interface';
 import { User } from '../users/entity/user.entity';
 
 import { generateTokens } from './utils/token.utils';
-import { CurrentUser } from 'src/common/decorators/current-user-decorator';
-import { ENCRYPTION_SALT } from 'src/common/constants/auth.constants';
+
+import { ENCRYPTION_ROUNDS } from 'src/common/constants/auth.constants';
 
 @Injectable()
 export class AuthService {
@@ -31,12 +31,14 @@ export class AuthService {
   ) {}
 
   async signup(dto: SignupDto): Promise<AuthResponseDto> {
-    const exsitingUser = await this.usersService.findByEmail(dto.email);
+    const email = dto.email.trim().toLowerCase();
+
+    const exsitingUser = await this.usersService.findByEmail(email);
     if (exsitingUser) {
       throw new ConflictException('User with this email already exist');
     }
 
-    const hashedPassword = bcrypt.hashSync(dto.password, ENCRYPTION_SALT);
+    const hashedPassword = await bcrypt.hash(dto.password, ENCRYPTION_ROUNDS);
 
     const user = await this.usersService.createUser({
       ...dto,
@@ -49,12 +51,14 @@ export class AuthService {
   }
 
   async login(dto: LoginDto): Promise<AuthResponseDto> {
-    const user = await this.usersService.findByEmail(dto.email);
+    const email = dto.email.trim().toLowerCase();
+
+    const user = await this.usersService.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const isPasswordValid = bcrypt.compareSync(dto.password, user.password);
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
     if (!isPasswordValid) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -76,7 +80,7 @@ export class AuthService {
         secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
       });
     } catch (error) {
-      throw new ForbiddenException('Invalid refresh token');
+      throw new ForbiddenException('Access denied');
     }
 
     const user = await this.usersService.findById(payload.sub);
@@ -84,12 +88,12 @@ export class AuthService {
       throw new ForbiddenException('Access denied');
     }
 
-    const isRefreshTokenValid = bcrypt.compareSync(
+    const isRefreshTokenValid = await bcrypt.compare(
       refreshToken,
       user.hashedRefreshToken,
     );
     if (!isRefreshTokenValid) {
-      throw new ForbiddenException('Invalid refresh token');
+      throw new ForbiddenException('Access denied');
     }
 
     const tokens = await this.generateAndStoreTokens(user);
@@ -97,8 +101,7 @@ export class AuthService {
     return tokens;
   }
 
-  async getMe(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
-    const userId = user.sub;
+  async getMe(userId: string): Promise<UserResponseDto> {
     const foundUser = await this.usersService.findById(userId);
 
     if (!foundUser) {
@@ -113,9 +116,9 @@ export class AuthService {
       sub: user.id,
       email: user.email,
     });
-    const hashedRefreshToken = bcrypt.hashSync(
+    const hashedRefreshToken = await bcrypt.hash(
       tokens.refreshToken,
-      ENCRYPTION_SALT,
+      ENCRYPTION_ROUNDS,
     );
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 

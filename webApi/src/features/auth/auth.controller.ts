@@ -45,6 +45,6 @@ export class AuthController {
   @ApiBearerAuth()
   @Get('me')
   async me(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
-    return this.authService.getMe(user);
+    return this.authService.getMe(user.sub);
   }
 }

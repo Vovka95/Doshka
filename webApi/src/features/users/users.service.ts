@@ -13,6 +13,10 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async findById(userId: string): Promise<User | null> {
+    return await this.userRepository.findOne({ where: { id: userId } });
+  }
+
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { email } });
   }
@@ -28,11 +32,8 @@ export class UsersService {
   ): Promise<void> {
     await this.userRepository.update(userId, {
       hashedRefreshToken: hashedToken,
+      refreshTokenUpdatedAt: hashedToken ? new Date() : null,
     });
-  }
-
-  async findById(userId: string): Promise<User | null> {
-    return await this.userRepository.findOne({ where: { id: userId } });
   }
 
   toResponseDto(user: User): UserResponseDto {

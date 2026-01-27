@@ -1,7 +1,7 @@
 export const PASSWORD_MIN_LENGTH = 6;
 export const PASSWORD_MAX_LENGTH = 64;
 
-export const ENCRYPTION_SALT = 10;
+export const ENCRYPTION_ROUNDS = 10;
 
 export const PASSWORD_REGEX = {
   lowercase: /(?=.*[a-z])/,
