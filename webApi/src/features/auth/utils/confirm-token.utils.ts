@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'crypto';
 
 import { AUTH_CONFIRM } from '../constants';
-import { addHours } from 'src/common/utils';
+import { addHours } from '../../../common/utils';
 
 const sha256 = (value: string) =>
   createHash('sha256').update(value).digest('hex');

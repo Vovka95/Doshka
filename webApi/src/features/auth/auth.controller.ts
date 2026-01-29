@@ -19,6 +19,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { AuthTokensResponseDto } from './dto/auth-tokens-response.dto';
 import { type AccessTokenPayload } from './interfaces/jwt-payload.interface';
+import { MessageResult } from '../../common/types/message-result.type';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -26,7 +27,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  async signup(@Body() dto: SignupDto): Promise<AuthResponseDto> {
+  async signup(@Body() dto: SignupDto): Promise<MessageResult> {
     return this.authService.signup(dto);
   }
 

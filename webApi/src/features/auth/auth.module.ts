@@ -5,14 +5,17 @@ import { JwtModule, JwtModuleOptions } from '@nestjs/jwt';
 
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { JwtStrategy } from './strategies/jwt-strategy';
 import { UsersModule } from '../users/users.module';
+import { EmailModule } from '../../infrastructure/email/email.module';
+
+import { JwtStrategy } from './strategies/jwt-strategy';
 
 import { ExpiresIn } from './types/expires-in.type';
 
 @Module({
   imports: [
     UsersModule,
+    EmailModule,
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
