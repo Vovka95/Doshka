@@ -9,25 +9,25 @@ export class EmailService {
     private readonly mailerService: MailerService,
   ) {}
 
-  async sendEmailConfirmation(to: string, token: string) {
-    const confirmEmailUrl = `${this.configService.getOrThrow<string>('FRONTEND_ORIGIN')}/auth/confirm-email?token=${token}`;
+  async sendEmailConfirmation(to: string, token: string, firstName: string) {
+    const confirmEmailUrl = `${this.configService.getOrThrow<string>('FRONTEND_ORIGIN')}/auth/confirm-email?token=${encodeURIComponent(token)}`;
 
     this.mailerService.sendMail({
       to,
       subject: 'Confirm your email',
       template: 'confirm-email',
-      context: { confirmEmailUrl },
+      context: { confirmEmailUrl, firstName },
     });
   }
 
-  async sendResetPasswordEmail(to: string, token: string) {
-    const resetPasswordUrl = `${this.configService.getOrThrow<string>('FRONTEND_ORIGIN')}/auth/reset-password?token=${token}`;
+  async sendResetPasswordEmail(to: string, token: string, firstName: string) {
+    const resetPasswordUrl = `${this.configService.getOrThrow<string>('FRONTEND_ORIGIN')}/auth/reset-password?token=${encodeURIComponent(token)}`;
 
     this.mailerService.sendMail({
       to,
       subject: 'Reset your Doshka password',
       template: 'reset-password',
-      context: { resetPasswordUrl },
+      context: { resetPasswordUrl, firstName },
     });
   }
 }
