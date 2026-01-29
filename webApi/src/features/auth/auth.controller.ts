@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
@@ -47,6 +48,11 @@ export class AuthController {
   @Post('refresh')
   refresh(@Body() dto: RefreshTokenDto): Promise<AuthTokensResponseDto> {
     return this.authService.refreshTokens(dto.refreshToken);
+  }
+
+  @Get('confirm-email')
+  confirmEmail(@Query() token: string): Promise<MessageResult> {
+    return this.authService.confirmEmail(token);
   }
 
   @UseGuards(JwtAuthGuard)

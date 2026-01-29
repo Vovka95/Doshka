@@ -17,10 +17,11 @@ import type { AuthTokens } from './types/auth-tokens.type';
 import type { MessageResult } from '../../common/types/message-result.type';
 
 import {
+  throwBadRequestException,
   throwConflictException,
   throwForbiddenException,
   throwUnauthorizedException,
-} from 'src/common/errors/throw-api-error';
+} from '../../common/errors/throw-api-error';
 import {
   AUTH_CONFIRM,
   AUTH_ERROR,
@@ -28,7 +29,11 @@ import {
   AUTH_PASSWORD,
 } from './constants';
 
-import { generateEmailConfirmToken, generateJwtTokens } from './utils';
+import {
+  generateEmailConfirmToken,
+  generateJwtTokens,
+  hashEmailToken,
+} from './utils';
 
 @Injectable()
 export class AuthService {
@@ -156,6 +161,39 @@ export class AuthService {
     const tokens = await this.generateAndStoreTokens(user);
 
     return tokens;
+  }
+
+  async confirmEmail(token: string): Promise<MessageResult> {
+    if (!token) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    const tokenHash = hashEmailToken(token);
+    const user = await this.usersService.findByEmailConfirmTokenHash(tokenHash);
+
+    if (!user) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    if (user.isEmailConfirmed) {
+      return { message: AUTH_MESSAGE.EMAIL_ALREADY_CONFIRMED };
+    }
+
+    if (
+      !user.emailConfirmTokenExpiresAt ||
+      user.emailConfirmTokenExpiresAt < new Date()
+    ) {
+      throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
+    }
+
+    this.usersService.update(user.id, {
+      isEmailConfirmed: true,
+      emailConfirmTokenHash: null,
+      emailConfirmTokenExpiresAt: null,
+      emailConfirmSentAt: null,
+    });
+
+    return { message: AUTH_MESSAGE.EMAIL_CONFIRMED };
   }
 
   async getMe(userId: string): Promise<UserResponseDto> {
