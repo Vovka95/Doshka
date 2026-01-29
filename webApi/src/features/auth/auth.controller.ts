@@ -10,16 +10,15 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { CurrentUser } from 'src/common/decorators/current-user-decorator';
 
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { UserResponseDto } from '../users/dto/user-response.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { TokenResponseDto } from './dto/token-response.dto';
-import { type JwtPayload } from './interfaces/jwt-payload.interface';
-
-import { CurrentUser } from 'src/common/decorators/current-user-decorator';
+import { AuthResponseDto } from './dto/auth-response.dto';
+import { UserResponseDto } from '../users/dto/user-response.dto';
+import { AuthTokensResponseDto } from './dto/auth-tokens-response.dto';
+import { type AccessTokenPayload } from './interfaces/jwt-payload.interface';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -40,19 +39,19 @@ export class AuthController {
   @ApiBearerAuth()
   @HttpCode(204)
   @Post('logout')
-  async logout(@CurrentUser() user: JwtPayload): Promise<void> {
+  async logout(@CurrentUser() user: AccessTokenPayload): Promise<void> {
     return this.authService.logout(user.sub);
   }
 
   @Post('refresh')
-  refresh(@Body() dto: RefreshTokenDto): Promise<TokenResponseDto> {
+  refresh(@Body() dto: RefreshTokenDto): Promise<AuthTokensResponseDto> {
     return this.authService.refreshTokens(dto.refreshToken);
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @Get('me')
-  async me(@CurrentUser() user: JwtPayload): Promise<UserResponseDto> {
+  async me(@CurrentUser() user: AccessTokenPayload): Promise<UserResponseDto> {
     return this.authService.getMe(user.sub);
   }
 }

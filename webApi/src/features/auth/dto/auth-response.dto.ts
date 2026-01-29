@@ -1,6 +1,6 @@
 import { UserResponseDto } from 'src/features/users/dto/user-response.dto';
-import { TokenResponseDto } from './token-response.dto';
+import { AuthTokensResponseDto } from './auth-tokens-response.dto';
 
-export class AuthResponseDto extends TokenResponseDto {
+export class AuthResponseDto extends AuthTokensResponseDto {
   user: UserResponseDto;
 }

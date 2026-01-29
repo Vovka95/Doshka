@@ -5,13 +5,14 @@ import * as bcrypt from 'bcrypt';
 
 import { UsersService } from '../users/users.service';
 
+import { User } from '../users/entity/user.entity';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
-import { TokenResponseDto } from './dto/token-response.dto';
-import { type JwtPayload } from './interfaces/jwt-payload.interface';
-import { User } from '../users/entity/user.entity';
+import { RefreshTokenPayload } from './interfaces/jwt-payload.interface';
+
+import type { AuthResult } from './types/auth-result.type';
+import type { AuthTokens } from './types/auth-tokens.type';
 
 import {
   throwConflictException,
@@ -20,7 +21,7 @@ import {
 } from 'src/common/errors/throw-api-error';
 import { AUTH_ERROR, AUTH_PASSWORD } from './constants';
 
-import { generateTokens } from './utils/token.utils';
+import { generateJwtTokens } from './utils';
 
 @Injectable()
 export class AuthService {
@@ -30,11 +31,11 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
-  async signup(dto: SignupDto): Promise<AuthResponseDto> {
+  async signup(dto: SignupDto): Promise<AuthResult> {
     const email = dto.email.trim().toLowerCase();
 
     const exsitingUser = await this.usersService.findByEmail(email);
-    if (exsitingUser) {
+    if (exsitingUser && exsitingUser.isEmailConfirmed) {
       throwConflictException(AUTH_ERROR.EMAIL_ALREADY_EXISTS);
     }
 
@@ -50,10 +51,10 @@ export class AuthService {
 
     const tokens = await this.generateAndStoreTokens(user);
 
-    return { ...tokens, user: this.usersService.toResponseDto(user) };
+    return { ...tokens, user: this.usersService.mapToUserResponse(user) };
   }
 
-  async login(dto: LoginDto): Promise<AuthResponseDto> {
+  async login(dto: LoginDto): Promise<AuthResult> {
     const email = dto.email.trim().toLowerCase();
 
     const user = await this.usersService.findByEmail(email);
@@ -72,15 +73,15 @@ export class AuthService {
 
     const tokens = await this.generateAndStoreTokens(user);
 
-    return { ...tokens, user: this.usersService.toResponseDto(user) };
+    return { ...tokens, user: this.usersService.mapToUserResponse(user) };
   }
 
   async logout(userId: string) {
     return this.usersService.updateRefreshToken(userId, null);
   }
 
-  async refreshTokens(refreshToken: string): Promise<TokenResponseDto> {
-    let payload: JwtPayload;
+  async refreshTokens(refreshToken: string): Promise<AuthTokens> {
+    let payload: RefreshTokenPayload;
 
     try {
       payload = await this.jwtService.verifyAsync(refreshToken, {
@@ -115,14 +116,15 @@ export class AuthService {
       throwUnauthorizedException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    return this.usersService.toResponseDto(foundUser);
+    return this.usersService.mapToUserResponse(foundUser);
   }
 
-  private async generateAndStoreTokens(user: User): Promise<TokenResponseDto> {
-    const tokens = await generateTokens(this.jwtService, this.configService, {
-      sub: user.id,
-      email: user.email,
-    });
+  private async generateAndStoreTokens(user: User): Promise<AuthTokens> {
+    const tokens = await generateJwtTokens(
+      this.jwtService,
+      this.configService,
+      { sub: user.id },
+    );
     const hashedRefreshToken = await bcrypt.hash(
       tokens.refreshToken,
       AUTH_PASSWORD.HASH_ROUNDS,

@@ -8,7 +8,7 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './strategies/jwt-strategy';
 import { UsersModule } from '../users/users.module';
 
-import { ExpiresIn } from './interfaces/expires-in.type';
+import { ExpiresIn } from './types/expires-in.type';
 
 @Module({
   imports: [
