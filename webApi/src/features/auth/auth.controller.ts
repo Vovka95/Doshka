@@ -19,6 +19,7 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { AuthTokensResponseDto } from './dto/auth-tokens-response.dto';
+import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
 import { type AccessTokenPayload } from './interfaces/jwt-payload.interface';
 import { MessageResult } from '../../common/types/message-result.type';
 
@@ -53,6 +54,13 @@ export class AuthController {
   @Get('confirm-email')
   confirmEmail(@Query() token: string): Promise<MessageResult> {
     return this.authService.confirmEmail(token);
+  }
+
+  @Post('resend-confirmation')
+  resendConfirmation(
+    @Body() dto: ResendConfirmationDto,
+  ): Promise<MessageResult> {
+    return this.authService.resendConfirmation(dto.email);
   }
 
   @UseGuards(JwtAuthGuard)

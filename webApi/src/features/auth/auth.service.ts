@@ -52,11 +52,11 @@ export class AuthService {
       throwConflictException(AUTH_ERROR.EMAIL_ALREADY_EXISTS);
     }
 
-    if (existingUser?.emailConfirmSentAt) {
-      const diffMs = Date.now() - existingUser.emailConfirmSentAt.getTime();
-      if (diffMs < AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS * 1000) {
-        return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
-      }
+    if (
+      existingUser?.emailConfirmSentAt &&
+      !this.isResendCooldownPassed(existingUser?.emailConfirmSentAt)
+    ) {
+      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -196,6 +196,44 @@ export class AuthService {
     return { message: AUTH_MESSAGE.EMAIL_CONFIRMED };
   }
 
+  async resendConfirmation(emailRaw: string): Promise<MessageResult> {
+    const email = emailRaw.trim().toLowerCase();
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user || user.isEmailConfirmed) {
+      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
+    }
+
+    if (
+      user?.emailConfirmSentAt &&
+      !this.isResendCooldownPassed(user?.emailConfirmSentAt)
+    ) {
+      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
+    }
+
+    const {
+      token: emailConfirmToken,
+      tokenHash: emailConfirmTokenHash,
+      expiresAt: emailConfirmTokenExpiresAt,
+    } = generateEmailConfirmToken();
+
+    const emailConfirmSentAt = new Date();
+
+    await this.usersService.update(user.id, {
+      emailConfirmTokenHash,
+      emailConfirmTokenExpiresAt,
+      emailConfirmSentAt,
+    });
+
+    await this.emailService.sendEmailConfirmation(
+      email,
+      emailConfirmToken,
+      user.firstName,
+    );
+
+    return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
+  }
+
   async getMe(userId: string): Promise<UserResponseDto> {
     const foundUser = await this.usersService.findById(userId);
 
@@ -204,6 +242,11 @@ export class AuthService {
     }
 
     return this.usersService.mapToUserResponse(foundUser);
+  }
+
+  private isResendCooldownPassed(sentAt: Date): boolean {
+    const diffMs = Date.now() - sentAt.getTime();
+    return diffMs > AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS * 1000;
   }
 
   private async generateAndStoreTokens(user: User): Promise<AuthTokens> {
