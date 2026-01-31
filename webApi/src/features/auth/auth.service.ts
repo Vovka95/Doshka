@@ -175,10 +175,6 @@ export class AuthService {
       throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
     }
 
-    if (user.isEmailConfirmed) {
-      return { message: AUTH_MESSAGE.EMAIL_ALREADY_CONFIRMED };
-    }
-
     if (
       !user.emailConfirmTokenExpiresAt ||
       user.emailConfirmTokenExpiresAt < new Date()
@@ -186,7 +182,7 @@ export class AuthService {
       throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
     }
 
-    this.usersService.update(user.id, {
+    await this.usersService.update(user.id, {
       isEmailConfirmed: true,
       emailConfirmTokenHash: null,
       emailConfirmTokenExpiresAt: null,

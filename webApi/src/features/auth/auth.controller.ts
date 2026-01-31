@@ -33,6 +33,7 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
+  @HttpCode(200)
   @Post('login')
   async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
     return this.authService.login(dto);
@@ -46,16 +47,18 @@ export class AuthController {
     return this.authService.logout(user.sub);
   }
 
+  @HttpCode(200)
   @Post('refresh')
   refresh(@Body() dto: RefreshTokenDto): Promise<AuthTokensResponseDto> {
     return this.authService.refreshTokens(dto.refreshToken);
   }
 
   @Get('confirm-email')
-  confirmEmail(@Query() token: string): Promise<MessageResult> {
+  confirmEmail(@Query('token') token: string): Promise<MessageResult> {
     return this.authService.confirmEmail(token);
   }
 
+  @HttpCode(200)
   @Post('resend-confirmation')
   resendConfirmation(
     @Body() dto: ResendConfirmationDto,
