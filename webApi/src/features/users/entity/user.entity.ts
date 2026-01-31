@@ -41,6 +41,15 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   emailConfirmSentAt: Date | null;
 
+  @Column({ type: 'text', nullable: true })
+  passwordResetTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetTokenExpiresAt: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetSentAt: Date | null;
+
   @Column({ nullable: true })
   avatarUrl: string;
 
