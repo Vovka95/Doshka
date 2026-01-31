@@ -20,6 +20,7 @@ import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { AuthTokensResponseDto } from './dto/auth-tokens-response.dto';
 import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { type AccessTokenPayload } from './interfaces/jwt-payload.interface';
 import { MessageResult } from '../../common/types/message-result.type';
 
@@ -64,6 +65,12 @@ export class AuthController {
     @Body() dto: ResendConfirmationDto,
   ): Promise<MessageResult> {
     return this.authService.resendConfirmation(dto.email);
+  }
+
+  @HttpCode(200)
+  @Post('forgot-password')
+  forgotPassword(@Body() dto: ForgotPasswordDto): Promise<MessageResult> {
+    return this.authService.forgotPassword(dto.email);
   }
 
   @UseGuards(JwtAuthGuard)

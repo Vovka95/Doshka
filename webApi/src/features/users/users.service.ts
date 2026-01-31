@@ -33,16 +33,6 @@ export class UsersService {
     return this.userRepository.save(user);
   }
 
-  async updateRefreshToken(
-    userId: string,
-    hashedToken: string | null,
-  ): Promise<void> {
-    await this.update(userId, {
-      hashedRefreshToken: hashedToken,
-      refreshTokenUpdatedAt: hashedToken ? new Date() : null,
-    });
-  }
-
   async update(userId: string, data: Partial<User>): Promise<void> {
     await this.userRepository.update(userId, data);
   }

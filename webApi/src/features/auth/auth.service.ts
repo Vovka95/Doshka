@@ -27,13 +27,15 @@ import {
   AUTH_ERROR,
   AUTH_MESSAGE,
   AUTH_PASSWORD,
+  AUTH_RESET_PASSWORD,
 } from './constants';
 
 import {
-  generateEmailConfirmToken,
   generateJwtTokens,
-  hashEmailToken,
+  generateOneTimeToken,
+  hashOneTimeToken,
 } from './utils';
+import { isResendCooldownPassed } from 'src/common/utils';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +56,10 @@ export class AuthService {
 
     if (
       existingUser?.emailConfirmSentAt &&
-      !this.isResendCooldownPassed(existingUser?.emailConfirmSentAt)
+      !isResendCooldownPassed(
+        existingUser?.emailConfirmSentAt,
+        AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
+      )
     ) {
       return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
     }
@@ -68,7 +73,7 @@ export class AuthService {
       token: emailConfirmToken,
       tokenHash: emailConfirmTokenHash,
       expiresAt: emailConfirmTokenExpiresAt,
-    } = generateEmailConfirmToken();
+    } = generateOneTimeToken(AUTH_CONFIRM.TTL_HOURS);
 
     const emailConfirmSentAt = new Date();
 
@@ -131,7 +136,10 @@ export class AuthService {
   }
 
   async logout(userId: string) {
-    return this.usersService.updateRefreshToken(userId, null);
+    return this.usersService.update(userId, {
+      hashedRefreshToken: null,
+      refreshTokenUpdatedAt: null,
+    });
   }
 
   async refreshTokens(refreshToken: string): Promise<AuthTokens> {
@@ -168,7 +176,7 @@ export class AuthService {
       throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
     }
 
-    const tokenHash = hashEmailToken(token);
+    const tokenHash = hashOneTimeToken(token);
     const user = await this.usersService.findByEmailConfirmTokenHash(tokenHash);
 
     if (!user) {
@@ -202,7 +210,10 @@ export class AuthService {
 
     if (
       user?.emailConfirmSentAt &&
-      !this.isResendCooldownPassed(user?.emailConfirmSentAt)
+      !isResendCooldownPassed(
+        user?.emailConfirmSentAt,
+        AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
+      )
     ) {
       return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
     }
@@ -211,7 +222,7 @@ export class AuthService {
       token: emailConfirmToken,
       tokenHash: emailConfirmTokenHash,
       expiresAt: emailConfirmTokenExpiresAt,
-    } = generateEmailConfirmToken();
+    } = generateOneTimeToken(AUTH_CONFIRM.TTL_HOURS);
 
     const emailConfirmSentAt = new Date();
 
@@ -230,6 +241,47 @@ export class AuthService {
     return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
   }
 
+  async forgotPassword(emailRaw: string): Promise<MessageResult> {
+    const email = emailRaw.trim().toLowerCase();
+
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
+    }
+
+    if (
+      user?.passwordResetSentAt &&
+      !isResendCooldownPassed(
+        user?.passwordResetSentAt,
+        AUTH_RESET_PASSWORD.RESEND_COOLDOWN_SECONDS,
+      )
+    ) {
+      return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
+    }
+
+    const {
+      token: passwordResetToken,
+      tokenHash: passwordResetTokenHash,
+      expiresAt: passwordResetTokenExpiresAt,
+    } = generateOneTimeToken(AUTH_RESET_PASSWORD.TTL_HOURS);
+
+    const passwordResetSentAt = new Date();
+
+    await this.usersService.update(user.id, {
+      passwordResetTokenHash,
+      passwordResetTokenExpiresAt,
+      passwordResetSentAt,
+    });
+
+    await this.emailService.sendResetPasswordEmail(
+      email,
+      passwordResetToken,
+      user.firstName,
+    );
+
+    return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
+  }
+
   async getMe(userId: string): Promise<UserResponseDto> {
     const foundUser = await this.usersService.findById(userId);
 
@@ -238,11 +290,6 @@ export class AuthService {
     }
 
     return this.usersService.mapToUserResponse(foundUser);
-  }
-
-  private isResendCooldownPassed(sentAt: Date): boolean {
-    const diffMs = Date.now() - sentAt.getTime();
-    return diffMs > AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS * 1000;
   }
 
   private async generateAndStoreTokens(user: User): Promise<AuthTokens> {
@@ -255,7 +302,11 @@ export class AuthService {
       tokens.refreshToken,
       AUTH_PASSWORD.HASH_ROUNDS,
     );
-    await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
+
+    await this.usersService.update(user.id, {
+      hashedRefreshToken,
+      refreshTokenUpdatedAt: hashedRefreshToken ? new Date() : null,
+    });
 
     return tokens;
   }
