@@ -14,6 +14,6 @@ export const generateEmailConfirmToken = () => {
   return {
     token,
     tokenHash: hashEmailToken(token),
-    expiresAt: addHours(new Date(), AUTH_CONFIRM.CONFIRM_TTL_HOURS),
+    expiresAt: addHours(new Date(), AUTH_CONFIRM.TTL_HOURS),
   };
 };

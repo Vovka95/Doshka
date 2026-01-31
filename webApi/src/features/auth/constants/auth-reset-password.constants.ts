@@ -1,4 +1,4 @@
-export const AUTH_CONFIRM = {
+export const AUTH_RESET_PASSWORD = {
   TTL_HOURS: 24,
   RESEND_COOLDOWN_SECONDS: 60,
 } as const;
