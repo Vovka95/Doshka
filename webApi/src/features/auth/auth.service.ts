@@ -10,6 +10,7 @@ import { User } from '../users/entity/user.entity';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenPayload } from './interfaces/jwt-payload.interface';
 
 import type { AuthResult } from './types/auth-result.type';
@@ -137,7 +138,7 @@ export class AuthService {
 
   async logout(userId: string) {
     return this.usersService.update(userId, {
-      hashedRefreshToken: null,
+      refreshTokenHash: null,
       refreshTokenUpdatedAt: null,
     });
   }
@@ -154,13 +155,13 @@ export class AuthService {
     }
 
     const user = await this.usersService.findById(payload.sub);
-    if (!user || !user.hashedRefreshToken || !user.isEmailConfirmed) {
+    if (!user || !user.refreshTokenHash || !user.isEmailConfirmed) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
     const isRefreshTokenValid = await bcrypt.compare(
       refreshToken,
-      user.hashedRefreshToken,
+      user.refreshTokenHash,
     );
     if (!isRefreshTokenValid) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
@@ -282,6 +283,43 @@ export class AuthService {
     return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
   }
 
+  async resetPassword(dto: ResetPasswordDto): Promise<MessageResult> {
+    if (!dto.token) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    const tokenHash = hashOneTimeToken(dto.token);
+    const user =
+      await this.usersService.findByPasswordResetTokenHash(tokenHash);
+
+    if (!user) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    if (
+      !user?.passwordResetTokenExpiresAt ||
+      user.passwordResetTokenExpiresAt < new Date()
+    ) {
+      throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      dto.password,
+      AUTH_PASSWORD.HASH_ROUNDS,
+    );
+
+    this.usersService.update(user.id, {
+      password: hashedPassword,
+      passwordResetTokenHash: null,
+      passwordResetTokenExpiresAt: null,
+      passwordResetSentAt: null,
+      refreshTokenHash: null,
+      refreshTokenUpdatedAt: null,
+    });
+
+    return { message: AUTH_MESSAGE.PASSWORD_RESET_SUCCESS };
+  }
+
   async getMe(userId: string): Promise<UserResponseDto> {
     const foundUser = await this.usersService.findById(userId);
 
@@ -298,14 +336,14 @@ export class AuthService {
       this.configService,
       { sub: user.id },
     );
-    const hashedRefreshToken = await bcrypt.hash(
+    const refreshTokenHash = await bcrypt.hash(
       tokens.refreshToken,
       AUTH_PASSWORD.HASH_ROUNDS,
     );
 
     await this.usersService.update(user.id, {
-      hashedRefreshToken,
-      refreshTokenUpdatedAt: hashedRefreshToken ? new Date() : null,
+      refreshTokenHash,
+      refreshTokenUpdatedAt: refreshTokenHash ? new Date() : null,
     });
 
     return tokens;

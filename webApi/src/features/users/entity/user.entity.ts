@@ -24,7 +24,7 @@ export class User {
   password: string;
 
   @Column({ type: 'text', nullable: true })
-  hashedRefreshToken?: string | null;
+  refreshTokenHash?: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
   refreshTokenUpdatedAt: Date | null;
