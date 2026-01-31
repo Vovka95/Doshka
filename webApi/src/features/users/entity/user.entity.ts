@@ -32,6 +32,15 @@ export class User {
   @Column({ default: false })
   isEmailConfirmed: boolean;
 
+  @Column({ type: 'text', nullable: true })
+  emailConfirmTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailConfirmTokenExpiresAt: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  emailConfirmSentAt: Date | null;
+
   @Column({ nullable: true })
   avatarUrl: string;
 

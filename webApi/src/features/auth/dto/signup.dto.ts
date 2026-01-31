@@ -8,13 +8,7 @@ import {
 } from 'class-validator';
 
 import { Match } from 'src/common/validators/match.validator';
-import {
-  PASSWORD_MAX_LENGTH,
-  PASSWORD_MIN_LENGTH,
-  PASSWORD_REGEX,
-  PASSWORD_VALIDATION_ERRORS,
-  CONFIRM_PASSWORD_VALIDATIO_ERRORS,
-} from 'src/common/constants/auth.constants';
+import { AUTH_PASSWORD } from '../constants';
 
 export class SignupDto {
   @ApiProperty({ description: 'First name', required: true, example: 'Test' })
@@ -38,19 +32,23 @@ export class SignupDto {
     required: true,
     example: 'Password-1234',
   })
-  @MinLength(PASSWORD_MIN_LENGTH)
-  @MaxLength(PASSWORD_MAX_LENGTH)
-  @Matches(PASSWORD_REGEX.lowercase, {
-    message: PASSWORD_VALIDATION_ERRORS.lowercase,
+  @MinLength(AUTH_PASSWORD.MIN_LENGTH, {
+    message: AUTH_PASSWORD.MESSAGES.MIN_LENGTH,
   })
-  @Matches(PASSWORD_REGEX.uppercase, {
-    message: PASSWORD_VALIDATION_ERRORS.uppercase,
+  @MaxLength(AUTH_PASSWORD.MAX_LENGTH, {
+    message: AUTH_PASSWORD.MESSAGES.MAX_LENGTH,
   })
-  @Matches(PASSWORD_REGEX.number, {
-    message: PASSWORD_VALIDATION_ERRORS.number,
+  @Matches(AUTH_PASSWORD.REGEX.LOWERCASE, {
+    message: AUTH_PASSWORD.MESSAGES.LOWERCASE,
   })
-  @Matches(PASSWORD_REGEX.specialChar, {
-    message: PASSWORD_VALIDATION_ERRORS.specialChar,
+  @Matches(AUTH_PASSWORD.REGEX.UPPERCASE, {
+    message: AUTH_PASSWORD.MESSAGES.UPPERCASE,
+  })
+  @Matches(AUTH_PASSWORD.REGEX.NUMBER, {
+    message: AUTH_PASSWORD.MESSAGES.NUMBER,
+  })
+  @Matches(AUTH_PASSWORD.REGEX.SPECIAL_CHAR, {
+    message: AUTH_PASSWORD.MESSAGES.SPECIAL_CHAR,
   })
   password: string;
 
@@ -59,6 +57,6 @@ export class SignupDto {
     required: true,
     example: 'Password-1234',
   })
-  @Match('password', { message: CONFIRM_PASSWORD_VALIDATIO_ERRORS.match })
+  @Match('password', { message: AUTH_PASSWORD.MESSAGES.CONFIRM_MATCH })
   confirmPassword: string;
 }

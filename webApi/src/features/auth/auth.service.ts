@@ -4,23 +4,36 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { UsersService } from '../users/users.service';
+import { EmailService } from '../../infrastructure/email/email.service';
 
+import { User } from '../users/entity/user.entity';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
-import { AuthResponseDto } from './dto/auth-response.dto';
-import { TokenResponseDto } from './dto/token-response.dto';
-import { type JwtPayload } from './interfaces/jwt-payload.interface';
-import { User } from '../users/entity/user.entity';
+import { RefreshTokenPayload } from './interfaces/jwt-payload.interface';
+
+import type { AuthResult } from './types/auth-result.type';
+import type { AuthTokens } from './types/auth-tokens.type';
+import type { MessageResult } from '../../common/types/message-result.type';
 
 import {
+  throwBadRequestException,
   throwConflictException,
   throwForbiddenException,
   throwUnauthorizedException,
-} from 'src/common/errors/throw-api-error';
-import { AUTH_ERROR } from 'src/common/errors/auth.errors';
-import { ENCRYPTION_ROUNDS } from 'src/common/constants/auth.constants';
-import { generateTokens } from './utils/token.utils';
+} from '../../common/errors/throw-api-error';
+import {
+  AUTH_CONFIRM,
+  AUTH_ERROR,
+  AUTH_MESSAGE,
+  AUTH_PASSWORD,
+} from './constants';
+
+import {
+  generateEmailConfirmToken,
+  generateJwtTokens,
+  hashEmailToken,
+} from './utils';
 
 @Injectable()
 export class AuthService {
@@ -28,29 +41,74 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
-  async signup(dto: SignupDto): Promise<AuthResponseDto> {
+  async signup(dto: SignupDto): Promise<MessageResult> {
     const email = dto.email.trim().toLowerCase();
 
-    const exsitingUser = await this.usersService.findByEmail(email);
-    if (exsitingUser) {
+    const existingUser = await this.usersService.findByEmail(email);
+    if (existingUser?.isEmailConfirmed) {
       throwConflictException(AUTH_ERROR.EMAIL_ALREADY_EXISTS);
     }
 
-    const hashedPassword = await bcrypt.hash(dto.password, ENCRYPTION_ROUNDS);
+    if (
+      existingUser?.emailConfirmSentAt &&
+      !this.isResendCooldownPassed(existingUser?.emailConfirmSentAt)
+    ) {
+      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
+    }
 
-    const user = await this.usersService.createUser({
-      ...dto,
+    const hashedPassword = await bcrypt.hash(
+      dto.password,
+      AUTH_PASSWORD.HASH_ROUNDS,
+    );
+
+    const {
+      token: emailConfirmToken,
+      tokenHash: emailConfirmTokenHash,
+      expiresAt: emailConfirmTokenExpiresAt,
+    } = generateEmailConfirmToken();
+
+    const emailConfirmSentAt = new Date();
+
+    if (!existingUser) {
+      await this.usersService.createUser({
+        ...dto,
+        email,
+        password: hashedPassword,
+        isEmailConfirmed: false,
+        emailConfirmTokenHash,
+        emailConfirmTokenExpiresAt,
+        emailConfirmSentAt,
+      });
+
+      await this.emailService.sendEmailConfirmation(
+        email,
+        emailConfirmToken,
+        dto.firstName,
+      );
+
+      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
+    }
+
+    await this.usersService.update(existingUser.id, {
       password: hashedPassword,
+      emailConfirmTokenHash,
+      emailConfirmTokenExpiresAt,
+      emailConfirmSentAt,
     });
 
-    const tokens = await this.generateAndStoreTokens(user);
+    await this.emailService.sendEmailConfirmation(
+      email,
+      emailConfirmToken,
+      existingUser.firstName,
+    );
 
-    return { ...tokens, user: this.usersService.toResponseDto(user) };
+    return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
   }
 
-  async login(dto: LoginDto): Promise<AuthResponseDto> {
+  async login(dto: LoginDto): Promise<AuthResult> {
     const email = dto.email.trim().toLowerCase();
 
     const user = await this.usersService.findByEmail(email);
@@ -69,15 +127,15 @@ export class AuthService {
 
     const tokens = await this.generateAndStoreTokens(user);
 
-    return { ...tokens, user: this.usersService.toResponseDto(user) };
+    return { ...tokens, user: this.usersService.mapToUserResponse(user) };
   }
 
   async logout(userId: string) {
     return this.usersService.updateRefreshToken(userId, null);
   }
 
-  async refreshTokens(refreshToken: string): Promise<TokenResponseDto> {
-    let payload: JwtPayload;
+  async refreshTokens(refreshToken: string): Promise<AuthTokens> {
+    let payload: RefreshTokenPayload;
 
     try {
       payload = await this.jwtService.verifyAsync(refreshToken, {
@@ -105,6 +163,73 @@ export class AuthService {
     return tokens;
   }
 
+  async confirmEmail(token: string): Promise<MessageResult> {
+    if (!token) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    const tokenHash = hashEmailToken(token);
+    const user = await this.usersService.findByEmailConfirmTokenHash(tokenHash);
+
+    if (!user) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    if (
+      !user.emailConfirmTokenExpiresAt ||
+      user.emailConfirmTokenExpiresAt < new Date()
+    ) {
+      throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
+    }
+
+    await this.usersService.update(user.id, {
+      isEmailConfirmed: true,
+      emailConfirmTokenHash: null,
+      emailConfirmTokenExpiresAt: null,
+      emailConfirmSentAt: null,
+    });
+
+    return { message: AUTH_MESSAGE.EMAIL_CONFIRMED };
+  }
+
+  async resendConfirmation(emailRaw: string): Promise<MessageResult> {
+    const email = emailRaw.trim().toLowerCase();
+    const user = await this.usersService.findByEmail(email);
+
+    if (!user || user.isEmailConfirmed) {
+      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
+    }
+
+    if (
+      user?.emailConfirmSentAt &&
+      !this.isResendCooldownPassed(user?.emailConfirmSentAt)
+    ) {
+      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
+    }
+
+    const {
+      token: emailConfirmToken,
+      tokenHash: emailConfirmTokenHash,
+      expiresAt: emailConfirmTokenExpiresAt,
+    } = generateEmailConfirmToken();
+
+    const emailConfirmSentAt = new Date();
+
+    await this.usersService.update(user.id, {
+      emailConfirmTokenHash,
+      emailConfirmTokenExpiresAt,
+      emailConfirmSentAt,
+    });
+
+    await this.emailService.sendEmailConfirmation(
+      email,
+      emailConfirmToken,
+      user.firstName,
+    );
+
+    return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
+  }
+
   async getMe(userId: string): Promise<UserResponseDto> {
     const foundUser = await this.usersService.findById(userId);
 
@@ -112,17 +237,23 @@ export class AuthService {
       throwUnauthorizedException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    return this.usersService.toResponseDto(foundUser);
+    return this.usersService.mapToUserResponse(foundUser);
   }
 
-  private async generateAndStoreTokens(user: User): Promise<TokenResponseDto> {
-    const tokens = await generateTokens(this.jwtService, this.configService, {
-      sub: user.id,
-      email: user.email,
-    });
+  private isResendCooldownPassed(sentAt: Date): boolean {
+    const diffMs = Date.now() - sentAt.getTime();
+    return diffMs > AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS * 1000;
+  }
+
+  private async generateAndStoreTokens(user: User): Promise<AuthTokens> {
+    const tokens = await generateJwtTokens(
+      this.jwtService,
+      this.configService,
+      { sub: user.id },
+    );
     const hashedRefreshToken = await bcrypt.hash(
       tokens.refreshToken,
-      ENCRYPTION_ROUNDS,
+      AUTH_PASSWORD.HASH_ROUNDS,
     );
     await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
 

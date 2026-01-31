@@ -23,4 +23,12 @@ export const AUTH_ERROR = {
     code: 'AUTH_USER_NOT_FOUND',
     message: 'User not found',
   },
+  INVALID_TOKEN: {
+    code: 'AUTH_INVALID_TOKEN',
+    message: 'Invalid token',
+  },
+  TOKEN_EXPIRED: {
+    code: 'AUTH_TOKEN_EXPIRED',
+    message: 'Token expired',
+  },
 } as const;
