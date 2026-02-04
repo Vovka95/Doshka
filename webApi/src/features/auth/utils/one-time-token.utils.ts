@@ -1,11 +1,8 @@
-import { createHash, randomBytes } from 'crypto';
+import { randomBytes } from 'crypto';
 
-import { addHours } from '../../../common/utils';
+import { addHours, sha256Hex } from '../../../common/utils';
 
-const sha256 = (value: string) =>
-  createHash('sha256').update(value).digest('hex');
-
-export const hashOneTimeToken = (token: string) => sha256(token);
+export const hashOneTimeToken = (token: string) => sha256Hex(token);
 
 export const generateOneTimeToken = (ttlHours: number) => {
   if (!Number.isFinite(ttlHours) || ttlHours <= 0) {

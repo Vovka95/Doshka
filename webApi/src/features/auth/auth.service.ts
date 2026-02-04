@@ -35,6 +35,8 @@ import {
   generateJwtTokens,
   generateOneTimeToken,
   hashOneTimeToken,
+  refreshTokenDigest,
+  refreshTokenDigestMatches,
 } from './utils';
 import { isResendCooldownPassed } from 'src/common/utils';
 
@@ -131,25 +133,25 @@ export class AuthService {
       throwUnauthorizedException(AUTH_ERROR.EMAIL_NOT_CONFIRMED);
     }
 
-    const tokens = await this.generateAndStoreTokens(user);
+    const tokens = await this.issueTokens(user.id);
 
     return { ...tokens, user: this.usersService.mapToUserResponse(user) };
   }
 
-  async logout(userId: string) {
-    return this.usersService.update(userId, {
-      refreshTokenHash: null,
-      refreshTokenUpdatedAt: null,
-    });
+  async logout(userId: string): Promise<void> {
+    this.revokeSession(userId);
   }
 
   async refreshTokens(refreshToken: string): Promise<AuthTokens> {
     let payload: RefreshTokenPayload;
 
     try {
-      payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
-      });
+      payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+        refreshToken,
+        {
+          secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
+        },
+      );
     } catch (error) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
@@ -159,7 +161,7 @@ export class AuthService {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    const isRefreshTokenValid = await bcrypt.compare(
+    const isRefreshTokenValid = refreshTokenDigestMatches(
       refreshToken,
       user.refreshTokenHash,
     );
@@ -167,7 +169,7 @@ export class AuthService {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    const tokens = await this.generateAndStoreTokens(user);
+    const tokens = await this.rotateRefreshToken(user);
 
     return tokens;
   }
@@ -308,7 +310,7 @@ export class AuthService {
       AUTH_PASSWORD.HASH_ROUNDS,
     );
 
-    this.usersService.update(user.id, {
+    await this.usersService.update(user.id, {
       password: hashedPassword,
       passwordResetTokenHash: null,
       passwordResetTokenExpiresAt: null,
@@ -330,22 +332,51 @@ export class AuthService {
     return this.usersService.mapToUserResponse(foundUser);
   }
 
-  private async generateAndStoreTokens(user: User): Promise<AuthTokens> {
+  private async issueTokens(userId: string): Promise<AuthTokens> {
+    const tokens = await generateJwtTokens(
+      this.jwtService,
+      this.configService,
+      { sub: userId },
+    );
+    const refreshTokenHash = refreshTokenDigest(tokens.refreshToken);
+
+    await this.usersService.update(userId, {
+      refreshTokenHash,
+      refreshTokenUpdatedAt: new Date(),
+    });
+
+    return tokens;
+  }
+
+  private async rotateRefreshToken(user: User): Promise<AuthTokens> {
+    if (!user.refreshTokenHash) {
+      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
+    }
+
     const tokens = await generateJwtTokens(
       this.jwtService,
       this.configService,
       { sub: user.id },
     );
-    const refreshTokenHash = await bcrypt.hash(
-      tokens.refreshToken,
-      AUTH_PASSWORD.HASH_ROUNDS,
+    const refreshTokenHash = refreshTokenDigest(tokens.refreshToken);
+
+    const rotated = await this.usersService.rotateRefreshTokenAtomic(
+      user.id,
+      user.refreshTokenHash,
+      refreshTokenHash,
     );
 
-    await this.usersService.update(user.id, {
-      refreshTokenHash,
-      refreshTokenUpdatedAt: refreshTokenHash ? new Date() : null,
-    });
+    if (!rotated) {
+      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
+    }
 
     return tokens;
+  }
+
+  private async revokeSession(userId: string): Promise<void> {
+    await this.usersService.update(userId, {
+      refreshTokenHash: null,
+      refreshTokenUpdatedAt: null,
+    });
   }
 }

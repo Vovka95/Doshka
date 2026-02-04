@@ -43,6 +43,19 @@ export class UsersService {
     await this.userRepository.update(userId, data);
   }
 
+  async rotateRefreshTokenAtomic(
+    userId: string,
+    oldTokenHash: string,
+    newTokenHash: string,
+  ): Promise<boolean> {
+    const res = await this.userRepository.update(
+      { id: userId, refreshTokenHash: oldTokenHash },
+      { refreshTokenHash: newTokenHash, refreshTokenUpdatedAt: new Date() },
+    );
+
+    return !!res.affected;
+  }
+
   mapToUserResponse(user: User): UserResponseDto {
     const { id, email, firstName, lastName, avatarUrl } = user;
     return { id, email, firstName, lastName, avatarUrl };

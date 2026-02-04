@@ -34,9 +34,10 @@ services:
         environment:
             DATABASE_HOST: ${DATABASE_HOST}
             DATABASE_PORT: ${DATABASE_PORT}
-            DATABASE_USER: ${DATABASE_USERNAME}
+            DATABASE_USERNAME: ${DATABASE_USERNAME}
             DATABASE_PASSWORD: ${DATABASE_PASSWORD}
             DATABASE_NAME: ${DATABASE_NAME}
+            DATABASE_SYNCHRONIZE: ${DATABASE_SYNCHRONIZE}
         volumes:
             - ../webApi:/app
             - /app/node_modules
@@ -54,7 +55,7 @@ services:
             POSTGRES_USER: ${DATABASE_USERNAME}
             POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
         ports:
-            - "${DATABASE_PORT}:${DATABASE_PORT}"
+            - "${DATABASE_PORT}:5432"
         volumes:
             - db_data:/var/lib/postgresql/data
 
