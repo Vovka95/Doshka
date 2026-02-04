@@ -10,6 +10,7 @@ import { User } from '../users/entity/user.entity';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { RefreshTokenPayload } from './interfaces/jwt-payload.interface';
 
 import type { AuthResult } from './types/auth-result.type';
@@ -27,13 +28,17 @@ import {
   AUTH_ERROR,
   AUTH_MESSAGE,
   AUTH_PASSWORD,
+  AUTH_RESET_PASSWORD,
 } from './constants';
 
 import {
-  generateEmailConfirmToken,
   generateJwtTokens,
-  hashEmailToken,
+  generateOneTimeToken,
+  hashOneTimeToken,
+  refreshTokenDigest,
+  refreshTokenDigestMatches,
 } from './utils';
+import { isResendCooldownPassed } from 'src/common/utils';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +59,10 @@ export class AuthService {
 
     if (
       existingUser?.emailConfirmSentAt &&
-      !this.isResendCooldownPassed(existingUser?.emailConfirmSentAt)
+      !isResendCooldownPassed(
+        existingUser?.emailConfirmSentAt,
+        AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
+      )
     ) {
       return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
     }
@@ -68,7 +76,7 @@ export class AuthService {
       token: emailConfirmToken,
       tokenHash: emailConfirmTokenHash,
       expiresAt: emailConfirmTokenExpiresAt,
-    } = generateEmailConfirmToken();
+    } = generateOneTimeToken(AUTH_CONFIRM.TTL_HOURS);
 
     const emailConfirmSentAt = new Date();
 
@@ -125,40 +133,43 @@ export class AuthService {
       throwUnauthorizedException(AUTH_ERROR.EMAIL_NOT_CONFIRMED);
     }
 
-    const tokens = await this.generateAndStoreTokens(user);
+    const tokens = await this.issueTokens(user.id);
 
     return { ...tokens, user: this.usersService.mapToUserResponse(user) };
   }
 
-  async logout(userId: string) {
-    return this.usersService.updateRefreshToken(userId, null);
+  async logout(userId: string): Promise<void> {
+    this.revokeSession(userId);
   }
 
   async refreshTokens(refreshToken: string): Promise<AuthTokens> {
     let payload: RefreshTokenPayload;
 
     try {
-      payload = await this.jwtService.verifyAsync(refreshToken, {
-        secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
-      });
+      payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+        refreshToken,
+        {
+          secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
+        },
+      );
     } catch (error) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
     const user = await this.usersService.findById(payload.sub);
-    if (!user || !user.hashedRefreshToken || !user.isEmailConfirmed) {
+    if (!user || !user.refreshTokenHash || !user.isEmailConfirmed) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    const isRefreshTokenValid = await bcrypt.compare(
+    const isRefreshTokenValid = refreshTokenDigestMatches(
       refreshToken,
-      user.hashedRefreshToken,
+      user.refreshTokenHash,
     );
     if (!isRefreshTokenValid) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    const tokens = await this.generateAndStoreTokens(user);
+    const tokens = await this.rotateRefreshToken(user);
 
     return tokens;
   }
@@ -168,7 +179,7 @@ export class AuthService {
       throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
     }
 
-    const tokenHash = hashEmailToken(token);
+    const tokenHash = hashOneTimeToken(token);
     const user = await this.usersService.findByEmailConfirmTokenHash(tokenHash);
 
     if (!user) {
@@ -202,7 +213,10 @@ export class AuthService {
 
     if (
       user?.emailConfirmSentAt &&
-      !this.isResendCooldownPassed(user?.emailConfirmSentAt)
+      !isResendCooldownPassed(
+        user?.emailConfirmSentAt,
+        AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
+      )
     ) {
       return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
     }
@@ -211,7 +225,7 @@ export class AuthService {
       token: emailConfirmToken,
       tokenHash: emailConfirmTokenHash,
       expiresAt: emailConfirmTokenExpiresAt,
-    } = generateEmailConfirmToken();
+    } = generateOneTimeToken(AUTH_CONFIRM.TTL_HOURS);
 
     const emailConfirmSentAt = new Date();
 
@@ -230,6 +244,84 @@ export class AuthService {
     return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
   }
 
+  async forgotPassword(emailRaw: string): Promise<MessageResult> {
+    const email = emailRaw.trim().toLowerCase();
+
+    const user = await this.usersService.findByEmail(email);
+    if (!user) {
+      return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
+    }
+
+    if (
+      user?.passwordResetSentAt &&
+      !isResendCooldownPassed(
+        user?.passwordResetSentAt,
+        AUTH_RESET_PASSWORD.RESEND_COOLDOWN_SECONDS,
+      )
+    ) {
+      return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
+    }
+
+    const {
+      token: passwordResetToken,
+      tokenHash: passwordResetTokenHash,
+      expiresAt: passwordResetTokenExpiresAt,
+    } = generateOneTimeToken(AUTH_RESET_PASSWORD.TTL_HOURS);
+
+    const passwordResetSentAt = new Date();
+
+    await this.usersService.update(user.id, {
+      passwordResetTokenHash,
+      passwordResetTokenExpiresAt,
+      passwordResetSentAt,
+    });
+
+    await this.emailService.sendResetPasswordEmail(
+      email,
+      passwordResetToken,
+      user.firstName,
+    );
+
+    return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
+  }
+
+  async resetPassword(dto: ResetPasswordDto): Promise<MessageResult> {
+    if (!dto.token) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    const tokenHash = hashOneTimeToken(dto.token);
+    const user =
+      await this.usersService.findByPasswordResetTokenHash(tokenHash);
+
+    if (!user) {
+      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
+    }
+
+    if (
+      !user?.passwordResetTokenExpiresAt ||
+      user.passwordResetTokenExpiresAt < new Date()
+    ) {
+      throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      dto.password,
+      AUTH_PASSWORD.HASH_ROUNDS,
+    );
+
+    await this.usersService.update(user.id, {
+      password: hashedPassword,
+      passwordResetTokenHash: null,
+      passwordResetTokenExpiresAt: null,
+      passwordResetSentAt: null,
+      refreshTokenHash: null,
+      refreshTokenUpdatedAt: null,
+    });
+
+    return { message: AUTH_MESSAGE.PASSWORD_RESET_SUCCESS };
+  }
+
   async getMe(userId: string): Promise<UserResponseDto> {
     const foundUser = await this.usersService.findById(userId);
 
@@ -240,23 +332,51 @@ export class AuthService {
     return this.usersService.mapToUserResponse(foundUser);
   }
 
-  private isResendCooldownPassed(sentAt: Date): boolean {
-    const diffMs = Date.now() - sentAt.getTime();
-    return diffMs > AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS * 1000;
+  private async issueTokens(userId: string): Promise<AuthTokens> {
+    const tokens = await generateJwtTokens(
+      this.jwtService,
+      this.configService,
+      { sub: userId },
+    );
+    const refreshTokenHash = refreshTokenDigest(tokens.refreshToken);
+
+    await this.usersService.update(userId, {
+      refreshTokenHash,
+      refreshTokenUpdatedAt: new Date(),
+    });
+
+    return tokens;
   }
 
-  private async generateAndStoreTokens(user: User): Promise<AuthTokens> {
+  private async rotateRefreshToken(user: User): Promise<AuthTokens> {
+    if (!user.refreshTokenHash) {
+      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
+    }
+
     const tokens = await generateJwtTokens(
       this.jwtService,
       this.configService,
       { sub: user.id },
     );
-    const hashedRefreshToken = await bcrypt.hash(
-      tokens.refreshToken,
-      AUTH_PASSWORD.HASH_ROUNDS,
+    const refreshTokenHash = refreshTokenDigest(tokens.refreshToken);
+
+    const rotated = await this.usersService.rotateRefreshTokenAtomic(
+      user.id,
+      user.refreshTokenHash,
+      refreshTokenHash,
     );
-    await this.usersService.updateRefreshToken(user.id, hashedRefreshToken);
+
+    if (!rotated) {
+      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
+    }
 
     return tokens;
+  }
+
+  private async revokeSession(userId: string): Promise<void> {
+    await this.usersService.update(userId, {
+      refreshTokenHash: null,
+      refreshTokenUpdatedAt: null,
+    });
   }
 }

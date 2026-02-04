@@ -28,23 +28,32 @@ export class UsersService {
     });
   }
 
+  async findByPasswordResetTokenHash(hash: string): Promise<User | null> {
+    return this.userRepository.findOne({
+      where: { passwordResetTokenHash: hash },
+    });
+  }
+
   async createUser(data: Partial<User>): Promise<User> {
     const user = this.userRepository.create(data);
     return this.userRepository.save(user);
   }
 
-  async updateRefreshToken(
-    userId: string,
-    hashedToken: string | null,
-  ): Promise<void> {
-    await this.update(userId, {
-      hashedRefreshToken: hashedToken,
-      refreshTokenUpdatedAt: hashedToken ? new Date() : null,
-    });
-  }
-
   async update(userId: string, data: Partial<User>): Promise<void> {
     await this.userRepository.update(userId, data);
+  }
+
+  async rotateRefreshTokenAtomic(
+    userId: string,
+    oldTokenHash: string,
+    newTokenHash: string,
+  ): Promise<boolean> {
+    const res = await this.userRepository.update(
+      { id: userId, refreshTokenHash: oldTokenHash },
+      { refreshTokenHash: newTokenHash, refreshTokenUpdatedAt: new Date() },
+    );
+
+    return !!res.affected;
   }
 
   mapToUserResponse(user: User): UserResponseDto {

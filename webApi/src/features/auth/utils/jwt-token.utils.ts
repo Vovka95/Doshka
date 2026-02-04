@@ -1,5 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { randomUUID } from 'crypto';
 
 import {
   AccessTokenPayload,
@@ -13,16 +14,27 @@ export const generateJwtTokens = async (
   configService: ConfigService,
   payload: AccessTokenPayload,
 ): Promise<AuthTokens> => {
+  const accessTokenSecret = configService.get<string>('JWT_SECRET');
+  const accessTokenExpiresIn = configService.get<ExpiresIn>('JWT_EXPIRES_IN');
+
+  const refreshTokenSecret = configService.get<string>('JWT_REFRESH_SECRET');
+  const refreshTokenExpiresIn = configService.get<ExpiresIn>(
+    'JWT_REFRESH_EXPIRES_IN',
+  );
+
   const accessToken = await jwtService.signAsync(payload, {
-    secret: configService.get<string>('JWT_SECRET'),
-    expiresIn: configService.get<ExpiresIn>('JWT_EXPIRES_IN'),
+    secret: accessTokenSecret,
+    expiresIn: accessTokenExpiresIn,
   });
 
-  const refreshPayload: RefreshTokenPayload = { sub: payload.sub };
+  const refreshPayload: RefreshTokenPayload = {
+    sub: payload.sub,
+  };
 
   const refreshToken = await jwtService.signAsync(refreshPayload, {
-    secret: configService.get<string>('JWT_REFRESH_SECRET'),
-    expiresIn: configService.get<ExpiresIn>('JWT_REFRESH_EXPIRES_IN'),
+    secret: refreshTokenSecret,
+    expiresIn: refreshTokenExpiresIn,
+    jwtid: randomUUID(),
   });
 
   return { accessToken, refreshToken };

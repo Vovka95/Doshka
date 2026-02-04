@@ -23,8 +23,8 @@ export class User {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ type: 'text', nullable: true })
-  hashedRefreshToken?: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  refreshTokenHash?: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
   refreshTokenUpdatedAt: Date | null;
@@ -32,7 +32,7 @@ export class User {
   @Column({ default: false })
   isEmailConfirmed: boolean;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   emailConfirmTokenHash: string | null;
 
   @Column({ type: 'timestamp', nullable: true })
@@ -40,6 +40,15 @@ export class User {
 
   @Column({ type: 'timestamp', nullable: true })
   emailConfirmSentAt: Date | null;
+
+  @Column({ type: 'varchar', nullable: true })
+  passwordResetTokenHash: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetTokenExpiresAt: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  passwordResetSentAt: Date | null;
 
   @Column({ nullable: true })
   avatarUrl: string;
