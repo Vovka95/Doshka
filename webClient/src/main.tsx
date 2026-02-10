@@ -3,6 +3,8 @@ import { createRoot } from "react-dom/client";
 
 import { AppProviders } from "@/app/providers/AppProviders";
 
+import "@/app/styles/globals.css";
+
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <AppProviders>
