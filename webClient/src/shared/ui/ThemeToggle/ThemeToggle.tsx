@@ -1,4 +1,6 @@
-import { useThemeStore, type ThemeMode } from "@/shared/lib/theme/themeStore";
+import { cn } from "@/shared/lib/cn";
+import type { ThemeMode } from "@/shared/lib/theme/theme";
+import { useThemeStore } from "@/shared/lib/theme/useThemeStore";
 
 const options: { value: ThemeMode; label: string }[] = [
     { value: "light", label: "Light" },
@@ -19,12 +21,12 @@ export const ThemeToggle = () => {
                         key={o.value}
                         type="button"
                         onClick={() => setMode(o.value)}
-                        className={[
+                        className={cn([
                             "h-8 rounded px-3 text-sm transition",
                             active
                                 ? "bg-muted text-fg"
                                 : "text-muted-fg hover:bg-muted/60",
-                        ].join(" ")}
+                        ])}
                     >
                         {o.label}
                     </button>

@@ -1,25 +1,24 @@
 import { useEffect, type PropsWithChildren } from "react";
 
-import { useThemeStore } from "@/shared/lib/theme/themeStore";
+import { useThemeStore } from "@/shared/lib/theme/useThemeStore";
 
 export const ThemeProvider = ({ children }: PropsWithChildren) => {
+    const hydrate = useThemeStore((s) => s.hydrate);
+    const syncWithSystem = useThemeStore((s) => s.syncWithSystem);
+
     useEffect(() => {
-        useThemeStore.getState().apply();
+        hydrate();
 
         const mql = window.matchMedia("(prefers-color-scheme: dark)");
 
-        const onChange = () => {
-            if (useThemeStore.getState().mode === "system") {
-                useThemeStore.getState().apply();
-            }
-        };
+        const onChange = () => syncWithSystem();
 
         mql.addEventListener("change", onChange);
 
         return () => {
             mql.removeEventListener("change", onChange);
         };
-    }, []);
+    }, [hydrate, syncWithSystem]);
 
     return <>{children}</>;
 };
