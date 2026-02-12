@@ -1,13 +1,5 @@
 import { api } from "@/shared/api/http/api";
-
-export type RefreshResponse = {
-    accessToken: string;
-    refreshToken: string;
-};
-
-export type RefreshDto = {
-    refreshToken: string;
-};
+import type { RefreshDto, RefreshResponse } from "../model/types";
 
 export const authApi = {
     refresh: async (dto?: RefreshDto) => {

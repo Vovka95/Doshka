@@ -1,6 +1,7 @@
-import { cn } from "@/shared/lib/cn";
 import type { ThemeMode } from "@/shared/lib/theme/theme";
 import { useThemeStore } from "@/shared/lib/theme/useThemeStore";
+
+import { cn } from "@/shared/lib/cn";
 
 const options: { value: ThemeMode; label: string }[] = [
     { value: "light", label: "Light" },

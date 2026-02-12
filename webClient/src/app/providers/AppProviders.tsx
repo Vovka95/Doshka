@@ -1,17 +1,17 @@
-import { type PropsWithChildren } from "react";
+import { RouterProvider } from "react-router-dom";
 
 import { ThemeProvider } from "./ThemeProvider";
 import { QueryProvider } from "./QueryProvider";
 import { AuthBootstrap } from "./AuthBootstrap";
-import { ThemeToggle } from "@/shared/ui/ThemeToggle";
 
-export const AppProviders = ({ children }: PropsWithChildren) => {
+import { router } from "../router/router";
+
+export const AppProviders = () => {
     return (
         <QueryProvider>
             <AuthBootstrap>
                 <ThemeProvider>
-                    {children}
-                    <ThemeToggle />
+                    <RouterProvider router={router} />
                 </ThemeProvider>
             </AuthBootstrap>
         </QueryProvider>

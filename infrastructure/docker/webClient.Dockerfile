@@ -2,7 +2,7 @@ FROM node:20-alpine AS development
 
 WORKDIR /app
 
-COPY ../../webClient/package.json ./
+COPY ../../webClient/package.json ../../webClient/package-lock.json ./
 
 RUN npm install
 
