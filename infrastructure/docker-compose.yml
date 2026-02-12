@@ -13,7 +13,7 @@ services:
         ports:
             - "${FRONTEND_PORT}:${FRONTEND_PORT}"
         environment:
-            VITE_API_URL: http://doshka_web_api:${BACKEND_PORT}
+            VITE_API_URL: http://localhost:${BACKEND_PORT}
         volumes:
             - ../webClient:/app
             - webclient_node_modules:/app/node_modules
