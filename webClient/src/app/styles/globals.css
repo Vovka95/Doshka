@@ -1,0 +1,92 @@
+@import "tailwindcss";
+
+@theme inline {
+    --color-bg: var(--color-bg);
+    --color-fg: var(--color-fg);
+    --color-card: var(--color-card);
+    --color-card-fg: var(--color-card-fg);
+    --color-muted: var(--color-muted);
+    --color-muted-fg: var(--color-muted-fg);
+    --color-border: var(--color-border);
+    --color-primary: var(--color-primary);
+    --color-primary-fg: var(--color-primary-fg);
+    --color-danger: var(--color-danger);
+    --color-danger-fg: var(--color-danger-fg);
+
+    --color-ring: var(--color-ring);
+    --color-hover: var(--color-hover);
+    --color-selected: var(--color-selected);
+}
+
+:root {
+    --color-bg: hsl(210 40% 98%);
+    --color-fg: hsl(222 47% 11%);
+
+    --color-card: hsl(0 0% 100%);
+    --color-card-fg: hsl(222 47% 11%);
+
+    --color-muted: hsl(210 40% 96%);
+    --color-muted-fg: hsl(215 16% 47%);
+
+    --color-border: hsl(214 32% 91%);
+
+    --color-primary: hsl(222 47% 11%);
+    --color-primary-fg: hsl(210 40% 98%);
+
+    --color-danger: hsl(0 84% 60%);
+    --color-danger-fg: hsl(0 0% 100%);
+
+    --color-ring: hsl(222 47% 11% / 0.15);
+    --color-hover: hsl(210 40% 96%);
+    --color-selected: hsl(222 47% 11% / 0.06);
+
+    --radius-sm: 8px;
+    --radius-md: 10px;
+    --radius-lg: 12px;
+
+    --font-sans: ui-sans-serif, system-ui, Inter, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+:root.dark {
+    --color-bg: hsl(222 47% 7%);
+    --color-fg: hsl(210 40% 98%);
+
+    --color-card: hsl(222 47% 9%);
+    --color-card-fg: hsl(210 40% 98%);
+
+    --color-muted: hsl(217 33% 17%);
+    --color-muted-fg: hsl(215 20% 70%);
+
+    --color-border: hsl(217 33% 18%);
+
+    --color-primary: hsl(210 40% 98%);
+    --color-primary-fg: hsl(222 47% 11%);
+
+    --color-danger: hsl(0 63% 31%);
+    --color-danger-fg: hsl(210 40% 98%);
+
+    --color-ring: hsl(210 40% 98% / 0.25);
+    --color-hover: hsl(217 33% 19%);
+    --color-selected: hsl(217 33% 22%);
+}
+
+@layer base {
+    html,
+    body,
+    #root {
+        height: 100%;
+    }
+
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-fg);
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    * {
+        border-color: var(--color-border);
+    }
+}
