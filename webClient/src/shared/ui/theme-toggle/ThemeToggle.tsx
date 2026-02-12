@@ -1,5 +1,5 @@
 import type { ThemeMode } from "@/shared/lib/theme/theme";
-import { useThemeStore } from "@/shared/lib/theme/useThemeStore";
+import { useThemeStore } from "@/shared/store/theme/useThemeStore";
 
 import { cn } from "@/shared/lib/cn";
 

@@ -1,6 +1,6 @@
 import { useEffect, type PropsWithChildren } from "react";
 
-import { useThemeStore } from "@/shared/lib/theme/useThemeStore";
+import { useThemeStore } from "@/shared/store/theme/useThemeStore";
 
 export const ThemeProvider = ({ children }: PropsWithChildren) => {
     const hydrate = useThemeStore((s) => s.hydrate);
