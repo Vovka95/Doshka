@@ -2,8 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 
 import { AuthGuard } from "./guards/AuthGuard";
 import { GuestGuard } from "./guards/GuestGuard";
-import { AppLayout } from "../layout/AppLayout";
-import { AuthLayout } from "../layout/AuthLayout";
+import { AppLayout } from "@/widgets/layout/AppLayout";
+import { AuthLayout } from "@/widgets/layout/AuthLayout";
 
 const InboxPage = () => <div className="text-sm">Inbox</div>;
 const MyIssuesPage = () => <div className="text-sm">My issues</div>;
