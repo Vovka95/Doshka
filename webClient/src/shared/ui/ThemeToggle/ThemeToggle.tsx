@@ -1,3 +1,5 @@
+import { Button } from "../Button";
+
 import type { ThemeMode } from "@/shared/lib/theme/theme";
 import { useThemeStore } from "@/shared/store/theme/useThemeStore";
 
@@ -14,23 +16,29 @@ export const ThemeToggle = () => {
     const setMode = useThemeStore((s) => s.setMode);
 
     return (
-        <div className="inline-flex rounded-sm border border-border p-1">
+        <div
+            role="radiogroup"
+            aria-label="Theme"
+            className="inline-flex rounded-sm border border-border p-1 gap-1"
+        >
             {options.map((o) => {
                 const active = mode === o.value;
                 return (
-                    <button
+                    <Button
                         key={o.value}
                         type="button"
-                        onClick={() => setMode(o.value)}
+                        role="radio"
+                        variant="ghost"
+                        aria-checked={active}
                         className={cn([
-                            "h-8 rounded px-3 text-sm transition",
                             active
-                                ? "bg-muted text-fg"
-                                : "text-muted-fg hover:bg-muted/60",
+                                ? "bg-selected text-fg font-medium"
+                                : "text-muted-fg",
                         ])}
+                        onClick={() => setMode(o.value)}
                     >
                         {o.label}
-                    </button>
+                    </Button>
                 );
             })}
         </div>

@@ -3,7 +3,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { routes } from "@/app/config/routes";
 import { useMeQuery } from "@/entities/user/queries/useMeQuery";
 
-import { FullPageLoader } from "@/shared/ui/full-page-loader";
+import { FullPageLoader } from "@/shared/ui/FullPageLoader";
 
 export const GuestGuard = () => {
     const location = useLocation();
