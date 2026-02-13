@@ -14,7 +14,7 @@ export const ThemeToggle = () => {
     const setMode = useThemeStore((s) => s.setMode);
 
     return (
-        <div className="inline-flex rounded-md border border-border bg-card p-1">
+        <div className="inline-flex rounded-sm border border-border p-1">
             {options.map((o) => {
                 const active = mode === o.value;
                 return (
