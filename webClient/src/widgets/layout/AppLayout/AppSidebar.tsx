@@ -1,10 +1,16 @@
-import { NavLink } from "react-router-dom";
+import {
+    BookmarkCheckIcon,
+    BoxIcon,
+    FormIcon,
+    InboxIcon,
+    ListTodoIcon,
+} from "lucide-react";
 
 import { routes } from "@/app/config/routes";
 
-const linkBase =
-    "flex items-center gap-2 rounded-sm px-3 py-2 text-sm transition hover:bg-hover";
-const linkActive = "bg-selected";
+import { StyledNavLink } from "@/shared/ui/navigation";
+
+const navLinkIconSize = 20;
 
 export const AppSidebar = () => {
     return (
@@ -15,50 +21,40 @@ export const AppSidebar = () => {
             </div>
 
             <nav className="px-2 pb-4">
-                <NavLink
+                <StyledNavLink
                     to={routes.inbox()}
-                    className={({ isActive }) =>
-                        `${linkBase} ${isActive ? linkActive : ""}`
-                    }
+                    icon={<InboxIcon size={navLinkIconSize} />}
                 >
                     Inbox
-                </NavLink>
-                <NavLink
+                </StyledNavLink>
+                <StyledNavLink
                     to={routes.myIssues()}
-                    className={({ isActive }) =>
-                        `${linkBase} ${isActive ? linkActive : ""}`
-                    }
+                    icon={<BookmarkCheckIcon size={navLinkIconSize} />}
                 >
                     My issues
-                </NavLink>
+                </StyledNavLink>
 
-                <div className="mt-4 px-3 text-xs font-medium text-muted-fg">
+                <div className="mt-4 px-3 text-sm font-medium text-muted-fg">
                     Workspace
                 </div>
-                <NavLink
+                <StyledNavLink
                     to={routes.projects()}
-                    className={({ isActive }) =>
-                        `${linkBase} ${isActive ? linkActive : ""}`
-                    }
+                    icon={<BoxIcon size={navLinkIconSize} />}
                 >
                     Projects
-                </NavLink>
-                <NavLink
+                </StyledNavLink>
+                <StyledNavLink
                     to={routes.issues()}
-                    className={({ isActive }) =>
-                        `${linkBase} ${isActive ? linkActive : ""}`
-                    }
+                    icon={<ListTodoIcon size={navLinkIconSize} />}
                 >
                     Issues
-                </NavLink>
-                <NavLink
+                </StyledNavLink>
+                <StyledNavLink
                     to={routes.wiki()}
-                    className={({ isActive }) =>
-                        `${linkBase} ${isActive ? linkActive : ""}`
-                    }
+                    icon={<FormIcon size={navLinkIconSize} />}
                 >
                     Wiki
-                </NavLink>
+                </StyledNavLink>
             </nav>
         </aside>
     );
