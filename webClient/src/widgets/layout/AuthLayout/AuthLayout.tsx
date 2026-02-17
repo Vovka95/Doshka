@@ -1,8 +1,12 @@
 import { Outlet } from "react-router-dom";
 
+import { ToastViewport } from "@/shared/ui/Toast";
+
 export const AuthLayout = () => {
     return (
         <div className="min-h-dvh bg-bg text-fg">
+            <ToastViewport />
+
             <div className="mx-auto flex min-h-dvh max-w-md flex-col justify-center px-4">
                 <Outlet />
 

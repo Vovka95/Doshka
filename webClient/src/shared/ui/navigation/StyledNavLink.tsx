@@ -28,7 +28,6 @@ export const StyledNavLink = ({
                     variantStyles[variant],
                     isActive && activeStyles[variant],
                     isPending && "opacity-70",
-                    collapsed && "justify-center",
                     typeof className === "function"
                         ? className({
                               isActive,
@@ -52,16 +51,24 @@ export const StyledNavLink = ({
                         </span>
                     )}
 
-                    {!collapsed && (
-                        <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                            <span className="truncate">{children}</span>
-                            {badge && (
-                                <span className="ml-2 shrink-0 text-xs text-muted-fg">
-                                    {badge}
-                                </span>
+                    <span
+                        className={cn(
+                            "flex min-w-0 flex-1 items-center justify-between gap-2",
+                            collapsed &&
+                                "w-0 flex-none overflow-hidden opacity-0",
+                        )}
+                        aria-hidden={collapsed || undefined}
+                    >
+                        <span className="truncate">{children}</span>
+                        <span
+                            className={cn(
+                                "ml-2 shrink-0 text-xs text-muted-fg",
+                                badge == null && "hidden",
                             )}
+                        >
+                            {badge}
                         </span>
-                    )}
+                    </span>
                 </>
             )}
         </NavLink>
