@@ -1,9 +1,9 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 import { routes } from "@/app/config/routes";
-import { useMeQuery } from "@/entities/user/queries/useMeQuery";
+import { useMeQuery } from "@/features/auth/model/hooks/useMeQuery";
 
-import { FullPageLoader } from "@/shared/ui/FullPageLoader";
+import { FullPageLoader } from "@/shared/ui";
 
 export const AuthGuard = () => {
     const location = useLocation();

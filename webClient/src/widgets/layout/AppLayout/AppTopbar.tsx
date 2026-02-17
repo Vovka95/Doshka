@@ -1,5 +1,5 @@
-import { ThemeToggle } from "@/shared/ui/ThemeToggle";
-import { SidebarToggle } from "./SidebarToggle";
+import { ThemeToggle } from "@/shared/ui";
+import { SidebarToggle } from "./SideBarToggle";
 
 export const AppTopbar = () => {
     return (

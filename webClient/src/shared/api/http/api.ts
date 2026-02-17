@@ -1,7 +1,9 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+
 import { httpConfig } from "./httpConfig";
-import { accessTokenStore } from "../auth/accessTokenStore";
-import { refreshManager } from "../auth/refreshManager";
+
+import { accessTokenStore } from "@/features/auth/model/store/accessTokenStore";
+import { refreshManager } from "@/features/auth/lib/refreshManager";
 
 export const api = axios.create({
     baseURL: httpConfig.baseUrl,

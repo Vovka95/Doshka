@@ -8,7 +8,8 @@ import {
 
 import { routes } from "@/app/config/routes";
 
-import { StyledNavLink } from "@/shared/ui/Navigation";
+import { StyledNavLink } from "@/shared/ui";
+
 import { cn } from "@/shared/lib/cn";
 
 const navLinkIconSize = 20;

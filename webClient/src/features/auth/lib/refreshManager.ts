@@ -1,6 +1,6 @@
-import { authApi } from "@/features/auth/api/auth.api";
-import { accessTokenStore } from "./accessTokenStore";
-import { refreshTokenStorage } from "./refreshTokenStorage";
+import { authApi } from "@/features/auth/api/authApi";
+import { accessTokenStore } from "../../../features/auth/model/store/accessTokenStore";
+import { refreshTokenStorage } from "../../../features/auth/lib/refreshTokenStorage";
 
 let refreshPromise: Promise<string> | null = null;
 
