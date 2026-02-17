@@ -2,7 +2,8 @@ import { RouterProvider } from "react-router-dom";
 
 import { ThemeProvider } from "./ThemeProvider";
 import { QueryProvider } from "./QueryProvider";
-import { AuthBootstrap } from "./AuthBootstrap";
+
+import { AuthBootstrap } from "@/features/auth/ui";
 
 import { router } from "../router/router";
 

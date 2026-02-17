@@ -4,8 +4,8 @@ import {
     resolveTheme,
     type ResolvedThemeMode,
     type ThemeMode,
-} from "../../lib/theme/theme";
-import { themeStorage } from "../../lib/theme/themeStorage";
+} from "./theme";
+import { themeStorage } from "./themeStorage";
 
 type ThemeState = {
     mode: ThemeMode;

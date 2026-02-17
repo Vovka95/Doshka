@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
 
-import { ToastViewport } from "@/shared/ui/Toast";
+import { ToastViewport } from "@/shared/ui";
 
 export const AuthLayout = () => {
     return (

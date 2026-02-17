@@ -1,6 +1,6 @@
 import { Button } from "../Button";
 
-import type { ThemeMode } from "@/shared/lib/theme/theme";
+import type { ThemeMode } from "@/shared/store/theme/theme";
 import { useThemeStore } from "@/shared/store/theme/useThemeStore";
 
 import { cn } from "@/shared/lib/cn";

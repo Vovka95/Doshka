@@ -3,7 +3,7 @@ import { MenuIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
 import { IconButton } from "@/shared/ui/IconButton";
 
 import { useUIStore } from "@/shared/store/ui";
-import { useIsMobile } from "@/shared/lib/hooks/useIsMobile";
+import { useIsMobile } from "@/shared/lib/hooks/media-query";
 
 export const SidebarToggle = () => {
     const isMobile = useIsMobile();

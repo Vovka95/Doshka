@@ -1,8 +1,9 @@
 export const routes = {
-    login: () => "/login",
-    signup: () => "/signup",
+    login: () => "auth/login",
+    signup: () => "auth/signup",
+    app: () => "/",
     inbox: () => "/inbox",
-    myIssues: () => "/",
+    myIssues: () => "/my-issues",
     projects: () => "projects",
     issues: () => "/issues",
     wiki: () => "/wiki",

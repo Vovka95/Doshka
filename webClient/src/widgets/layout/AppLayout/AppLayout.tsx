@@ -2,11 +2,12 @@ import { Outlet } from "react-router-dom";
 
 import { AppSidebar } from "./AppSidebar";
 import { AppTopbar } from "./AppTopbar";
-import { ToastViewport } from "@/shared/ui/Toast";
-import { ModalHost } from "@/shared/ui/Modal";
+
+import { ToastViewport } from "@/shared/ui";
+import { ModalHost } from "@/shared/ui";
 
 import { useUIStore } from "@/shared/store/ui";
-import { useIsMobile } from "@/shared/lib/hooks/useIsMobile";
+import { useIsMobile } from "@/shared/lib/hooks/media-query";
 import { cn } from "@/shared/lib/cn";
 
 export const AppLayout = () => {
