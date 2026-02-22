@@ -3,8 +3,9 @@ import { Navigate, type RouteObject } from "react-router-dom";
 import { GuestGuard } from "@/features/auth/ui";
 import { AuthLayout } from "@/widgets/layout";
 
+import { SignupPage } from "@/pages/auth";
+
 const LoginPage = () => <div className="text-sm">Login form here</div>;
-const SignupPage = () => <div className="text-sm">Signup form here</div>;
 
 export const authRoutes: RouteObject[] = [
     {

@@ -1,6 +1,6 @@
 export const routes = {
-    login: () => "auth/login",
-    signup: () => "auth/signup",
+    login: () => "/auth/login",
+    signup: () => "/auth/signup",
     app: () => "/",
     inbox: () => "/inbox",
     myIssues: () => "/my-issues",
