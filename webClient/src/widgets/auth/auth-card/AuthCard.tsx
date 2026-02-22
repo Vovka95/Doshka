@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import { cn } from "@/shared/lib/cn";
 import {
     Card,
@@ -7,7 +9,6 @@ import {
     CardHeader,
     CardTitle,
 } from "@/shared/ui";
-import type { ReactNode } from "react";
 
 export type AuthCardProps = {
     title?: string;
@@ -26,7 +27,7 @@ export const AuthCard = ({
 }: AuthCardProps) => {
     return (
         <Card className={cn("w-full max-w-md", className)}>
-            <CardHeader className="flex flex-col items-center">
+            <CardHeader className="items-center">
                 {title && <CardTitle>{title}</CardTitle>}
                 {description && (
                     <CardDescription>{description}</CardDescription>

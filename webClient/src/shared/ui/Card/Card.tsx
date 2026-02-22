@@ -61,10 +61,7 @@ export const CardFooter = ({
 }: HTMLAttributes<HTMLDivElement>) => {
     return (
         <div
-            className={cn(
-                "px-6 pb-6 pt-0 flex items-center justify-between gap-3",
-                className,
-            )}
+            className={cn("px-6 pb-6 pt-0 flex items-center gap-3", className)}
             {...props}
         />
     );
