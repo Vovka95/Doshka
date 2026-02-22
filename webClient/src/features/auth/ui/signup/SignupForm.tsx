@@ -61,7 +61,11 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
     };
 
     return (
-        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <form
+            className="grid gap-4"
+            autoComplete="on"
+            onSubmit={handleSubmit(onSubmit)}
+        >
             <FormField
                 label="First name"
                 htmlFor="firstName"
@@ -99,6 +103,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                 <Input
                     id="email"
                     type="email"
+                    autoComplete="email"
                     placeholder="test@test.com"
                     {...register("email")}
                     hasError={!!errors.email}
@@ -114,6 +119,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                 <Input
                     id="password"
                     type="password"
+                    autoComplete="new-password"
                     placeholder="••••••••"
                     {...register("password")}
                     hasError={!!errors.password}
@@ -129,6 +135,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                 <Input
                     id="confirm-password"
                     type="password"
+                    autoComplete="new-password"
                     placeholder="••••••••"
                     {...register("confirmPassword")}
                     hasError={!!errors.confirmPassword}
