@@ -9,7 +9,11 @@ import { useSignupMutation } from "../../model/hooks";
 import { useUIStore } from "@/shared/store/ui";
 import { getApiError } from "@/shared/api/http/apiErrors";
 
-export const SignupForm = () => {
+export type SignupFormProps = {
+    onSuccess: (email: string) => void;
+};
+
+export const SignupForm = ({ onSuccess }: SignupFormProps) => {
     const toast = useUIStore((s) => s.toast);
     const signupMutation = useSignupMutation();
 
@@ -33,6 +37,8 @@ export const SignupForm = () => {
     const onSubmit = async (values: SignupValues) => {
         try {
             const response = await signupMutation.mutateAsync(values);
+
+            onSuccess(values.email);
 
             toast({
                 variant: "success",

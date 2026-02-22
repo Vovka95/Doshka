@@ -1,7 +1,14 @@
 import { api } from "@/shared/api/http/api";
 
-import type { RefreshDto, RefreshResponse, SignupValues, User } from "../model";
-import type { MessageResponse } from "@/shared/model";
+import type {
+    RefreshDto,
+    RefreshResponse,
+    ResendConfirmationDto,
+    ResendConfirmationResponse,
+    SignupValues,
+    SignupResponse,
+    User,
+} from "../model";
 
 export const authApi = {
     me: async () => {
@@ -16,7 +23,15 @@ export const authApi = {
         return data;
     },
     signup: async (dto: SignupValues) => {
-        const { data } = await api.post<MessageResponse>("/auth/signup", dto);
+        const { data } = await api.post<SignupResponse>("/auth/signup", dto);
+
+        return data;
+    },
+    resendConfirmation: async (dto: ResendConfirmationDto) => {
+        const { data } = await api.post<ResendConfirmationResponse>(
+            "/auth/resend-confirmation",
+            dto,
+        );
 
         return data;
     },
