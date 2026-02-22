@@ -7,7 +7,7 @@ import { signupSchema, type SignupValues } from "../../model";
 import { useSignupMutation } from "../../model/hooks";
 
 import { useUIStore } from "@/shared/store/ui";
-import { getApiError } from "@/shared/api/http/apiErrors";
+import { normalizeApiError } from "@/shared/api/http/errror";
 
 export type SignupFormProps = {
     onSuccess: (email: string) => void;
@@ -46,17 +46,15 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                 message: response.message,
             });
         } catch (error) {
-            const apiError = getApiError(error);
+            const apiError = normalizeApiError(error);
 
-            if (apiError) {
-                toast({
-                    variant: "error",
-                    title: "Signup failed",
-                    message: apiError.message,
-                });
+            toast({
+                variant: "error",
+                title: "Signup failed",
+                message: apiError.message,
+            });
 
-                setError("root", { type: "server", message: apiError.message });
-            }
+            setError("root", { type: "server", message: apiError.message });
         }
     };
 

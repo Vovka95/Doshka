@@ -2,7 +2,7 @@ import { Button } from "@/shared/ui";
 import { useResendConfirmationMutation } from "../../model";
 import { useCooldown } from "@/shared/lib/hooks/cooldown";
 import { useUIStore } from "@/shared/store/ui";
-import { getApiError } from "@/shared/api/http/apiErrors";
+import { normalizeApiError } from "@/shared/api/http/errror";
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -33,15 +33,13 @@ export const ResendConfirmationEmail = ({
                 message: response.message,
             });
         } catch (error) {
-            const apiError = getApiError(error);
+            const apiError = normalizeApiError(error);
 
-            if (apiError) {
-                toast({
-                    variant: "error",
-                    title: "Failed to resend email",
-                    message: apiError.message,
-                });
-            }
+            toast({
+                variant: "error",
+                title: "Failed to resend email",
+                message: apiError.message,
+            });
         }
     };
 
