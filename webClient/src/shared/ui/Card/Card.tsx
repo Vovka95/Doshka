@@ -21,7 +21,12 @@ export const CardHeader = ({
     className,
     ...props
 }: HTMLAttributes<HTMLDivElement>) => {
-    return <div className={cn("px-6 pt-6 pb-3", className)} {...props} />;
+    return (
+        <div
+            className={cn("flex flex-col px-6 pt-6 pb-3", className)}
+            {...props}
+        />
+    );
 };
 
 export const CardTitle = ({
