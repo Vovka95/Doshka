@@ -1,1 +1,2 @@
-export * from "./authSchemas";
+export * from "./signupSchema";
+export * from "./loginSchema";

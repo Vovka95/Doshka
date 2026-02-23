@@ -13,10 +13,11 @@ const email = z
 
 const password = z
     .string()
+    .min(AUTH_PASSWORD.NOT_EMPTY_LENGTH, AUTH_PASSWORD.MESSAGES.REQUIRED)
     .min(AUTH_PASSWORD.MIN_LENGTH, AUTH_PASSWORD.MESSAGES.MIN_LENGTH)
     .max(AUTH_PASSWORD.MAX_LENGTH, AUTH_PASSWORD.MESSAGES.MAX_LENGTH)
     .regex(AUTH_PASSWORD.REGEX.LOWERCASE, AUTH_PASSWORD.MESSAGES.LOWERCASE)
-    .regex(AUTH_PASSWORD.REGEX.UPPERCASE, AUTH_PASSWORD.MESSAGES.MAX_LENGTH)
+    .regex(AUTH_PASSWORD.REGEX.UPPERCASE, AUTH_PASSWORD.MESSAGES.UPPERCASE)
     .regex(AUTH_PASSWORD.REGEX.NUMBER, AUTH_PASSWORD.MESSAGES.NUMBER)
     .regex(
         AUTH_PASSWORD.REGEX.SPECIAL_CHAR,
@@ -51,7 +52,4 @@ export const signupSchema = z
         }
     });
 
-export const loginSchema = z.object({ email, password });
-
 export type SignupValues = z.infer<typeof signupSchema>;
-export type LoginValues = z.infer<typeof loginSchema>;

@@ -3,14 +3,14 @@ import { z } from "zod";
 export const AUTH_FIRST_NAME = {
     MIN_LENGTH: 1,
     MESSAGES: {
-        REQUIRED: "First name is required.",
+        REQUIRED: "First name is required",
     },
 } as const;
 
 export const AUTH_LAST_NAME = {
     MIN_LENGTH: 1,
     MESSAGES: {
-        REQUIRED: "Last name is required.",
+        REQUIRED: "Last name is required",
     },
 } as const;
 
@@ -21,12 +21,13 @@ export const AUTH_EMAIL = {
     },
 
     MESSAGES: {
-        REQUIRED: "Email is required.",
+        REQUIRED: "Email is required",
         VALID: "Invalid email",
     },
 } as const;
 
 export const AUTH_PASSWORD = {
+    NOT_EMPTY_LENGTH: 1,
     MIN_LENGTH: 6,
     MAX_LENGTH: 64,
 
@@ -38,6 +39,7 @@ export const AUTH_PASSWORD = {
     },
 
     MESSAGES: {
+        REQUIRED: "Password is required",
         MIN_LENGTH: "Password must be at least 6 characters",
         MAX_LENGTH: "Password must be at most 64 characters",
         LOWERCASE: "Password must contain a lowercase letter",
