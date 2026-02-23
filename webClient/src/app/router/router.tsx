@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 
 import { authRoutes, appRoutes, notFoundRoute } from "./routes";
 
@@ -8,6 +8,14 @@ export const router = createBrowserRouter([
     {
         path: "/",
         element: <RootLayout />,
-        children: [...authRoutes, ...appRoutes, notFoundRoute],
+        children: [
+            {
+                index: true,
+                element: <Navigate to="app" replace />,
+            },
+            ...authRoutes,
+            ...appRoutes,
+            notFoundRoute,
+        ],
     },
 ]);
