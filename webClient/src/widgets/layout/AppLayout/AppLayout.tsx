@@ -3,9 +3,6 @@ import { Outlet } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import { AppTopbar } from "./AppTopbar";
 
-import { ToastViewport } from "@/shared/ui";
-import { ModalHost } from "@/shared/ui";
-
 import { useUIStore } from "@/shared/store/ui";
 import { useIsMobile } from "@/shared/lib/hooks/media-query";
 import { cn } from "@/shared/lib/cn";
@@ -23,9 +20,6 @@ export const AppLayout = () => {
             className="min-h-dvh bg-bg text-fg"
             style={{ ["--sidebar-w" as any]: sidebarWidth }}
         >
-            <ToastViewport />
-            <ModalHost />
-
             <div className="grid min-h-dvh p-2 grid-cols-1 lg:grid-cols-[var(--sidebar-w)_1fr] lg:transition-[grid-template-columns] lg:duration-200">
                 {!isMobile && <AppSidebar collapsed={isSidebarCollapsed} />}
                 <div className="flex min-w-0 flex-col">

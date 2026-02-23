@@ -14,18 +14,18 @@ export const appRoutes: RouteObject[] = [
         element: <AuthGuard />,
         children: [
             {
-                path: "/",
+                path: "app",
                 element: <AppLayout />,
                 children: [
                     {
                         index: true,
-                        element: <Navigate to="/my-issues" replace />,
+                        element: <Navigate to="my-issues" replace />,
                     },
-                    { path: "/my-issues", element: <MyIssuesPage /> },
-                    { path: "/inbox", element: <InboxPage /> },
-                    { path: "/projects", element: <ProjectsPage /> },
-                    { path: "/issues", element: <IssuesPage /> },
-                    { path: "/wiki", element: <WikiPage /> },
+                    { path: "my-issues", element: <MyIssuesPage /> },
+                    { path: "inbox", element: <InboxPage /> },
+                    { path: "projects", element: <ProjectsPage /> },
+                    { path: "issues", element: <IssuesPage /> },
+                    { path: "wiki", element: <WikiPage /> },
                 ],
             },
         ],

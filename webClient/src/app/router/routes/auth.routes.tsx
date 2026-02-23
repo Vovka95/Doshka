@@ -7,7 +7,7 @@ import { LoginPage, SignupPage, ConfirmEmailPage } from "@/pages/auth";
 
 export const authRoutes: RouteObject[] = [
     {
-        path: "/auth",
+        path: "auth",
         element: <GuestGuard />,
         children: [
             {
