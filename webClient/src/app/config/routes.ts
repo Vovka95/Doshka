@@ -1,6 +1,7 @@
 export const routes = {
     login: () => "/auth/login",
     signup: () => "/auth/signup",
+    forgotPassword: () => "/auth/forgot-password",
     app: () => "/",
     inbox: () => "/inbox",
     myIssues: () => "/my-issues",

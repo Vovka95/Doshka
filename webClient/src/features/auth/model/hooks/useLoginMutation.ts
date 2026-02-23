@@ -1,10 +1,8 @@
 import { useMutation } from "@tanstack/react-query";
-
-import type { SignupValues } from "../schemas";
 import { authApi } from "../../api";
 
-export const useSignupMutation = () => {
+export const useLoginMutation = () => {
     return useMutation({
-        mutationFn: authApi.signup,
+        mutationFn: authApi.login,
     });
 };

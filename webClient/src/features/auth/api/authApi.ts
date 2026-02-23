@@ -10,6 +10,8 @@ import type {
     User,
     ConfirmEmailDto,
     ConfirmEmailResponse,
+    LoginValues,
+    LoginResponse,
 } from "../model";
 
 export const authApi = {
@@ -26,6 +28,11 @@ export const authApi = {
     },
     signup: async (dto: SignupValues) => {
         const { data } = await api.post<SignupResponse>("/auth/signup", dto);
+
+        return data;
+    },
+    login: async (dto: LoginValues) => {
+        const { data } = await api.post<LoginResponse>("/auth/login", dto);
 
         return data;
     },

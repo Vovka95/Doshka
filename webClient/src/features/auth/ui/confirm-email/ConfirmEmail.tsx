@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useConfirmEmailMutation } from "../../model/hooks/useConfirmEmailMutation";
+import { useConfirmEmailMutation } from "../../model/hooks";
 import { routes } from "@/app/config/routes";
 
 import { Button, Spinner } from "@/shared/ui";
