@@ -3,7 +3,7 @@ import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { httpConfig } from "./httpConfig";
 
 import { accessTokenStore } from "@/features/auth/model/store/accessTokenStore";
-import { refreshManager } from "@/features/auth/lib/refreshManager";
+import { authSession } from "@/features/auth/lib/authSession";
 
 export const api = axios.create({
     baseURL: httpConfig.baseUrl,
@@ -44,10 +44,10 @@ api.interceptors.response.use(
             original._retry = true;
 
             try {
-                await refreshManager.refresh();
+                await authSession.refresh();
                 return api(original);
             } catch (e) {
-                refreshManager.clearSession();
+                authSession.clear();
                 return Promise.reject(e);
             }
         }

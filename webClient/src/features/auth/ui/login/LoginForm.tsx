@@ -7,12 +7,11 @@ import { loginSchema, useLoginMutation, type LoginValues } from "../../model";
 
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
+import { useQueryClient } from "@tanstack/react-query";
+import { authSession } from "../../lib/authSession";
 
-export type LoginFormProps = {
-    onSuccess: () => void;
-};
-
-export const LoginForm = ({ onSuccess }: LoginFormProps) => {
+export const LoginForm = () => {
+    const queryClient = useQueryClient();
     const toast = useUIStore((s) => s.toast);
     const loginMutation = useLoginMutation();
 
@@ -21,6 +20,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
         handleSubmit,
         formState: { errors, isLoading },
         setError,
+        clearErrors,
     } = useForm<LoginValues>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
@@ -32,6 +32,8 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
 
     const onSubmit = async (values: LoginValues) => {
         try {
+            clearErrors("root");
+
             const response = await loginMutation.mutateAsync(values);
 
             toast({
@@ -40,7 +42,7 @@ export const LoginForm = ({ onSuccess }: LoginFormProps) => {
                 message: "Welcome back to Doshka.",
             });
 
-            onSuccess();
+            authSession.apply(queryClient, response);
         } catch (error) {
             const apiError = normalizeApiError(error);
 

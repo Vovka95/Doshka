@@ -22,6 +22,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
         handleSubmit,
         formState: { errors, isLoading },
         setError,
+        clearErrors,
     } = useForm<SignupValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
@@ -36,6 +37,8 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
 
     const onSubmit = async (values: SignupValues) => {
         try {
+            clearErrors("root");
+
             const response = await signupMutation.mutateAsync(values);
 
             onSuccess(values.email);

@@ -1,11 +1,13 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type PropsWithChildren } from "react";
 
-import { refreshManager } from "../../lib/refreshManager";
+import { authSession } from "../../lib/authSession";
 import { refreshTokenStorage } from "../../lib/refreshTokenStorage";
 
 import { FullPageLoader } from "@/shared/ui";
 
 export const AuthBootstrap = ({ children }: PropsWithChildren) => {
+    const queryClient = useQueryClient();
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
@@ -13,10 +15,10 @@ export const AuthBootstrap = ({ children }: PropsWithChildren) => {
             try {
                 const rt = refreshTokenStorage.get();
                 if (rt) {
-                    await refreshManager.refresh();
+                    await authSession.refresh();
                 }
             } catch (error) {
-                refreshManager.clearSession();
+                authSession.clear(queryClient);
             } finally {
                 setReady(true);
             }

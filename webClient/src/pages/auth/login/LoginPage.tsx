@@ -24,7 +24,7 @@ export const LoginPage = () => {
                 </>
             }
         >
-            <LoginForm onSuccess={() => {}} />
+            <LoginForm />
         </AuthCard>
     );
 };

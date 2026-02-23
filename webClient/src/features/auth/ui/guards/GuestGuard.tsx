@@ -13,7 +13,7 @@ export const GuestGuard = () => {
         return <FullPageLoader />;
     }
 
-    if (me.isSuccess) {
+    if (me.data) {
         const from = (location.state as any)?.from as string | undefined;
         return <Navigate to={from || routes.app()} replace />;
     }
