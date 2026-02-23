@@ -45,6 +45,7 @@ export const authSession = {
         refreshTokenStorage.clear();
 
         if (queryClient) {
+            queryClient.setQueryData(qk.me(), null);
             queryClient.removeQueries({ queryKey: qk.me(), exact: true });
         }
     },

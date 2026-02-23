@@ -21,7 +21,7 @@ export const LogoutButton = () => {
         try {
             await logoutMutation.mutateAsync();
 
-            authSession.clear();
+            authSession.clear(queryClient);
 
             toast({
                 variant: "success",
