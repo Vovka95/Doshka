@@ -39,6 +39,8 @@ export const authSession = {
     },
 
     clear(queryClient?: QueryClient) {
+        refreshPromise = null;
+
         accessTokenStore.clear();
         refreshTokenStorage.clear();
 

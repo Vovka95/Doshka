@@ -36,13 +36,13 @@ export const LoginForm = () => {
 
             const response = await loginMutation.mutateAsync(values);
 
+            authSession.apply(queryClient, response);
+
             toast({
                 variant: "success",
                 title: "Signed in successfully",
                 message: "Welcome back to Doshka.",
             });
-
-            authSession.apply(queryClient, response);
         } catch (error) {
             const apiError = normalizeApiError(error);
 
