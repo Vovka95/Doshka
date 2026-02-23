@@ -14,7 +14,7 @@ export type AuthCardProps = {
     title?: string;
     description?: string;
     footer?: ReactNode;
-    children: ReactNode;
+    children?: ReactNode;
     className?: string;
 };
 
@@ -30,11 +30,17 @@ export const AuthCard = ({
             <CardHeader className="items-center">
                 {title && <CardTitle>{title}</CardTitle>}
                 {description && (
-                    <CardDescription>{description}</CardDescription>
+                    <CardDescription className="text-center">
+                        {description}
+                    </CardDescription>
                 )}
             </CardHeader>
-            <CardContent>{children}</CardContent>
-            {footer && <CardFooter>{footer}</CardFooter>}
+            {children && <CardContent>{children}</CardContent>}
+            {footer && (
+                <CardFooter className="flex flex-col gap-2">
+                    {footer}
+                </CardFooter>
+            )}
         </Card>
     );
 };

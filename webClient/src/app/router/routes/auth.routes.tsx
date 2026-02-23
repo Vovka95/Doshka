@@ -3,14 +3,11 @@ import { Navigate, type RouteObject } from "react-router-dom";
 import { GuestGuard } from "@/features/auth/ui";
 import { AuthLayout } from "@/widgets/layout";
 
-import { SignupPage } from "@/pages/auth";
-import { ConfirmEmailPage } from "@/pages/auth";
-
-const LoginPage = () => <div className="text-sm">Login form here</div>;
+import { LoginPage, SignupPage, ConfirmEmailPage } from "@/pages/auth";
 
 export const authRoutes: RouteObject[] = [
     {
-        path: "/auth",
+        path: "auth",
         element: <GuestGuard />,
         children: [
             {

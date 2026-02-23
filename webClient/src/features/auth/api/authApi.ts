@@ -10,6 +10,8 @@ import type {
     User,
     ConfirmEmailDto,
     ConfirmEmailResponse,
+    LoginValues,
+    LoginResponse,
 } from "../model";
 
 export const authApi = {
@@ -29,6 +31,11 @@ export const authApi = {
 
         return data;
     },
+    login: async (dto: LoginValues) => {
+        const { data } = await api.post<LoginResponse>("/auth/login", dto);
+
+        return data;
+    },
     confirmEmail: async (dto: ConfirmEmailDto) => {
         const { data } = await api.get<ConfirmEmailResponse>(
             `/auth/confirm-email?token=${dto.token}`,
@@ -40,6 +47,11 @@ export const authApi = {
             "/auth/resend-confirmation",
             dto,
         );
+
+        return data;
+    },
+    logout: async () => {
+        const { data } = await api.post("/auth/logout");
 
         return data;
     },

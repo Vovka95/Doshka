@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, FormField, Input } from "@/shared/ui";
+import { Button, FormError, FormField, Input } from "@/shared/ui";
 
 import { signupSchema, type SignupValues } from "../../model";
 import { useSignupMutation } from "../../model/hooks";
@@ -22,6 +22,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
         handleSubmit,
         formState: { errors, isLoading },
         setError,
+        clearErrors,
     } = useForm<SignupValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
@@ -36,6 +37,8 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
 
     const onSubmit = async (values: SignupValues) => {
         try {
+            clearErrors("root");
+
             const response = await signupMutation.mutateAsync(values);
 
             onSuccess(values.email);
@@ -150,9 +153,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
             </Button>
 
             {errors.root?.message && (
-                <div className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-danger">
-                    {errors.root.message}
-                </div>
+                <FormError message={errors.root.message} />
             )}
         </form>
     );

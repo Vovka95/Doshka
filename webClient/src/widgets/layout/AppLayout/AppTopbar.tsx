@@ -1,5 +1,6 @@
 import { ThemeToggle } from "@/shared/ui";
 import { SidebarToggle } from "./SideBarToggle";
+import { LogoutButton } from "@/features/auth/ui";
 
 export const AppTopbar = () => {
     return (
@@ -11,6 +12,8 @@ export const AppTopbar = () => {
             <div className="flex items-center gap-2">
                 <ThemeToggle />
             </div>
+
+            <LogoutButton />
         </header>
     );
 };

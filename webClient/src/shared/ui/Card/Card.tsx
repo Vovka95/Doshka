@@ -45,7 +45,9 @@ export const CardDescription = ({
     className,
     ...props
 }: HTMLAttributes<HTMLHeadingElement>) => {
-    return <p className="mt-1 text-sm text-muted-fg" {...props} />;
+    return (
+        <p className={cn("mt-1 text-sm text-muted-fg", className)} {...props} />
+    );
 };
 
 export const CardContent = ({
@@ -59,10 +61,5 @@ export const CardFooter = ({
     className,
     ...props
 }: HTMLAttributes<HTMLDivElement>) => {
-    return (
-        <div
-            className={cn("px-6 pb-6 pt-0 flex items-center gap-3", className)}
-            {...props}
-        />
-    );
+    return <div className={cn("px-6 pb-6 pt-0 gap-3", className)} {...props} />;
 };

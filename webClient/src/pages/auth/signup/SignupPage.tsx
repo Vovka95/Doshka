@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 import { SignupForm, SignupSuccess } from "@/features/auth/ui";
-import { AuthCard } from "@/widgets/auth";
+import { AuthCard, AuthRedirect } from "@/widgets/auth";
 
 import { routes } from "@/app/config/routes";
 
@@ -16,29 +15,22 @@ export const SignupPage = () => {
             title={isSuccess ? "Check your email" : "Create your account"}
             description={
                 isSuccess
-                    ? "We sent you a verification link."
+                    ? "We've sent a confirmation link to your email address. Please verify your account to continue."
                     : "Sign up to start using Doshka."
             }
             footer={
                 isSuccess ? (
-                    <Link
-                        className="text-sm underline hover:opacity-80"
+                    <AuthRedirect
+                        question="Already confirmed your email?"
+                        linkText="Back to login"
                         to={routes.login()}
-                    >
-                        Back to login
-                    </Link>
+                    />
                 ) : (
-                    <>
-                        <span className="text-sm text-muted-fg">
-                            Already have an account?
-                        </span>
-                        <Link
-                            className="text-sm underline hover:opacity-80"
-                            to={routes.login()}
-                        >
-                            Log in
-                        </Link>
-                    </>
+                    <AuthRedirect
+                        question="Already have an account?"
+                        linkText="Log in"
+                        to={routes.login()}
+                    />
                 )
             }
         >
