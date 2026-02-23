@@ -4,16 +4,9 @@ import { Link } from "react-router-dom";
 import { useConfirmEmailMutation } from "../../model/hooks/useConfirmEmailMutation";
 import { routes } from "@/app/config/routes";
 
-import {
-    Card,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-    Button,
-    Spinner,
-} from "@/shared/ui";
+import { Button, Spinner } from "@/shared/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
+import { AuthCard } from "@/widgets/auth";
 
 const deleteSearchParams = (param: string) => {
     const url = new URL(window.location.href);
@@ -96,27 +89,26 @@ export const ConfirmEmail = ({ token }: ConfirmEmailProps) => {
     }, [isPending, isSuccess, isExpired, isInvalid]);
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
+        <AuthCard
+            title={title}
+            description={description}
+            footer={
+                <div className="flex flex-1 items-center justify-center">
+                    {isPending && <Spinner />}
 
-            <CardFooter className="flex flex-1 justify-center items-center">
-                {isPending && <Spinner />}
+                    {isSuccess && (
+                        <Link to={routes.login()}>
+                            <Button>Back to login</Button>
+                        </Link>
+                    )}
 
-                {isSuccess && (
-                    <Link to={routes.login()}>
-                        <Button>Back to login</Button>
-                    </Link>
-                )}
-
-                {isFailed && (
-                    <Link to={routes.signup()}>
-                        <Button>Go to signup</Button>
-                    </Link>
-                )}
-            </CardFooter>
-        </Card>
+                    {isFailed && (
+                        <Link to={routes.signup()}>
+                            <Button>Go to signup</Button>
+                        </Link>
+                    )}
+                </div>
+            }
+        />
     );
 };

@@ -6,8 +6,10 @@ export type SignupSuccessProps = {
 
 export const SignupSuccess = ({ email }: SignupSuccessProps) => {
     return (
-        <div className="flex flex-col justify-center items-center gap-2">
-            <p className="font-medium text-sm text-fg">{email}</p>
+        <div className="grid gap-4">
+            <p className="font-medium text-sm text-fg text-center">
+                Confirmation sent to: {email}
+            </p>
 
             <ResendConfirmationEmail email={email} />
         </div>
