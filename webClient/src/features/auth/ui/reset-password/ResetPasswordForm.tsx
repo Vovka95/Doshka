@@ -2,7 +2,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 
-import { Button, FormError, FormField, Input } from "@/shared/ui";
+import { FormField, Input } from "@/shared/ui";
+import { AuthForm } from "../auth-form";
 
 import {
     resetPasswordSchema,
@@ -13,6 +14,8 @@ import {
 import { routes } from "@/app/config/routes";
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
+import { t } from "@/shared/lib/i18n";
+import { translateFormFieldError } from "@/shared/lib/forms/translateFormFieldError";
 
 export type ResetPasswordFormProps = {
     token: string;
@@ -52,7 +55,7 @@ export const ResetPasswordForm = ({
 
             toast({
                 variant: "success",
-                title: "Password updated",
+                title: t("auth.resetPassword.toast.success.title"),
                 message: response.message,
             });
 
@@ -62,7 +65,7 @@ export const ResetPasswordForm = ({
 
             toast({
                 variant: "error",
-                title: "Reset failed",
+                title: t("auth.resetPassword.toast.error.title"),
                 message: apiError.messages[0],
             });
 
@@ -74,49 +77,48 @@ export const ResetPasswordForm = ({
     };
 
     return (
-        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <AuthForm
+            onSubmit={handleSubmit(onSubmit)}
+            submitButton={{
+                title: t("auth.resetPassword.form.button.submit"),
+                disabled: resetPasswordMutation.isPending || isSubmitting,
+                isLoading: resetPasswordMutation.isPending || isSubmitting,
+            }}
+            errorMessage={errors.root?.message}
+        >
             <FormField
-                label="New password"
+                label={t("auth.resetPassword.form.input.password.label")}
                 htmlFor="password"
                 required
-                error={errors.password}
+                error={translateFormFieldError(errors.password)}
             >
                 <Input
                     id="password"
                     type="password"
                     autoComplete="new-password"
-                    placeholder="••••••••"
+                    placeholder={t(
+                        "auth.resetPassword.form.input.password.placeholder",
+                    )}
                     {...register("password")}
                     hasError={!!errors.password}
                 />
             </FormField>
             <FormField
-                label="Confirm password"
+                label={t("auth.resetPassword.form.input.confirmPassword.label")}
                 htmlFor="confirm-password"
                 required
-                error={errors.confirmPassword}
+                error={translateFormFieldError(errors.confirmPassword)}
             >
                 <Input
                     id="confirm-password"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t(
+                        "auth.resetPassword.form.input.confirmPassword.placeholder",
+                    )}
                     {...register("confirmPassword")}
                     hasError={!!errors.confirmPassword}
                 />
             </FormField>
-
-            <Button
-                size="lg"
-                type="submit"
-                disabled={resetPasswordMutation.isPending || isSubmitting}
-                isLoading={resetPasswordMutation.isPending || isSubmitting}
-            >
-                Reset password
-            </Button>
-
-            {errors.root?.message && (
-                <FormError message={errors.root.message} />
-            )}
-        </form>
+        </AuthForm>
     );
 };

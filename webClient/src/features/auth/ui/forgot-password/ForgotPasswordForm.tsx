@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, FormError, FormField, Input } from "@/shared/ui";
+import { FormField, Input } from "@/shared/ui";
+import { AuthForm } from "../auth-form";
 
 import {
     forgotPasswordSchema,
@@ -11,6 +12,8 @@ import {
 
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
+import { t } from "@/shared/lib/i18n";
+import { translateFormFieldError } from "@/shared/lib/forms/translateFormFieldError";
 
 export type ForgotPasswordFormProps = {
     onSuccess: (email: string) => void;
@@ -43,7 +46,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
 
             toast({
                 variant: "success",
-                title: "Check your email",
+                title: t("auth.forgotPassword.toast.success.title"),
                 message: data.message,
             });
         } catch (error) {
@@ -51,7 +54,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
 
             toast({
                 variant: "error",
-                title: "Request failed",
+                title: t("auth.forgotPassword.toast.error.title"),
                 message: apiError.messages[0],
             });
 
@@ -63,35 +66,32 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
     };
 
     return (
-        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <AuthForm
+            onSubmit={handleSubmit(onSubmit)}
+            submitButton={{
+                title: t("auth.forgotPassword.form.button.submit"),
+                disabled: forgotPasswordMutation.isPending || isSubmitting,
+                isLoading: forgotPasswordMutation.isPending || isSubmitting,
+            }}
+            errorMessage={errors.root?.message}
+        >
             <FormField
-                label="Email"
+                label={t("auth.forgotPassword.form.input.email.label")}
                 htmlFor="email"
                 required
-                error={errors.email}
+                error={translateFormFieldError(errors.email)}
             >
                 <Input
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="test@test.com"
+                    placeholder={t(
+                        "auth.forgotPassword.form.input.email.placeholder",
+                    )}
                     {...register("email")}
                     hasError={!!errors.email}
                 />
             </FormField>
-
-            <Button
-                size="lg"
-                type="submit"
-                disabled={forgotPasswordMutation.isPending || isSubmitting}
-                isLoading={forgotPasswordMutation.isPending || isSubmitting}
-            >
-                Send reset link
-            </Button>
-
-            {errors.root?.message && (
-                <FormError message={errors.root.message} />
-            )}
-        </form>
+        </AuthForm>
     );
 };

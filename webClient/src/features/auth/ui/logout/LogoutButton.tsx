@@ -8,6 +8,7 @@ import { useLogoutMutation } from "../../model";
 
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
+import { t } from "@/shared/lib/i18n";
 
 export const LogoutButton = () => {
     const queryClient = useQueryClient();
@@ -22,8 +23,8 @@ export const LogoutButton = () => {
 
             toast({
                 variant: "success",
-                title: "Signed out",
-                message: "You've been logged out.",
+                title: t("auth.logout.toast.success.title"),
+                message: t("auth.logout.toast.success.message"),
             });
         } catch (error) {
             authSession.clear(queryClient);
@@ -32,7 +33,7 @@ export const LogoutButton = () => {
 
             toast({
                 variant: "error",
-                title: "Logout failed",
+                title: t("auth.logout.toast.error.title"),
                 message: apiError.messages[0],
             });
         }
@@ -44,7 +45,7 @@ export const LogoutButton = () => {
             onClick={handleOnClick}
             disabled={logoutMutation.isPending}
         >
-            Log out
+            {t("auth.logout.button.idle")}
         </Button>
     );
 };

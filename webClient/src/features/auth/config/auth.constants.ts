@@ -3,14 +3,14 @@ import { z } from "zod";
 export const AUTH_FIRST_NAME = {
     MIN_LENGTH: 1,
     MESSAGES: {
-        REQUIRED: "First name is required",
+        REQUIRED: "auth.validation.firstName.required",
     },
 } as const;
 
 export const AUTH_LAST_NAME = {
     MIN_LENGTH: 1,
     MESSAGES: {
-        REQUIRED: "Last name is required",
+        REQUIRED: "auth.validation.lastName.required",
     },
 } as const;
 
@@ -21,8 +21,8 @@ export const AUTH_EMAIL = {
     },
 
     MESSAGES: {
-        REQUIRED: "Email is required",
-        VALID: "Invalid email",
+        REQUIRED: "auth.validation.email.required",
+        VALID: "auth.validation.email.invalid",
     },
 } as const;
 
@@ -39,13 +39,13 @@ export const AUTH_PASSWORD = {
     },
 
     MESSAGES: {
-        REQUIRED: "Password is required",
-        MIN_LENGTH: "Password must be at least 6 characters",
-        MAX_LENGTH: "Password must be at most 64 characters",
-        LOWERCASE: "Password must contain a lowercase letter",
-        UPPERCASE: "Password must contain an uppercase letter",
-        NUMBER: "Password must contain a number",
-        SPECIAL_CHAR: "Password must contain a special character",
-        CONFIRM_MATCH: "Passwords do not match",
+        REQUIRED: "auth.validation.password.required",
+        MIN_LENGTH: "auth.validation.password.minLength",
+        MAX_LENGTH: "auth.validation.password.maxLength",
+        LOWERCASE: "auth.validation.password.lowercase",
+        UPPERCASE: "auth.validation.password.uppercase",
+        NUMBER: "auth.validation.password.number",
+        SPECIAL_CHAR: "auth.validation.password.specialChar",
+        CONFIRM_MATCH: "auth.validation.password.confirmMatch",
     },
 } as const;

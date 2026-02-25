@@ -4,6 +4,7 @@ import { ForgotPasswordForm, ForgotPasswordSuccess } from "@/features/auth/ui";
 import { AuthCard, AuthRedirect } from "@/widgets/auth";
 
 import { routes } from "@/app/config/routes";
+import { t } from "@/shared/lib/i18n";
 
 export const ForgotPasswordPage = () => {
     const [email, setEmail] = useState<string | null>(null);
@@ -12,23 +13,35 @@ export const ForgotPasswordPage = () => {
 
     return (
         <AuthCard
-            title={isSuccess ? "Check your email" : "Forgot your password?"}
+            title={
+                isSuccess
+                    ? t("auth.forgotPassword.state.success.title")
+                    : t("auth.forgotPassword.state.default.title")
+            }
             description={
                 isSuccess
-                    ? "If an account exists for this email, we've sent a reset link."
-                    : "Enter your email and we'll send you a link to reset your password."
+                    ? t("auth.forgotPassword.state.success.description")
+                    : t("auth.forgotPassword.state.default.description")
             }
             footer={
                 isSuccess ? (
                     <AuthRedirect
-                        question="Already reset your password?"
-                        linkText="Back to login"
+                        question={t(
+                            "auth.forgotPassword.redirect.success.question",
+                        )}
+                        linkText={t(
+                            "auth.forgotPassword.redirect.success.linkText",
+                        )}
                         to={routes.login()}
                     />
                 ) : (
                     <AuthRedirect
-                        question="Remember your password?"
-                        linkText="Back to login"
+                        question={t(
+                            "auth.forgotPassword.redirect.default.question",
+                        )}
+                        linkText={t(
+                            "auth.forgotPassword.redirect.default.linkText",
+                        )}
                         to={routes.login()}
                     />
                 )

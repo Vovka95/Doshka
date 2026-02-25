@@ -4,6 +4,7 @@ import {
     useReadURLSearchParam,
     useRemoveURLSearchParam,
 } from "@/shared/lib/hooks";
+import { t } from "@/shared/lib/i18n";
 import { AuthCard, AuthRedirect } from "@/widgets/auth";
 
 const RESET_PASSWOD_PAGE_SEARCH_PARAM = "token";
@@ -18,10 +19,14 @@ export const ResetPasswordPage = () => {
 
     return (
         <AuthCard
-            title="Reset your password"
-            description="Create a new password for your account."
+            title={t("auth.resetPassword.state.default.title")}
+            description={t("auth.resetPassword.state.default.description")}
             footer={
-                <AuthRedirect to={routes.login()} linkText="Back to login" />
+                <AuthRedirect
+                    to={routes.login()}
+                    question={t("auth.resetPassword.redirect.default.question")}
+                    linkText={t("auth.resetPassword.redirect.default.linkText")}
+                />
             }
         >
             <ResetPasswordForm token={token} onSuccess={onSuccess} />

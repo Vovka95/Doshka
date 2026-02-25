@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, FormError, FormField, Input } from "@/shared/ui";
+import { FormField, Input } from "@/shared/ui";
+import { AuthForm } from "../auth-form";
 
 import {
     signupSchema,
@@ -11,6 +12,8 @@ import {
 
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
+import { t } from "@/shared/lib/i18n";
+import { translateFormFieldError } from "@/shared/lib/forms/translateFormFieldError";
 
 export type SignupFormProps = {
     onSuccess: (email: string) => void;
@@ -48,7 +51,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
 
             toast({
                 variant: "success",
-                title: "Account created",
+                title: t("auth.signup.toast.success.title"),
                 message: response.message,
             });
         } catch (error) {
@@ -56,7 +59,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
 
             toast({
                 variant: "error",
-                title: "Signup failed",
+                title: t("auth.signup.toast.error.title"),
                 message: apiError.messages[0],
             });
 
@@ -68,98 +71,97 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
     };
 
     return (
-        <form
-            className="grid gap-4"
-            autoComplete="on"
+        <AuthForm
             onSubmit={handleSubmit(onSubmit)}
+            submitButton={{
+                title: t("auth.signup.form.button.submit"),
+                disabled: signupMutation.isPending || isSubmitting,
+                isLoading: signupMutation.isPending || isSubmitting,
+            }}
+            errorMessage={errors.root?.message}
         >
             <FormField
-                label="First name"
+                label={t("auth.signup.form.input.firstName.label")}
                 htmlFor="firstName"
                 required
-                error={errors.firstName}
+                error={translateFormFieldError(errors.firstName)}
             >
                 <Input
-                    id="first-name"
-                    placeholder="Your name"
+                    id="firstName"
+                    placeholder={t(
+                        "auth.signup.form.input.firstName.placeholder",
+                    )}
                     {...register("firstName")}
                     hasError={!!errors.firstName}
                 />
             </FormField>
 
             <FormField
-                label="Last name"
+                label={t("auth.signup.form.input.lastName.label")}
                 htmlFor="lastName"
                 required
-                error={errors.lastName}
+                error={translateFormFieldError(errors.lastName)}
             >
                 <Input
-                    id="last-name"
-                    placeholder="Your last name"
+                    id="lastName"
+                    placeholder={t(
+                        "auth.signup.form.input.lastName.placeholder",
+                    )}
                     {...register("lastName")}
                     hasError={!!errors.lastName}
                 />
             </FormField>
 
             <FormField
-                label="Email"
+                label={t("auth.signup.form.input.email.label")}
                 htmlFor="email"
                 required
-                error={errors.email}
+                error={translateFormFieldError(errors.email)}
             >
                 <Input
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="test@test.com"
+                    placeholder={t("auth.signup.form.input.email.placeholder")}
                     {...register("email")}
                     hasError={!!errors.email}
                 />
             </FormField>
 
             <FormField
-                label="Password"
+                label={t("auth.signup.form.input.password.label")}
                 htmlFor="password"
                 required
-                error={errors.password}
+                error={translateFormFieldError(errors.password)}
             >
                 <Input
                     id="password"
                     type="password"
                     autoComplete="new-password"
-                    placeholder="••••••••"
+                    placeholder={t(
+                        "auth.signup.form.input.password.placeholder",
+                    )}
                     {...register("password")}
                     hasError={!!errors.password}
                 />
             </FormField>
 
             <FormField
-                label="Confirm password"
-                htmlFor="confirm-password"
+                label={t("auth.signup.form.input.confirmPassword.label")}
+                htmlFor="confirmPassword"
                 required
-                error={errors.confirmPassword}
+                error={translateFormFieldError(errors.confirmPassword)}
             >
                 <Input
-                    id="confirm-password"
+                    id="confirmPassword"
                     type="password"
-                    placeholder="••••••••"
+                    placeholder={t(
+                        "auth.signup.form.input.confirmPassword.placeholder",
+                    )}
                     {...register("confirmPassword")}
                     hasError={!!errors.confirmPassword}
                 />
             </FormField>
-
-            <Button
-                size="lg"
-                type="submit"
-                disabled={signupMutation.isPending || isSubmitting}
-                isLoading={signupMutation.isPending || isSubmitting}
-            >
-                Create account
-            </Button>
-
-            {errors.root?.message && (
-                <FormError message={errors.root.message} />
-            )}
-        </form>
+        </AuthForm>
     );
 };

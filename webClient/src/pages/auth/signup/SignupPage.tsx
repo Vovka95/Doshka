@@ -4,6 +4,7 @@ import { SignupForm, SignupSuccess } from "@/features/auth/ui";
 import { AuthCard, AuthRedirect } from "@/widgets/auth";
 
 import { routes } from "@/app/config/routes";
+import { t } from "@/shared/lib/i18n";
 
 export const SignupPage = () => {
     const [email, setEmail] = useState<string | null>(null);
@@ -12,23 +13,27 @@ export const SignupPage = () => {
 
     return (
         <AuthCard
-            title={isSuccess ? "Check your email" : "Create your account"}
+            title={
+                isSuccess
+                    ? t("auth.signup.state.success.title")
+                    : t("auth.signup.state.default.title")
+            }
             description={
                 isSuccess
-                    ? "We've sent a confirmation link to your email address. Please verify your account to continue."
-                    : "Sign up to start using Doshka."
+                    ? t("auth.signup.state.success.description")
+                    : t("auth.signup.state.default.description")
             }
             footer={
                 isSuccess ? (
                     <AuthRedirect
-                        question="Already confirmed your email?"
-                        linkText="Back to login"
+                        question={t("auth.signup.redirect.success.question")}
+                        linkText={t("auth.signup.redirect.success.linkText")}
                         to={routes.login()}
                     />
                 ) : (
                     <AuthRedirect
-                        question="Already have an account?"
-                        linkText="Log in"
+                        question={t("auth.signup.redirect.default.question")}
+                        linkText={t("auth.signup.redirect.default.linkText")}
                         to={routes.login()}
                     />
                 )

@@ -5,6 +5,7 @@ import {
     AUTH_LAST_NAME,
     AUTH_PASSWORD,
 } from "../../config";
+import { zodMessage } from "@/shared/lib/forms/zodMessage";
 
 const email = z
     .string()
@@ -14,8 +15,18 @@ const email = z
 const password = z
     .string()
     .min(AUTH_PASSWORD.NOT_EMPTY_LENGTH, AUTH_PASSWORD.MESSAGES.REQUIRED)
-    .min(AUTH_PASSWORD.MIN_LENGTH, AUTH_PASSWORD.MESSAGES.MIN_LENGTH)
-    .max(AUTH_PASSWORD.MAX_LENGTH, AUTH_PASSWORD.MESSAGES.MAX_LENGTH)
+    .min(
+        AUTH_PASSWORD.MIN_LENGTH,
+        zodMessage(AUTH_PASSWORD.MESSAGES.MIN_LENGTH, {
+            min: AUTH_PASSWORD.MIN_LENGTH,
+        }),
+    )
+    .max(
+        AUTH_PASSWORD.MAX_LENGTH,
+        zodMessage(AUTH_PASSWORD.MESSAGES.MAX_LENGTH, {
+            max: AUTH_PASSWORD.MAX_LENGTH,
+        }),
+    )
     .regex(AUTH_PASSWORD.REGEX.LOWERCASE, AUTH_PASSWORD.MESSAGES.LOWERCASE)
     .regex(AUTH_PASSWORD.REGEX.UPPERCASE, AUTH_PASSWORD.MESSAGES.UPPERCASE)
     .regex(AUTH_PASSWORD.REGEX.NUMBER, AUTH_PASSWORD.MESSAGES.NUMBER)
