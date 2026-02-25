@@ -1,3 +1,5 @@
+import { t } from "@/shared/lib/i18n";
+
 export type ForgotPasswordSuccessProps = {
     email: string;
 };
@@ -8,7 +10,7 @@ export const ForgotPasswordSuccess = ({
     return (
         <div className="grid gap-4">
             <p className="font-medium text-sm text-fg text-center">
-                Confirmation sent to: {email}
+                {t("auth.forgotPassword.state.success.sentTo", { email })}
             </p>
         </div>
     );

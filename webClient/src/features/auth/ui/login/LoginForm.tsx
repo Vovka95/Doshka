@@ -10,6 +10,8 @@ import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
 import { useQueryClient } from "@tanstack/react-query";
 import { authSession } from "../../lib/authSession";
+import { t } from "@/shared/lib/i18n";
+import { translateFormFieldError } from "@/shared/lib/forms/translateFormFieldError";
 
 export const LoginForm = () => {
     const queryClient = useQueryClient();
@@ -41,15 +43,15 @@ export const LoginForm = () => {
 
             toast({
                 variant: "success",
-                title: "Signed in successfully",
-                message: "Welcome back to Doshka.",
+                title: t("auth.login.toast.success.title"),
+                message: t("auth.login.toast.success.message"),
             });
         } catch (error) {
             const apiError = normalizeApiError(error);
 
             toast({
                 variant: "error",
-                title: "Login failed",
+                title: t("auth.login.toast.error.title"),
                 message: apiError.messages[0],
             });
 
@@ -64,7 +66,7 @@ export const LoginForm = () => {
         <AuthForm
             onSubmit={handleSubmit(onSubmit)}
             submitButton={{
-                title: "Log in to your account",
+                title: t("auth.login.form.button.submit"),
                 disabled:
                     loginMutation.isPending ||
                     loginMutation.isSuccess ||
@@ -74,31 +76,33 @@ export const LoginForm = () => {
             errorMessage={errors.root?.message}
         >
             <FormField
-                label="Email"
+                label={t("auth.login.form.input.email.label")}
                 htmlFor="email"
                 required
-                error={errors.email}
+                error={translateFormFieldError(errors.email)}
             >
                 <Input
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="test@test.com"
+                    placeholder={t("auth.login.form.input.email.placeholder")}
                     {...register("email")}
                     hasError={!!errors.email}
                 />
             </FormField>
             <FormField
-                label="Password"
+                label={t("auth.login.form.input.password.label")}
                 htmlFor="password"
                 required
-                error={errors.password}
+                error={translateFormFieldError(errors.password)}
             >
                 <Input
                     id="password"
                     type="password"
                     autoComplete="password"
-                    placeholder="••••••••"
+                    placeholder={t(
+                        "auth.login.form.input.password.placeholder",
+                    )}
                     {...register("password")}
                     hasError={!!errors.password}
                 />

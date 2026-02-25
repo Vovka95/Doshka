@@ -7,6 +7,7 @@ import { useConfirmEmailMutation } from "../../model/hooks";
 
 import { normalizeApiError } from "@/shared/api/http/errror";
 import { routes } from "@/app/config/routes";
+import { t } from "@/shared/lib/i18n";
 
 type Status =
     | "pending"
@@ -66,22 +67,19 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
     }, [token]);
 
     const title = useMemo(() => {
-        if (isPending) return "Confirming your email…";
-        if (isSuccess) return "Email confirmed!";
-        if (isExpired) return "Link expired";
-        if (isInvalid) return "Invalid link";
-        return "Confirmation failed";
+        if (isPending) return t("auth.confirmEmail.state.pending.title");
+        if (isSuccess) return t("auth.confirmEmail.state.success.title");
+        if (isExpired) return t("auth.confirmEmail.state.expired.title");
+        if (isInvalid) return t("auth.confirmEmail.state.invalid.title");
+        return t("auth.confirmEmail.state.default.title");
     }, [isPending, isSuccess, isExpired, isInvalid]);
 
     const description = useMemo(() => {
-        if (isPending) return "Please wait a moment.";
-        if (isSuccess)
-            return "Your email has been verified. You can now sign in.";
-        if (isExpired)
-            return "This link has expired. Request a new verification email from Login.";
-        if (isInvalid)
-            return "This link is not valid. Open the link from your email again.";
-        return "Something went wrong. Please try again later.";
+        if (isPending) return t("auth.confirmEmail.state.pending.description");
+        if (isSuccess) return t("auth.confirmEmail.state.success.description");
+        if (isExpired) return t("auth.confirmEmail.state.expired.description");
+        if (isInvalid) return t("auth.confirmEmail.state.invalid.description");
+        return t("auth.confirmEmail.state.default.description");
     }, [isPending, isSuccess, isExpired, isInvalid]);
 
     return (
@@ -95,7 +93,9 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
                     {isSuccess && (
                         <AuthRedirect
                             to={routes.login()}
-                            linkText="Back to login"
+                            linkText={t(
+                                "auth.confirmEmail.redirect.success.linkText",
+                            )}
                             isButton
                         />
                     )}
@@ -103,7 +103,9 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
                     {isFailed && (
                         <AuthRedirect
                             to={routes.signup()}
-                            linkText="Create a new account"
+                            linkText={t(
+                                "auth.confirmEmail.redirect.error.linkText",
+                            )}
                             isButton
                         />
                     )}

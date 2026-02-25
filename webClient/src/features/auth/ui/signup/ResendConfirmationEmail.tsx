@@ -3,6 +3,7 @@ import { useResendConfirmationMutation } from "../../model";
 import { useCooldown } from "@/shared/lib/hooks/cooldown";
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
+import { t } from "@/shared/lib/i18n";
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -29,7 +30,7 @@ export const ResendConfirmationEmail = ({
 
             toast({
                 variant: "success",
-                title: "Confiramtion email sent again",
+                title: t("auth.resendConfirmationEmail.toast.success.title"),
                 message: response.message,
             });
         } catch (error) {
@@ -37,7 +38,7 @@ export const ResendConfirmationEmail = ({
 
             toast({
                 variant: "error",
-                title: "Failed to resend email",
+                title: t("auth.resendConfirmationEmail.toast.error.title"),
                 message: apiError.messages[0],
             });
         }
@@ -51,9 +52,11 @@ export const ResendConfirmationEmail = ({
             }
             isLoading={resendConfirmationMutation.isPending}
         >
-            {cooldown.secondsLeft > 0
-                ? `Resend available in ${cooldown.secondsLeft}s`
-                : "Resend email"}
+            {cooldown.isCoolingDown
+                ? t("auth.resendConfirmationEmail.button.cooldown", {
+                      seconds: cooldown.secondsLeft,
+                  })
+                : t("auth.resendConfirmationEmail.button.idle")}
         </Button>
     );
 };
