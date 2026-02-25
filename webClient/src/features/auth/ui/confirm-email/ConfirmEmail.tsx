@@ -5,7 +5,6 @@ import { AuthCard } from "@/widgets/auth";
 import { Button, Spinner } from "@/shared/ui";
 
 import { useConfirmEmailMutation } from "../../model/hooks";
-import { useRemoveURLSearchParam } from "@/shared/lib/hooks";
 
 import { normalizeApiError } from "@/shared/api/http/errror";
 import { routes } from "@/app/config/routes";
@@ -18,11 +17,11 @@ type Status =
     | "error";
 
 export type ConfirmEmailProps = {
+    onSuccess: () => void;
     token: string;
 };
 
-export const ConfirmEmail = ({ token }: ConfirmEmailProps) => {
-    const removeSearchParam = useRemoveURLSearchParam();
+export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
     const confirmEmailMutation = useConfirmEmailMutation();
     const [status, setStatus] = useState<Status>("pending");
 
@@ -45,7 +44,8 @@ export const ConfirmEmail = ({ token }: ConfirmEmailProps) => {
         (async () => {
             try {
                 await confirmEmailMutation.mutateAsync(token);
-                removeSearchParam("token");
+
+                onSuccess();
 
                 setStatus("success");
             } catch (error) {

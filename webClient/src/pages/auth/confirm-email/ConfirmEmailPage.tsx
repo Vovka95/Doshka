@@ -1,10 +1,18 @@
-import { useSearchParams } from "react-router-dom";
-
 import { ConfirmEmail } from "@/features/auth/ui";
+import {
+    useReadURLSearchParam,
+    useRemoveURLSearchParam,
+} from "@/shared/lib/hooks";
+
+const CONFIRM_PAGE_SEARCH_PARAM = "token";
 
 export const ConfirmEmailPage = () => {
-    const [params] = useSearchParams();
-    const token = params.get("token") ?? "";
+    const token = useReadURLSearchParam(CONFIRM_PAGE_SEARCH_PARAM);
+    const removeSearchParam = useRemoveURLSearchParam();
 
-    return <ConfirmEmail token={token} />;
+    const onSuccess = () => {
+        removeSearchParam(CONFIRM_PAGE_SEARCH_PARAM);
+    };
+
+    return <ConfirmEmail token={token} onSuccess={onSuccess} />;
 };
