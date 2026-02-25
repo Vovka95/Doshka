@@ -14,6 +14,8 @@ import {
     type LoginResponse,
     type ForgotPasswordDto,
     type ForgotPasswordResponse,
+    type ResetPasswordDto,
+    type ResetPasswordResponse,
 } from "../model";
 
 export const authApi = {
@@ -60,6 +62,14 @@ export const authApi = {
     forgotPassword: async (dto: ForgotPasswordDto) => {
         const { data } = await api.post<ForgotPasswordResponse>(
             "/auth/forgot-password",
+            dto,
+        );
+
+        return data;
+    },
+    resetPassword: async (dto: ResetPasswordDto) => {
+        const { data } = await api.post<ResetPasswordResponse>(
+            "/auth/reset-password",
             dto,
         );
 

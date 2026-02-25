@@ -5,3 +5,4 @@ export * from "./useConfirmEmailMutation";
 export * from "./useLoginMutation";
 export * from "./useLogoutMutation";
 export * from "./useForgotPasswordMutation";
+export * from "./useResetPasswordMutation";

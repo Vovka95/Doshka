@@ -18,7 +18,7 @@ export const LoginForm = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors, isLoading },
+        formState: { errors, isSubmitting },
         setError,
         clearErrors,
     } = useForm<LoginValues>({
@@ -49,10 +49,13 @@ export const LoginForm = () => {
             toast({
                 variant: "error",
                 title: "Login failed",
-                message: apiError.message,
+                message: apiError.messages[0],
             });
 
-            setError("root", { type: "server", message: apiError.message });
+            setError("root", {
+                type: "server",
+                message: apiError.messages.join("\n"),
+            });
         }
     };
 
@@ -96,8 +99,12 @@ export const LoginForm = () => {
             <Button
                 size="lg"
                 type="submit"
-                disabled={loginMutation.isPending || loginMutation.isSuccess}
-                isLoading={isLoading || loginMutation.isPending}
+                disabled={
+                    loginMutation.isPending ||
+                    loginMutation.isSuccess ||
+                    isSubmitting
+                }
+                isLoading={loginMutation.isPending || isSubmitting}
             >
                 Log in to your account
             </Button>

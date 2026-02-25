@@ -23,7 +23,7 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
     const {
         register,
         handleSubmit,
-        formState: { errors, isLoading },
+        formState: { errors, isSubmitting },
         setError,
         clearErrors,
     } = useForm<ForgotPasswordValues>({
@@ -52,10 +52,13 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
             toast({
                 variant: "error",
                 title: "Request failed",
-                message: apiError.message,
+                message: apiError.messages[0],
             });
 
-            setError("root", { type: "server", message: apiError.message });
+            setError("root", {
+                type: "server",
+                message: apiError.messages.join("\n"),
+            });
         }
     };
 
@@ -80,8 +83,8 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
             <Button
                 size="lg"
                 type="submit"
-                disabled={forgotPasswordMutation.isPending || isLoading}
-                isLoading={forgotPasswordMutation.isPending || isLoading}
+                disabled={forgotPasswordMutation.isPending || isSubmitting}
+                isLoading={forgotPasswordMutation.isPending || isSubmitting}
             >
                 Send reset link
             </Button>

@@ -33,7 +33,7 @@ export const LogoutButton = () => {
             toast({
                 variant: "error",
                 title: "Logout failed",
-                message: apiError.message,
+                message: apiError.messages[0],
             });
         }
     };

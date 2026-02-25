@@ -13,7 +13,7 @@ type BackendErrorShape = {
 export const normalizeApiError = (err: unknown): ApiError => {
     const fallback: ApiError = {
         code: "UNKNOWN",
-        message: "Something went wrong",
+        messages: ["Something went wrong"],
     };
 
     if (!err || typeof err !== "object") return fallback;
@@ -23,10 +23,12 @@ export const normalizeApiError = (err: unknown): ApiError => {
 
     const code = (data?.code as ApiError["code"]) || fallback.code;
     const message =
-        data?.message || data?.error || axiosErr.message || fallback.message;
+        data?.message || data?.error || axiosErr.message || fallback.messages;
+
+    const messageList = Array.isArray(message) ? message : [message];
 
     return {
         code: (code as any) || "UNKNOWN",
-        message,
+        messages: messageList,
     };
 };

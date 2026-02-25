@@ -10,5 +10,5 @@ export type ApiErrorCode =
 
 export type ApiError = {
     code: ApiErrorCode;
-    message: string;
+    messages: string[];
 };

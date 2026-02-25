@@ -8,6 +8,7 @@ import {
     SignupPage,
     ConfirmEmailPage,
     ForgotPasswordPage,
+    ResetPasswordPage,
 } from "@/pages/auth";
 
 export const authRoutes: RouteObject[] = [
@@ -25,6 +26,10 @@ export const authRoutes: RouteObject[] = [
                     {
                         path: "forgot-password",
                         element: <ForgotPasswordPage />,
+                    },
+                    {
+                        path: "reset-password",
+                        element: <ResetPasswordPage />,
                     },
                 ],
             },

@@ -1,24 +1,31 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 
 import { Button, FormError, FormField, Input } from "@/shared/ui";
 
 import {
-    signupSchema,
-    type SignupValues,
-    useSignupMutation,
+    resetPasswordSchema,
+    useResetPasswordMutation,
+    type ResetPasswordValues,
 } from "../../model";
 
+import { routes } from "@/app/config/routes";
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
 
-export type SignupFormProps = {
-    onSuccess: (email: string) => void;
+export type ResetPasswordFormProps = {
+    token: string;
+    onSuccess: () => void;
 };
 
-export const SignupForm = ({ onSuccess }: SignupFormProps) => {
+export const ResetPasswordForm = ({
+    token,
+    onSuccess,
+}: ResetPasswordFormProps) => {
+    const navigate = useNavigate();
     const toast = useUIStore((s) => s.toast);
-    const signupMutation = useSignupMutation();
+    const resetPasswordMutation = useResetPasswordMutation();
 
     const {
         register,
@@ -26,37 +33,36 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
         formState: { errors, isSubmitting },
         setError,
         clearErrors,
-    } = useForm<SignupValues>({
-        resolver: zodResolver(signupSchema),
+    } = useForm<ResetPasswordValues>({
+        resolver: zodResolver(resetPasswordSchema),
         defaultValues: {
-            firstName: "",
-            lastName: "",
-            email: "",
             password: "",
             confirmPassword: "",
         },
-        mode: "onSubmit",
     });
 
-    const onSubmit = async (values: SignupValues) => {
+    const onSubmit = async (values: ResetPasswordValues) => {
         try {
             clearErrors("root");
 
-            const response = await signupMutation.mutateAsync(values);
+            const dto = { token, ...values };
+            const response = await resetPasswordMutation.mutateAsync(dto);
 
-            onSuccess(values.email);
+            onSuccess();
 
             toast({
                 variant: "success",
-                title: "Account created",
+                title: "Password updated",
                 message: response.message,
             });
+
+            navigate(routes.login(), { replace: true });
         } catch (error) {
             const apiError = normalizeApiError(error);
 
             toast({
                 variant: "error",
-                title: "Signup failed",
+                title: "Reset failed",
                 message: apiError.messages[0],
             });
 
@@ -68,57 +74,9 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
     };
 
     return (
-        <form
-            className="grid gap-4"
-            autoComplete="on"
-            onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
             <FormField
-                label="First name"
-                htmlFor="firstName"
-                required
-                error={errors.firstName}
-            >
-                <Input
-                    id="first-name"
-                    placeholder="Your name"
-                    {...register("firstName")}
-                    hasError={!!errors.firstName}
-                />
-            </FormField>
-
-            <FormField
-                label="Last name"
-                htmlFor="lastName"
-                required
-                error={errors.lastName}
-            >
-                <Input
-                    id="last-name"
-                    placeholder="Your last name"
-                    {...register("lastName")}
-                    hasError={!!errors.lastName}
-                />
-            </FormField>
-
-            <FormField
-                label="Email"
-                htmlFor="email"
-                required
-                error={errors.email}
-            >
-                <Input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="test@test.com"
-                    {...register("email")}
-                    hasError={!!errors.email}
-                />
-            </FormField>
-
-            <FormField
-                label="Password"
+                label="New password"
                 htmlFor="password"
                 required
                 error={errors.password}
@@ -132,7 +90,6 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                     hasError={!!errors.password}
                 />
             </FormField>
-
             <FormField
                 label="Confirm password"
                 htmlFor="confirm-password"
@@ -151,10 +108,10 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
             <Button
                 size="lg"
                 type="submit"
-                disabled={signupMutation.isPending || isSubmitting}
-                isLoading={signupMutation.isPending || isSubmitting}
+                disabled={resetPasswordMutation.isPending || isSubmitting}
+                isLoading={resetPasswordMutation.isPending || isSubmitting}
             >
-                Create account
+                Reset password
             </Button>
 
             {errors.root?.message && (
