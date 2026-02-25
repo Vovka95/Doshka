@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 
-import { AuthCard } from "@/widgets/auth";
-import { Button, Spinner } from "@/shared/ui";
+import { AuthCard, AuthRedirect } from "@/widgets/auth";
+import { Spinner } from "@/shared/ui";
 
 import { useConfirmEmailMutation } from "../../model/hooks";
 
@@ -90,19 +89,23 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
             title={title}
             description={description}
             footer={
-                <div className="flex flex-1 items-center justify-center">
+                <div className="grid items-center justify-center">
                     {isPending && <Spinner />}
 
                     {isSuccess && (
-                        <Link to={routes.login()}>
-                            <Button>Back to login</Button>
-                        </Link>
+                        <AuthRedirect
+                            to={routes.login()}
+                            linkText="Back to login"
+                            isButton
+                        />
                     )}
 
                     {isFailed && (
-                        <Link to={routes.signup()}>
-                            <Button>Go to signup</Button>
-                        </Link>
+                        <AuthRedirect
+                            to={routes.signup()}
+                            linkText="Create a new account"
+                            isButton
+                        />
                     )}
                 </div>
             }

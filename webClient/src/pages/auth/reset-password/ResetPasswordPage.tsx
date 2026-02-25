@@ -21,7 +21,11 @@ export const ResetPasswordPage = () => {
             title="Reset your password"
             description="Create a new password for your account."
             footer={
-                <AuthRedirect to={routes.login()} linkText="Back to login" />
+                <AuthRedirect
+                    to={routes.login()}
+                    question="Remembered your password?"
+                    linkText="Back to login"
+                />
             }
         >
             <ResetPasswordForm token={token} onSuccess={onSuccess} />
