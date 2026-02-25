@@ -22,7 +22,7 @@ export const AuthRedirect = ({
 
             {isButton ? (
                 <Link to={to}>
-                    <Button>{linkText}</Button>
+                    <Button size="lg">{linkText}</Button>
                 </Link>
             ) : (
                 <Link className="text-sm underline hover:opacity-80" to={to}>

@@ -49,12 +49,11 @@ export const ResendConfirmationEmail = ({
             disabled={
                 resendConfirmationMutation.isPending || cooldown.isCoolingDown
             }
+            isLoading={resendConfirmationMutation.isPending}
         >
-            {resendConfirmationMutation.isPending
-                ? "Sending..."
-                : cooldown.secondsLeft > 0
-                  ? `Resend available in ${cooldown.secondsLeft}s`
-                  : "Resend email"}
+            {cooldown.secondsLeft > 0
+                ? `Resend available in ${cooldown.secondsLeft}s`
+                : "Resend email"}
         </Button>
     );
 };
