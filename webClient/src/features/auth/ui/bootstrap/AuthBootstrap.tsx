@@ -2,7 +2,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type PropsWithChildren } from "react";
 
 import { authSession } from "../../lib/authSession";
-import { refreshTokenStorage } from "../../lib/refreshTokenStorage";
 
 import { FullPageLoader } from "@/shared/ui";
 
@@ -13,10 +12,7 @@ export const AuthBootstrap = ({ children }: PropsWithChildren) => {
     useEffect(() => {
         (async () => {
             try {
-                const rt = refreshTokenStorage.get();
-                if (rt) {
-                    await authSession.refresh();
-                }
+                await authSession.refresh();
             } catch (error) {
                 authSession.clear(queryClient);
             } finally {

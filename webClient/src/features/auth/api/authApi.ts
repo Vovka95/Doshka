@@ -1,17 +1,21 @@
 import { api } from "@/shared/api/http/api";
 
-import type {
-    RefreshDto,
-    RefreshResponse,
-    ResendConfirmationDto,
-    ResendConfirmationResponse,
-    SignupValues,
-    SignupResponse,
-    User,
-    ConfirmEmailDto,
-    ConfirmEmailResponse,
-    LoginValues,
-    LoginResponse,
+import {
+    type RefreshDto,
+    type RefreshResponse,
+    type ResendConfirmationDto,
+    type ResendConfirmationResponse,
+    type SignupDto,
+    type SignupResponse,
+    type User,
+    type ConfirmEmailDto,
+    type ConfirmEmailResponse,
+    type LoginDto,
+    type LoginResponse,
+    type ForgotPasswordDto,
+    type ForgotPasswordResponse,
+    type ResetPasswordDto,
+    type ResetPasswordResponse,
 } from "../model";
 
 export const authApi = {
@@ -26,12 +30,12 @@ export const authApi = {
         );
         return data;
     },
-    signup: async (dto: SignupValues) => {
+    signup: async (dto: SignupDto) => {
         const { data } = await api.post<SignupResponse>("/auth/signup", dto);
 
         return data;
     },
-    login: async (dto: LoginValues) => {
+    login: async (dto: LoginDto) => {
         const { data } = await api.post<LoginResponse>("/auth/login", dto);
 
         return data;
@@ -52,6 +56,22 @@ export const authApi = {
     },
     logout: async () => {
         const { data } = await api.post("/auth/logout");
+
+        return data;
+    },
+    forgotPassword: async (dto: ForgotPasswordDto) => {
+        const { data } = await api.post<ForgotPasswordResponse>(
+            "/auth/forgot-password",
+            dto,
+        );
+
+        return data;
+    },
+    resetPassword: async (dto: ResetPasswordDto) => {
+        const { data } = await api.post<ResetPasswordResponse>(
+            "/auth/reset-password",
+            dto,
+        );
 
         return data;
     },

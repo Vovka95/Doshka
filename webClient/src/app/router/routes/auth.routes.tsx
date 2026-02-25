@@ -3,7 +3,13 @@ import { Navigate, type RouteObject } from "react-router-dom";
 import { GuestGuard } from "@/features/auth/ui";
 import { AuthLayout } from "@/widgets/layout";
 
-import { LoginPage, SignupPage, ConfirmEmailPage } from "@/pages/auth";
+import {
+    LoginPage,
+    SignupPage,
+    ConfirmEmailPage,
+    ForgotPasswordPage,
+    ResetPasswordPage,
+} from "@/pages/auth";
 
 export const authRoutes: RouteObject[] = [
     {
@@ -17,6 +23,14 @@ export const authRoutes: RouteObject[] = [
                     { path: "login", element: <LoginPage /> },
                     { path: "signup", element: <SignupPage /> },
                     { path: "confirm-email", element: <ConfirmEmailPage /> },
+                    {
+                        path: "forgot-password",
+                        element: <ForgotPasswordPage />,
+                    },
+                    {
+                        path: "reset-password",
+                        element: <ResetPasswordPage />,
+                    },
                 ],
             },
         ],

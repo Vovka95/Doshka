@@ -38,7 +38,7 @@ export const ResendConfirmationEmail = ({
             toast({
                 variant: "error",
                 title: "Failed to resend email",
-                message: apiError.message,
+                message: apiError.messages[0],
             });
         }
     };

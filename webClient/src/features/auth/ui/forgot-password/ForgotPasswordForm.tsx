@@ -3,17 +3,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 
 import { Button, FormError, FormField, Input } from "@/shared/ui";
 
-import { loginSchema, useLoginMutation, type LoginValues } from "../../model";
+import {
+    forgotPasswordSchema,
+    useForgotPasswordMutation,
+    type ForgotPasswordValues,
+} from "../../model";
 
 import { useUIStore } from "@/shared/store/ui";
 import { normalizeApiError } from "@/shared/api/http/errror";
-import { useQueryClient } from "@tanstack/react-query";
-import { authSession } from "../../lib/authSession";
 
-export const LoginForm = () => {
-    const queryClient = useQueryClient();
+export type ForgotPasswordFormProps = {
+    onSuccess: (email: string) => void;
+};
+
+export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
     const toast = useUIStore((s) => s.toast);
-    const loginMutation = useLoginMutation();
+    const forgotPasswordMutation = useForgotPasswordMutation();
 
     const {
         register,
@@ -21,34 +26,32 @@ export const LoginForm = () => {
         formState: { errors, isSubmitting },
         setError,
         clearErrors,
-    } = useForm<LoginValues>({
-        resolver: zodResolver(loginSchema),
+    } = useForm<ForgotPasswordValues>({
+        resolver: zodResolver(forgotPasswordSchema),
         defaultValues: {
             email: "",
-            password: "",
         },
-        mode: "onSubmit",
     });
 
-    const onSubmit = async (values: LoginValues) => {
+    const onSubmit = async (values: ForgotPasswordValues) => {
         try {
             clearErrors("root");
 
-            const response = await loginMutation.mutateAsync(values);
+            const data = await forgotPasswordMutation.mutateAsync(values);
 
-            authSession.apply(queryClient, response);
+            onSuccess(values.email);
 
             toast({
                 variant: "success",
-                title: "Signed in successfully",
-                message: "Welcome back to Doshka.",
+                title: "Check your email",
+                message: data.message,
             });
         } catch (error) {
             const apiError = normalizeApiError(error);
 
             toast({
                 variant: "error",
-                title: "Login failed",
+                title: "Request failed",
                 message: apiError.messages[0],
             });
 
@@ -60,11 +63,7 @@ export const LoginForm = () => {
     };
 
     return (
-        <form
-            className="grid gap-4"
-            autoComplete="on"
-            onSubmit={handleSubmit(onSubmit)}
-        >
+        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
             <FormField
                 label="Email"
                 htmlFor="email"
@@ -80,33 +79,14 @@ export const LoginForm = () => {
                     hasError={!!errors.email}
                 />
             </FormField>
-            <FormField
-                label="Password"
-                htmlFor="password"
-                required
-                error={errors.password}
-            >
-                <Input
-                    id="password"
-                    type="password"
-                    autoComplete="password"
-                    placeholder="••••••••"
-                    {...register("password")}
-                    hasError={!!errors.password}
-                />
-            </FormField>
 
             <Button
                 size="lg"
                 type="submit"
-                disabled={
-                    loginMutation.isPending ||
-                    loginMutation.isSuccess ||
-                    isSubmitting
-                }
-                isLoading={loginMutation.isPending || isSubmitting}
+                disabled={forgotPasswordMutation.isPending || isSubmitting}
+                isLoading={forgotPasswordMutation.isPending || isSubmitting}
             >
-                Log in to your account
+                Send reset link
             </Button>
 
             {errors.root?.message && (

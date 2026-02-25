@@ -1,8 +1,10 @@
 import type { QueryClient } from "@tanstack/react-query";
 
 import { authApi } from "@/features/auth/api/authApi";
+
 import { accessTokenStore } from "../model/store/accessTokenStore";
 import { refreshTokenStorage } from "./refreshTokenStorage";
+
 import type { LoginResponse } from "../model";
 import { qk } from "@/shared/lib/react-query/keys";
 
@@ -22,9 +24,12 @@ export const authSession = {
         if (!refreshPromise) {
             refreshPromise = (async () => {
                 const rt = refreshTokenStorage.get();
-                const data = await authApi.refresh(
-                    rt ? { refreshToken: rt } : undefined,
-                );
+
+                if (!rt) {
+                    throw new Error("No refresh token");
+                }
+
+                const data = await authApi.refresh({ refreshToken: rt });
 
                 accessTokenStore.set(data.accessToken);
                 refreshTokenStorage.set(data.refreshToken);
@@ -46,7 +51,6 @@ export const authSession = {
 
         if (queryClient) {
             queryClient.setQueryData(qk.me(), null);
-            queryClient.removeQueries({ queryKey: qk.me(), exact: true });
         }
     },
 };

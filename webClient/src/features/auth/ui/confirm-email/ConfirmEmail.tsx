@@ -1,18 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { useConfirmEmailMutation } from "../../model/hooks";
-import { routes } from "@/app/config/routes";
-
-import { Button, Spinner } from "@/shared/ui";
-import { normalizeApiError } from "@/shared/api/http/errror";
 import { AuthCard } from "@/widgets/auth";
+import { Button, Spinner } from "@/shared/ui";
 
-const deleteSearchParams = (param: string) => {
-    const url = new URL(window.location.href);
-    url.searchParams.delete(param);
-    window.history.replaceState({}, "", url.toString());
-};
+import { useConfirmEmailMutation } from "../../model/hooks";
+
+import { normalizeApiError } from "@/shared/api/http/errror";
+import { routes } from "@/app/config/routes";
 
 type Status =
     | "pending"
@@ -22,10 +17,11 @@ type Status =
     | "error";
 
 export type ConfirmEmailProps = {
+    onSuccess: () => void;
     token: string;
 };
 
-export const ConfirmEmail = ({ token }: ConfirmEmailProps) => {
+export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
     const confirmEmailMutation = useConfirmEmailMutation();
     const [status, setStatus] = useState<Status>("pending");
 
@@ -48,7 +44,8 @@ export const ConfirmEmail = ({ token }: ConfirmEmailProps) => {
         (async () => {
             try {
                 await confirmEmailMutation.mutateAsync(token);
-                deleteSearchParams("token");
+
+                onSuccess();
 
                 setStatus("success");
             } catch (error) {

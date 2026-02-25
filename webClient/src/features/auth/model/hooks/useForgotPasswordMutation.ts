@@ -2,8 +2,8 @@ import { useMutation } from "@tanstack/react-query";
 
 import { authApi } from "../../api";
 
-export const useResendConfirmationMutation = () => {
+export const useForgotPasswordMutation = () => {
     return useMutation({
-        mutationFn: authApi.resendConfirmation,
+        mutationFn: authApi.forgotPassword,
     });
 };
