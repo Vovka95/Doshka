@@ -9,5 +9,3 @@ export const routes = {
     issues: () => "/app/issues",
     wiki: () => "/app/wiki",
 } as const;
-
-export const DEFAULT_AUTH_REDIRECT = routes.app();
