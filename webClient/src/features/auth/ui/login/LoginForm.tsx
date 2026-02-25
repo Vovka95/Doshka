@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, FormError, FormField, Input } from "@/shared/ui";
+import { FormField, Input } from "@/shared/ui";
+import { AuthForm } from "../auth-form";
 
 import { loginSchema, useLoginMutation, type LoginValues } from "../../model";
 
@@ -60,10 +61,17 @@ export const LoginForm = () => {
     };
 
     return (
-        <form
-            className="grid gap-4"
-            autoComplete="on"
+        <AuthForm
             onSubmit={handleSubmit(onSubmit)}
+            submitButton={{
+                title: "Log in to your account",
+                disabled:
+                    loginMutation.isPending ||
+                    loginMutation.isSuccess ||
+                    isSubmitting,
+                isLoading: loginMutation.isPending || isSubmitting,
+            }}
+            errorMessage={errors.root?.message}
         >
             <FormField
                 label="Email"
@@ -95,23 +103,6 @@ export const LoginForm = () => {
                     hasError={!!errors.password}
                 />
             </FormField>
-
-            <Button
-                size="lg"
-                type="submit"
-                disabled={
-                    loginMutation.isPending ||
-                    loginMutation.isSuccess ||
-                    isSubmitting
-                }
-                isLoading={loginMutation.isPending || isSubmitting}
-            >
-                Log in to your account
-            </Button>
-
-            {errors.root?.message && (
-                <FormError message={errors.root.message} />
-            )}
-        </form>
+        </AuthForm>
     );
 };

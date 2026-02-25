@@ -2,7 +2,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 
-import { Button, FormError, FormField, Input } from "@/shared/ui";
+import { FormField, Input } from "@/shared/ui";
+import { AuthForm } from "../auth-form";
 
 import {
     resetPasswordSchema,
@@ -74,7 +75,15 @@ export const ResetPasswordForm = ({
     };
 
     return (
-        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <AuthForm
+            onSubmit={handleSubmit(onSubmit)}
+            submitButton={{
+                title: "Reset password",
+                disabled: resetPasswordMutation.isPending || isSubmitting,
+                isLoading: resetPasswordMutation.isPending || isSubmitting,
+            }}
+            errorMessage={errors.root?.message}
+        >
             <FormField
                 label="New password"
                 htmlFor="password"
@@ -104,19 +113,6 @@ export const ResetPasswordForm = ({
                     hasError={!!errors.confirmPassword}
                 />
             </FormField>
-
-            <Button
-                size="lg"
-                type="submit"
-                disabled={resetPasswordMutation.isPending || isSubmitting}
-                isLoading={resetPasswordMutation.isPending || isSubmitting}
-            >
-                Reset password
-            </Button>
-
-            {errors.root?.message && (
-                <FormError message={errors.root.message} />
-            )}
-        </form>
+        </AuthForm>
     );
 };

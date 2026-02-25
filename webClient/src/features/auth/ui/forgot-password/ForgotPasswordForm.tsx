@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, FormError, FormField, Input } from "@/shared/ui";
+import { FormField, Input } from "@/shared/ui";
+import { AuthForm } from "../auth-form";
 
 import {
     forgotPasswordSchema,
@@ -63,7 +64,15 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
     };
 
     return (
-        <form className="grid gap-4" onSubmit={handleSubmit(onSubmit)}>
+        <AuthForm
+            onSubmit={handleSubmit(onSubmit)}
+            submitButton={{
+                title: "Send reset link",
+                disabled: forgotPasswordMutation.isPending || isSubmitting,
+                isLoading: forgotPasswordMutation.isPending || isSubmitting,
+            }}
+            errorMessage={errors.root?.message}
+        >
             <FormField
                 label="Email"
                 htmlFor="email"
@@ -79,19 +88,6 @@ export const ForgotPasswordForm = ({ onSuccess }: ForgotPasswordFormProps) => {
                     hasError={!!errors.email}
                 />
             </FormField>
-
-            <Button
-                size="lg"
-                type="submit"
-                disabled={forgotPasswordMutation.isPending || isSubmitting}
-                isLoading={forgotPasswordMutation.isPending || isSubmitting}
-            >
-                Send reset link
-            </Button>
-
-            {errors.root?.message && (
-                <FormError message={errors.root.message} />
-            )}
-        </form>
+        </AuthForm>
     );
 };

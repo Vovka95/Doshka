@@ -1,7 +1,8 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Button, FormError, FormField, Input } from "@/shared/ui";
+import { FormField, Input } from "@/shared/ui";
+import { AuthForm } from "../auth-form";
 
 import {
     signupSchema,
@@ -68,10 +69,14 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
     };
 
     return (
-        <form
-            className="grid gap-4"
-            autoComplete="on"
+        <AuthForm
             onSubmit={handleSubmit(onSubmit)}
+            submitButton={{
+                title: "Create account",
+                disabled: signupMutation.isPending || isSubmitting,
+                isLoading: signupMutation.isPending || isSubmitting,
+            }}
+            errorMessage={errors.root?.message}
         >
             <FormField
                 label="First name"
@@ -147,19 +152,6 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                     hasError={!!errors.confirmPassword}
                 />
             </FormField>
-
-            <Button
-                size="lg"
-                type="submit"
-                disabled={signupMutation.isPending || isSubmitting}
-                isLoading={signupMutation.isPending || isSubmitting}
-            >
-                Create account
-            </Button>
-
-            {errors.root?.message && (
-                <FormError message={errors.root.message} />
-            )}
-        </form>
+        </AuthForm>
     );
 };
