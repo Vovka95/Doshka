@@ -146,7 +146,7 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
             <Button
                 size="lg"
                 type="submit"
-                disabled={signupMutation.isPending}
+                disabled={signupMutation.isPending || isLoading}
                 isLoading={signupMutation.isPending || isLoading}
             >
                 Create account
