@@ -6,8 +6,12 @@ import {
   Post,
   Query,
   UseGuards,
+  Req,
+  Res,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ConfigService } from '@nestjs/config';
 
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
@@ -15,7 +19,6 @@ import { CurrentUser } from 'src/common/decorators/current-user-decorator';
 
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { AuthTokensResponseDto } from './dto/auth-tokens-response.dto';
@@ -24,11 +27,21 @@ import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { type AccessTokenPayload } from './interfaces/jwt-payload.interface';
 import { MessageResult } from '../../common/types/message-result.type';
+import { AUTH_ERROR } from './constants';
+import {
+  clearRefreshCookie,
+  getRefreshCookie,
+  setRefreshCookie,
+} from './utils/auth-cookies.utils';
+import { throwForbiddenException } from 'src/common/errors/throw-api-error';
 
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Post('signup')
   async signup(@Body() dto: SignupDto): Promise<MessageResult> {
@@ -37,22 +50,46 @@ export class AuthController {
 
   @HttpCode(200)
   @Post('login')
-  async login(@Body() dto: LoginDto): Promise<AuthResponseDto> {
-    return this.authService.login(dto);
+  async login(
+    @Body() dto: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthResponseDto> {
+    const { accessToken, refreshToken, user } =
+      await this.authService.login(dto);
+
+    setRefreshCookie(res, refreshToken, this.configService);
+
+    return { accessToken, user };
   }
 
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @HttpCode(204)
   @Post('logout')
-  async logout(@CurrentUser() user: AccessTokenPayload): Promise<void> {
-    return this.authService.logout(user.sub);
+  async logout(
+    @CurrentUser() user: AccessTokenPayload,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
+    await this.authService.logout(user.sub);
+
+    clearRefreshCookie(res, this.configService);
   }
 
   @HttpCode(200)
   @Post('refresh')
-  refresh(@Body() dto: RefreshTokenDto): Promise<AuthTokensResponseDto> {
-    return this.authService.refreshTokens(dto.refreshToken);
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AuthTokensResponseDto> {
+    const refreshToken = getRefreshCookie(req);
+    if (!refreshToken) throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
+
+    const { accessToken, refreshToken: newRefresh } =
+      await this.authService.refreshTokens(refreshToken);
+
+    setRefreshCookie(res, newRefresh, this.configService);
+
+    return { accessToken };
   }
 
   @Get('confirm-email')
