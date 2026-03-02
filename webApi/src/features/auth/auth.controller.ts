@@ -25,7 +25,10 @@ import { AuthTokensResponseDto } from './dto/auth-tokens-response.dto';
 import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { type AccessTokenPayload } from './interfaces/jwt-payload.interface';
+import {
+  RefreshTokenPayload,
+  type AccessTokenPayload,
+} from './interfaces/jwt-payload.interface';
 import { MessageResult } from '../../common/types/message-result.type';
 import { AUTH_ERROR } from './constants';
 import {
@@ -34,6 +37,7 @@ import {
   setRefreshCookie,
 } from './utils/auth-cookies.utils';
 import { throwForbiddenException } from 'src/common/errors/throw-api-error';
+import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -41,6 +45,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
   ) {}
 
   @Post('signup')
@@ -67,10 +72,27 @@ export class AuthController {
   @HttpCode(204)
   @Post('logout')
   async logout(
-    @CurrentUser() user: AccessTokenPayload,
+    @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
+    @CurrentUser() user: AccessTokenPayload,
   ): Promise<void> {
-    await this.authService.logout(user.sub);
+    const refreshToken = getRefreshCookie(req);
+    let sid: string | undefined;
+
+    if (refreshToken) {
+      try {
+        const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+          refreshToken,
+          {
+            secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
+          },
+        );
+
+        sid = payload.sid;
+      } catch {}
+    }
+
+    await this.authService.logout(user.sub, sid);
 
     clearRefreshCookie(res, this.configService);
   }

@@ -2,9 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { Request } from 'express';
 
 import { UsersService } from '../users/users.service';
 import { EmailService } from '../../infrastructure/email/email.service';
+import { AuthSessionsService } from './services/auth-sessions.service';
 
 import { User } from '../users/entity/user.entity';
 import { SignupDto } from './dto/signup.dto';
@@ -39,6 +41,9 @@ import {
   refreshTokenDigestMatches,
 } from './utils';
 import { isResendCooldownPassed } from 'src/common/utils';
+import ms from 'ms';
+import { getRefreshMaxAge } from './utils/refresh-age.utils';
+import { AuthSession } from './entity/auth-session.entity';
 
 @Injectable()
 export class AuthService {
@@ -47,6 +52,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
+    private readonly authSessionsService: AuthSessionsService,
   ) {}
 
   async signup(dto: SignupDto): Promise<MessageResult> {
@@ -138,8 +144,12 @@ export class AuthService {
     return { ...tokens, user: this.usersService.mapToUserResponse(user) };
   }
 
-  async logout(userId: string): Promise<void> {
-    this.revokeSession(userId);
+  async logout(userId: string, sid?: string): Promise<void> {
+    if (sid) {
+      this.authSessionsService.revokeSession(sid);
+    } else {
+      await this.authSessionsService.revokeAllUserSessions(userId);
+    }
   }
 
   async refreshTokens(refreshToken: string): Promise<AuthTokens> {
@@ -156,20 +166,22 @@ export class AuthService {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    const user = await this.usersService.findById(payload.sub);
-    if (!user || !user.refreshTokenHash || !user.isEmailConfirmed) {
+    const session = await this.authSessionsService.findById(payload.sid);
+
+    if (!session || session.revokedAt || session.expiresAt < new Date()) {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
     const isRefreshTokenValid = refreshTokenDigestMatches(
       refreshToken,
-      user.refreshTokenHash,
+      session.refreshTokenHash,
     );
     if (!isRefreshTokenValid) {
+      await this.authSessionsService.revokeAllUserSessions(payload.sub);
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    const tokens = await this.rotateRefreshToken(user);
+    const tokens = await this.rotateRefreshToken(payload, session);
 
     return tokens;
   }
@@ -315,9 +327,9 @@ export class AuthService {
       passwordResetTokenHash: null,
       passwordResetTokenExpiresAt: null,
       passwordResetSentAt: null,
-      refreshTokenHash: null,
-      refreshTokenUpdatedAt: null,
     });
+
+    await this.authSessionsService.revokeAllUserSessions(user.id);
 
     return { message: AUTH_MESSAGE.PASSWORD_RESET_SUCCESS };
   }
@@ -332,37 +344,46 @@ export class AuthService {
     return this.usersService.mapToUserResponse(foundUser);
   }
 
-  private async issueTokens(userId: string): Promise<AuthTokens> {
-    const tokens = await generateJwtTokens(
+  private async issueTokens(
+    userId: string,
+    req?: Request,
+  ): Promise<AuthTokens> {
+    const { accessToken, refreshToken, sid } = await generateJwtTokens(
       this.jwtService,
       this.configService,
       { sub: userId },
     );
-    const refreshTokenHash = refreshTokenDigest(tokens.refreshToken);
+    const refreshTokenHash = refreshTokenDigest(refreshToken);
 
-    await this.usersService.update(userId, {
+    const refreshMaxAge = getRefreshMaxAge(this.configService);
+    const expiresAt = new Date(Date.now() + refreshMaxAge);
+
+    this.authSessionsService.createSession({
+      id: sid,
+      userId,
       refreshTokenHash,
-      refreshTokenUpdatedAt: new Date(),
+      expiresAt,
+      userAgent: req?.headers['user-agent'] ?? null,
+      ip: req?.ip ?? null,
     });
 
-    return tokens;
+    return { accessToken, refreshToken };
   }
 
-  private async rotateRefreshToken(user: User): Promise<AuthTokens> {
-    if (!user.refreshTokenHash) {
-      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
-    }
-
-    const tokens = await generateJwtTokens(
+  private async rotateRefreshToken(
+    payload: RefreshTokenPayload,
+    session: AuthSession,
+  ): Promise<AuthTokens> {
+    const { accessToken, refreshToken, sid } = await generateJwtTokens(
       this.jwtService,
       this.configService,
-      { sub: user.id },
+      { sub: payload.sub, sid: payload.sid },
     );
-    const refreshTokenHash = refreshTokenDigest(tokens.refreshToken);
+    const refreshTokenHash = refreshTokenDigest(refreshToken);
 
-    const rotated = await this.usersService.rotateRefreshTokenAtomic(
-      user.id,
-      user.refreshTokenHash,
+    const rotated = await this.authSessionsService.rotateSession(
+      sid,
+      session.refreshTokenHash,
       refreshTokenHash,
     );
 
@@ -370,13 +391,6 @@ export class AuthService {
       throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
     }
 
-    return tokens;
-  }
-
-  private async revokeSession(userId: string): Promise<void> {
-    await this.usersService.update(userId, {
-      refreshTokenHash: null,
-      refreshTokenUpdatedAt: null,
-    });
+    return { accessToken, refreshToken };
   }
 }
