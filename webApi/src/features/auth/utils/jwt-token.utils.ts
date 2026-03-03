@@ -5,45 +5,48 @@ import { randomUUID } from 'crypto';
 import {
   AccessTokenPayload,
   RefreshTokenPayload,
-  JwtTokensPayload,
 } from '../interfaces/jwt-payload.interface';
 import { ExpiresIn } from '../types/expires-in.type';
-import { JwtTokensResult } from '../types/jwt-tokens-result.type';
 
-export const generateJwtTokens = async (
+export const generateAccessToken = async (
   jwtService: JwtService,
   configService: ConfigService,
-  payload: JwtTokensPayload,
-): Promise<JwtTokensResult> => {
-  const accessTokenSecret = configService.get<string>('JWT_SECRET');
-  const accessTokenExpiresIn = configService.get<ExpiresIn>('JWT_EXPIRES_IN');
+  payload: AccessTokenPayload,
+) => {
+  const secret = configService.get<string>('JWT_SECRET');
+  const expiresIn = configService.get<ExpiresIn>('JWT_EXPIRES_IN');
 
-  const refreshTokenSecret = configService.get<string>('JWT_REFRESH_SECRET');
-  const refreshTokenExpiresIn = configService.get<ExpiresIn>(
-    'JWT_REFRESH_EXPIRES_IN',
-  );
-
-  const accessPayload: AccessTokenPayload = {
-    sub: payload.sub,
-  };
-
-  const sessionId = payload.sid ?? randomUUID();
-
-  const refreshPayload: RefreshTokenPayload = {
-    sub: payload.sub,
-    sid: sessionId,
-  };
-
-  const accessToken = await jwtService.signAsync(accessPayload, {
-    secret: accessTokenSecret,
-    expiresIn: accessTokenExpiresIn,
+  const token = await jwtService.signAsync(payload, {
+    secret,
+    expiresIn,
   });
 
-  const refreshToken = await jwtService.signAsync(refreshPayload, {
-    secret: refreshTokenSecret,
-    expiresIn: refreshTokenExpiresIn,
+  return token;
+};
+
+export const generateRefreshToken = async (
+  jwtService: JwtService,
+  configService: ConfigService,
+  payload: RefreshTokenPayload,
+) => {
+  const secret = configService.get<string>('JWT_REFRESH_SECRET');
+  const expiresIn = configService.get<ExpiresIn>('JWT_REFRESH_EXPIRES_IN');
+
+  const token = await jwtService.signAsync(payload, {
+    secret,
+    expiresIn,
     jwtid: randomUUID(),
   });
 
-  return { accessToken, refreshToken, sid: sessionId };
+  return token;
+};
+
+export const verifyRefreshToken = async (
+  jwtService: JwtService,
+  configService: ConfigService,
+  refreshToken: string,
+) => {
+  return jwtService.verifyAsync<RefreshTokenPayload>(refreshToken, {
+    secret: configService.getOrThrow('JWT_REFRESH_SECRET'),
+  });
 };

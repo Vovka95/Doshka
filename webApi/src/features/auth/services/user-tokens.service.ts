@@ -56,8 +56,8 @@ export class UserTokensService {
   }
 
   async consume(
-    type: UserTokenType,
     tokenHash: string,
+    type: UserTokenType,
   ): Promise<UserTokenConsumeResult> {
     const now = new Date();
 

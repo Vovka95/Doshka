@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { User } from './entity/user.entity';
 import { UserResponseDto } from './dto/user-response.dto';
 
+import { normalizeEmail } from 'src/common/utils';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -23,7 +25,7 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
-      where: { email: email.trim().toLowerCase() },
+      where: { email: normalizeEmail(email) },
     });
   }
 
