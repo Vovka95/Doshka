@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from './auth.service';
 import { AuthTokenService } from './services/auth-token.service';
 import { AuthSessionsService } from './services/auth-sessions.service';
+import { OneTimeTokenService } from './services/one-time-token.service';
 import { UserTokensService } from './services/user-tokens.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
@@ -44,6 +45,7 @@ import { ExpiresIn } from './types/expires-in.type';
     JwtStrategy,
     AuthTokenService,
     AuthSessionsService,
+    OneTimeTokenService,
     UserTokensService,
   ],
   exports: [AuthService],

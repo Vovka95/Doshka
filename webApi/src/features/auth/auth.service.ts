@@ -3,10 +3,9 @@ import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
 
 import { UsersService } from '../users/users.service';
-import { EmailService } from '../../infrastructure/email/email.service';
-import { AuthSessionsService } from './services/auth-sessions.service';
-import { UserTokensService } from './services/user-tokens.service';
 import { AuthTokenService } from './services/auth-token.service';
+import { AuthSessionsService } from './services/auth-sessions.service';
+import { OneTimeTokenService } from './services/one-time-token.service';
 
 import { User } from '../users/entity/user.entity';
 
@@ -18,25 +17,15 @@ import { ResetPasswordDto } from './dto/reset-password.dto';
 import type { AuthResult } from './types/auth-result.type';
 import type { AuthTokens } from './types/auth-tokens.type';
 import type { MessageResult } from '../../common/types/message-result.type';
-import { OneTimeTokenEmailStrategy } from './types/one-time-token-email-strategy.type';
 
 import { UserTokenType } from './enum/user-token-type.enum';
 
 import {
-  throwBadRequestException,
   throwConflictException,
   throwForbiddenException,
   throwUnauthorizedException,
 } from '../../common/errors/throw-api-error';
-import {
-  AUTH_CONFIRM,
-  AUTH_ERROR,
-  AUTH_MESSAGE,
-  AUTH_PASSWORD,
-  AUTH_RESET_PASSWORD,
-} from './constants';
-
-import { generateOneTimeToken, hashOneTimeToken } from './utils';
+import { AUTH_ERROR, AUTH_MESSAGE, AUTH_PASSWORD } from './constants';
 
 import { normalizeEmail } from 'src/common/utils';
 
@@ -44,33 +33,20 @@ import { normalizeEmail } from 'src/common/utils';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly emailService: EmailService,
     private readonly authSessionsService: AuthSessionsService,
-    private readonly userTokensService: UserTokensService,
     private readonly authTokenService: AuthTokenService,
+    private readonly oneTimeTokenService: OneTimeTokenService,
   ) {}
 
   async signup(dto: SignupDto): Promise<MessageResult> {
     const response = { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
 
     const email = normalizeEmail(dto.email);
-    const tokenType = UserTokenType.EMAIL_CONFIRM;
 
     const existingUser = await this.usersService.findByEmail(email);
+
     if (existingUser?.isEmailConfirmed) {
       throwConflictException(AUTH_ERROR.EMAIL_ALREADY_EXISTS);
-    }
-
-    if (existingUser) {
-      const canSend = await this.userTokensService.canSend(
-        existingUser.id,
-        tokenType,
-        AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
-      );
-
-      if (!canSend) {
-        return response;
-      }
     }
 
     const hashedPassword = await this.hashPassword(dto.password);
@@ -90,7 +66,7 @@ export class AuthService {
       });
     }
 
-    await this.createAndSendOneTimeTokenEmail(user, tokenType);
+    await this.oneTimeTokenService.sendEmailConfirmation(user);
 
     return response;
   }
@@ -115,12 +91,16 @@ export class AuthService {
 
   async confirmEmail(token: string): Promise<MessageResult> {
     const tokenType = UserTokenType.EMAIL_CONFIRM;
-    const { userId } = await this.consumeOneTimeTokenOrThrow(token, tokenType);
+    const { userId } = await this.oneTimeTokenService.consumeOrThrow(
+      token,
+      tokenType,
+    );
 
     await this.usersService.update(userId, {
       isEmailConfirmed: true,
     });
-    await this.userTokensService.invalidateAllActive(userId, tokenType);
+
+    await this.oneTimeTokenService.invalidateAllActive(userId, tokenType);
 
     return { message: AUTH_MESSAGE.EMAIL_CONFIRMED };
   }
@@ -131,24 +111,13 @@ export class AuthService {
     };
 
     const email = normalizeEmail(emailRaw);
-    const tokenType = UserTokenType.EMAIL_CONFIRM;
 
     const user = await this.usersService.findByEmail(email);
     if (!user || user.isEmailConfirmed) {
       return response;
     }
 
-    const canSend = await this.userTokensService.canSend(
-      user.id,
-      tokenType,
-      AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
-    );
-
-    if (!canSend) {
-      return response;
-    }
-
-    await this.createAndSendOneTimeTokenEmail(user, tokenType);
+    await this.oneTimeTokenService.sendEmailConfirmation(user);
 
     return response;
   }
@@ -165,37 +134,25 @@ export class AuthService {
       return response;
     }
 
-    const canSend = await this.userTokensService.canSend(
-      user.id,
-      UserTokenType.PASSWORD_RESET,
-      AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
-    );
-
-    if (!canSend) {
-      return response;
-    }
-
-    await this.createAndSendOneTimeTokenEmail(
-      user,
-      UserTokenType.PASSWORD_RESET,
-    );
+    await this.oneTimeTokenService.sendPasswordReset(user);
 
     return response;
   }
 
   async resetPassword(dto: ResetPasswordDto): Promise<MessageResult> {
     const tokenType = UserTokenType.PASSWORD_RESET;
-    const { userId } = await this.consumeOneTimeTokenOrThrow(
+    const { userId } = await this.oneTimeTokenService.consumeOrThrow(
       dto.token,
       tokenType,
     );
+
     const hashedPassword = await this.hashPassword(dto.password);
     await this.usersService.update(userId, {
       password: hashedPassword,
     });
 
     await this.authSessionsService.revokeAllUserSessions(userId);
-    await this.userTokensService.invalidateAllActive(userId, tokenType);
+    await this.oneTimeTokenService.invalidateAllActive(userId, tokenType);
 
     return { message: AUTH_MESSAGE.PASSWORD_RESET_SUCCESS };
   }
@@ -234,73 +191,5 @@ export class AuthService {
     if (!user.isEmailConfirmed) {
       throwUnauthorizedException(AUTH_ERROR.EMAIL_NOT_CONFIRMED);
     }
-  }
-
-  private readonly oneTimeTokenEmailStrategies: {
-    [UserTokenType.EMAIL_CONFIRM]: OneTimeTokenEmailStrategy;
-    [UserTokenType.PASSWORD_RESET]: OneTimeTokenEmailStrategy;
-  } = {
-    [UserTokenType.EMAIL_CONFIRM]: {
-      ttlHours: AUTH_CONFIRM.TTL_HOURS,
-      send: (email, token, firstName) =>
-        this.emailService.sendEmailConfirmation(email, token, firstName),
-    },
-
-    [UserTokenType.PASSWORD_RESET]: {
-      ttlHours: AUTH_RESET_PASSWORD.TTL_HOURS,
-      send: (email, token, firstName) =>
-        this.emailService.sendResetPasswordEmail(email, token, firstName),
-    },
-  };
-
-  private async createAndSendOneTimeTokenEmail(
-    user: User,
-    type: UserTokenType,
-  ): Promise<void> {
-    const strategy = this.oneTimeTokenEmailStrategies[type];
-
-    if (!strategy) {
-      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
-    }
-
-    const email = normalizeEmail(user.email);
-    const sentAt = new Date();
-
-    const { token, tokenHash, expiresAt } = generateOneTimeToken(
-      strategy.ttlHours,
-    );
-
-    await this.userTokensService.createAndInvalidatePrevious({
-      userId: user.id,
-      type,
-      tokenHash,
-      expiresAt,
-      sentAt,
-    });
-
-    await strategy.send(email, token, user.firstName);
-  }
-
-  private async consumeOneTimeTokenOrThrow(
-    token: string,
-    type: UserTokenType,
-  ): Promise<{ userId: string }> {
-    if (!token) throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
-
-    const tokenHash = hashOneTimeToken(token);
-
-    const result = await this.userTokensService.consume(tokenHash, type);
-
-    if (!result.ok) {
-      if (result.reason === 'EXPIRED')
-        throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
-
-      if (result.reason === 'USED')
-        throwBadRequestException(AUTH_ERROR.TOKEN_ALREADY_USED);
-
-      throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
-    }
-
-    return { userId: result.token.userId };
   }
 }
