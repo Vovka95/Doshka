@@ -24,9 +24,10 @@ export class UserTokensService {
         userId,
         type,
         usedAt: IsNull(),
+        invalidatedAt: IsNull(),
         expiresAt: MoreThan(now),
       },
-      { usedAt: now },
+      { invalidatedAt: now },
     );
 
     const token = this.repository.create({
@@ -34,6 +35,7 @@ export class UserTokensService {
       type,
       tokenHash,
       expiresAt,
+      invalidatedAt: null,
       usedAt: null,
       sentAt: sentAt ?? null,
     });
@@ -48,7 +50,10 @@ export class UserTokensService {
   ): Promise<boolean> {
     if (!Number.isFinite(cooldownSeconds) || cooldownSeconds <= 0) return true;
 
-    const last = await this.repository.findOne({ where: { userId, type } });
+    const last = await this.repository.findOne({
+      where: { userId, type },
+      order: { sentAt: 'DESC' },
+    });
 
     if (!last?.sentAt) return true;
 
@@ -64,19 +69,27 @@ export class UserTokensService {
     const found = await this.repository.findOne({ where: { type, tokenHash } });
 
     if (!found) return { ok: false, reason: 'NOT_FOUND' };
-    if (found.usedAt) return { ok: false, reason: 'USED' };
+    if (found.invalidatedAt) return { ok: false, reason: 'EXPIRED' };
     if (found.expiresAt < now) return { ok: false, reason: 'EXPIRED' };
+    if (found.usedAt) return { ok: false, reason: 'USED' };
 
     const response = await this.repository.update(
       {
         id: found.id,
         usedAt: IsNull(),
+        invalidatedAt: IsNull(),
         expiresAt: MoreThan(now),
       },
       { usedAt: now },
     );
 
-    if (!response.affected) return { ok: false, reason: 'USED' };
+    if (!response.affected) {
+      const fresh = await this.repository.findOne({ where: { id: found.id } });
+
+      if (!fresh) return { ok: false, reason: 'NOT_FOUND' };
+      if (fresh.usedAt) return { ok: false, reason: 'USED' };
+      return { ok: false, reason: 'EXPIRED' };
+    }
 
     return { ok: true, token: { ...found, usedAt: now } as UserToken };
   }
@@ -92,18 +105,23 @@ export class UserTokensService {
         userId,
         type,
         usedAt: IsNull(),
+        invalidatedAt: IsNull(),
         expiresAt: MoreThan(now),
       },
-      { usedAt: now },
+      { invalidatedAt: now },
     );
   }
 
-  async markExpiredAsUsed(): Promise<void> {
+  async markExpiredAsInvalidated(): Promise<void> {
     const now = new Date();
 
     await this.repository.update(
-      { usedAt: IsNull(), expiresAt: LessThanOrEqual(now) },
-      { usedAt: now },
+      {
+        usedAt: IsNull(),
+        invalidatedAt: IsNull(),
+        expiresAt: LessThanOrEqual(now),
+      },
+      { invalidatedAt: now },
     );
   }
 }

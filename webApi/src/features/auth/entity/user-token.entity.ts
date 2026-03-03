@@ -34,6 +34,9 @@ export class UserToken {
   @Column({ type: 'timestamp' })
   expiresAt: Date;
 
+  @Column({ type: 'timestamptz', nullable: true })
+  invalidatedAt: Date | null;
+
   @Column({ type: 'timestamp', nullable: true })
   usedAt: Date | null;
 

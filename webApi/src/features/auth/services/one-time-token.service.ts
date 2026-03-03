@@ -5,12 +5,14 @@ import { EmailService } from 'src/infrastructure/email/email.service';
 
 import { User } from 'src/features/users/entity/user.entity';
 
-import { UserTokenType } from '../enum/user-token-type.enum';
 import { OneTimeTokenEmailStrategy } from '../types/one-time-token-email-strategy.type';
-import { AUTH_CONFIRM, AUTH_ERROR, AUTH_RESET_PASSWORD } from '../constants';
+import { UserTokenType } from '../enum/user-token-type.enum';
+
 import { throwBadRequestException } from 'src/common/errors/throw-api-error';
-import { normalizeEmail } from 'src/common/utils';
+import { AUTH_CONFIRM, AUTH_ERROR, AUTH_RESET_PASSWORD } from '../constants';
+
 import { generateOneTimeToken, hashOneTimeToken } from '../utils';
+import { normalizeEmail } from 'src/common/utils';
 
 @Injectable()
 export class OneTimeTokenService {
