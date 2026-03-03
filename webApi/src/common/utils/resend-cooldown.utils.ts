@@ -3,5 +3,5 @@ export const isResendCooldownPassed = (
   cooldowmSeconds: number,
 ): boolean => {
   const diffMs = Date.now() - sentAt.getTime();
-  return diffMs > cooldowmSeconds * 1000;
+  return diffMs >= cooldowmSeconds * 1000;
 };

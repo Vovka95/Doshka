@@ -5,6 +5,8 @@ import { Repository } from 'typeorm';
 import { User } from './entity/user.entity';
 import { UserResponseDto } from './dto/user-response.dto';
 
+import { normalizeEmail } from 'src/common/utils';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -12,48 +14,23 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async createUser(data: Partial<User>): Promise<User> {
+    const user = this.userRepository.create(data);
+    return this.userRepository.save(user);
+  }
+
   async findById(userId: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { id: userId } });
   }
 
   async findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findOne({
-      where: { email: email.trim().toLowerCase() },
+      where: { email: normalizeEmail(email) },
     });
-  }
-
-  async findByEmailConfirmTokenHash(hash: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { emailConfirmTokenHash: hash },
-    });
-  }
-
-  async findByPasswordResetTokenHash(hash: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { passwordResetTokenHash: hash },
-    });
-  }
-
-  async createUser(data: Partial<User>): Promise<User> {
-    const user = this.userRepository.create(data);
-    return this.userRepository.save(user);
   }
 
   async update(userId: string, data: Partial<User>): Promise<void> {
     await this.userRepository.update(userId, data);
-  }
-
-  async rotateRefreshTokenAtomic(
-    userId: string,
-    oldTokenHash: string,
-    newTokenHash: string,
-  ): Promise<boolean> {
-    const res = await this.userRepository.update(
-      { id: userId, refreshTokenHash: oldTokenHash },
-      { refreshTokenHash: newTokenHash, refreshTokenUpdatedAt: new Date() },
-    );
-
-    return !!res.affected;
   }
 
   mapToUserResponse(user: User): UserResponseDto {

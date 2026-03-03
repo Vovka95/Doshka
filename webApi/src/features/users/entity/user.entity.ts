@@ -23,12 +23,6 @@ export class User {
   @Column({ nullable: false })
   password: string;
 
-  @Column({ type: 'varchar', nullable: true })
-  refreshTokenHash?: string | null;
-
-  @Column({ type: 'timestamp', nullable: true })
-  refreshTokenUpdatedAt: Date | null;
-
   @Column({ default: false })
   isEmailConfirmed: boolean;
 

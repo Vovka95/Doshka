@@ -7,35 +7,46 @@ import {
   RefreshTokenPayload,
 } from '../interfaces/jwt-payload.interface';
 import { ExpiresIn } from '../types/expires-in.type';
-import { AuthTokens } from '../types/auth-tokens.type';
 
-export const generateJwtTokens = async (
+export const generateAccessToken = async (
   jwtService: JwtService,
   configService: ConfigService,
   payload: AccessTokenPayload,
-): Promise<AuthTokens> => {
-  const accessTokenSecret = configService.get<string>('JWT_SECRET');
-  const accessTokenExpiresIn = configService.get<ExpiresIn>('JWT_EXPIRES_IN');
+) => {
+  const secret = configService.get<string>('JWT_SECRET');
+  const expiresIn = configService.get<ExpiresIn>('JWT_EXPIRES_IN');
 
-  const refreshTokenSecret = configService.get<string>('JWT_REFRESH_SECRET');
-  const refreshTokenExpiresIn = configService.get<ExpiresIn>(
-    'JWT_REFRESH_EXPIRES_IN',
-  );
-
-  const accessToken = await jwtService.signAsync(payload, {
-    secret: accessTokenSecret,
-    expiresIn: accessTokenExpiresIn,
+  const token = await jwtService.signAsync(payload, {
+    secret,
+    expiresIn,
   });
 
-  const refreshPayload: RefreshTokenPayload = {
-    sub: payload.sub,
-  };
+  return token;
+};
 
-  const refreshToken = await jwtService.signAsync(refreshPayload, {
-    secret: refreshTokenSecret,
-    expiresIn: refreshTokenExpiresIn,
+export const generateRefreshToken = async (
+  jwtService: JwtService,
+  configService: ConfigService,
+  payload: RefreshTokenPayload,
+) => {
+  const secret = configService.get<string>('JWT_REFRESH_SECRET');
+  const expiresIn = configService.get<ExpiresIn>('JWT_REFRESH_EXPIRES_IN');
+
+  const token = await jwtService.signAsync(payload, {
+    secret,
+    expiresIn,
     jwtid: randomUUID(),
   });
 
-  return { accessToken, refreshToken };
+  return token;
+};
+
+export const verifyRefreshToken = async (
+  jwtService: JwtService,
+  configService: ConfigService,
+  refreshToken: string,
+) => {
+  return jwtService.verifyAsync<RefreshTokenPayload>(refreshToken, {
+    secret: configService.getOrThrow('JWT_REFRESH_SECRET'),
+  });
 };
