@@ -1,26 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Request } from 'express';
-import { randomUUID } from 'crypto';
 
 import { UsersService } from '../users/users.service';
 import { EmailService } from '../../infrastructure/email/email.service';
 import { AuthSessionsService } from './services/auth-sessions.service';
 import { UserTokensService } from './services/user-tokens.service';
+import { AuthTokenService } from './services/auth-token.service';
 
 import { User } from '../users/entity/user.entity';
-import { AuthSession } from './entity/auth-session.entity';
 
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import {
-  JwtTokensPayload,
-  RefreshTokenPayload,
-} from './interfaces/jwt-payload.interface';
 
 import type { AuthResult } from './types/auth-result.type';
 import type { AuthTokens } from './types/auth-tokens.type';
@@ -43,16 +36,7 @@ import {
   AUTH_RESET_PASSWORD,
 } from './constants';
 
-import {
-  verifyRefreshToken,
-  generateOneTimeToken,
-  hashOneTimeToken,
-  refreshTokenDigest,
-  refreshTokenDigestMatches,
-  getRefreshMaxAge,
-  generateAccessToken,
-  generateRefreshToken,
-} from './utils';
+import { generateOneTimeToken, hashOneTimeToken } from './utils';
 
 import { normalizeEmail } from 'src/common/utils';
 
@@ -60,11 +44,10 @@ import { normalizeEmail } from 'src/common/utils';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
     private readonly emailService: EmailService,
     private readonly authSessionsService: AuthSessionsService,
     private readonly userTokensService: UserTokensService,
+    private readonly authTokenService: AuthTokenService,
   ) {}
 
   async signup(dto: SignupDto): Promise<MessageResult> {
@@ -112,60 +95,22 @@ export class AuthService {
     return response;
   }
 
-  async login(dto: LoginDto): Promise<AuthResult> {
+  async login(dto: LoginDto, req: Request): Promise<AuthResult> {
     const email = normalizeEmail(dto.email);
-
     const user = await this.usersService.findByEmail(email);
     await this.assertValidLogin(user, dto.password);
 
-    const tokens = await this.issueTokens(user!.id);
-
+    const tokens = await this.authTokenService.issue(user!.id, req);
     return { ...tokens, user: this.usersService.mapToUserResponse(user!) };
   }
 
   async logout(userId: string, refreshToken?: string): Promise<void> {
-    if (!refreshToken) {
-      await this.authSessionsService.revokeAllUserSessions(userId);
-      return;
-    }
-
-    try {
-      const payload = await this.verifyRefreshJwt(refreshToken);
-      await this.authSessionsService.revokeSession(payload.sid);
-    } catch {
-      await this.authSessionsService.revokeAllUserSessions(userId);
-    }
+    return this.authTokenService.logout(userId, refreshToken);
   }
 
   async refreshTokens(refreshToken?: string): Promise<AuthTokens> {
     if (!refreshToken) throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
-
-    let payload: RefreshTokenPayload;
-
-    try {
-      payload = await this.verifyRefreshJwt(refreshToken);
-    } catch (error) {
-      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
-    }
-
-    const session = await this.authSessionsService.findById(payload.sid);
-
-    if (!session || session.revokedAt || session.expiresAt < new Date()) {
-      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
-    }
-
-    const isRefreshTokenValid = refreshTokenDigestMatches(
-      refreshToken,
-      session.refreshTokenHash,
-    );
-    if (!isRefreshTokenValid) {
-      await this.authSessionsService.revokeAllUserSessions(payload.sub);
-      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
-    }
-
-    const tokens = await this.rotateRefreshToken(payload, session);
-
-    return tokens;
+    return this.authTokenService.refresh(refreshToken);
   }
 
   async confirmEmail(token: string): Promise<MessageResult> {
@@ -269,90 +214,8 @@ export class AuthService {
   // Reusable helpers
   // =========================
 
-  private async issueTokens(
-    userId: string,
-    req?: Request,
-  ): Promise<AuthTokens> {
-    const sessionId = randomUUID();
-    const { accessToken, refreshToken } = await this.generateJwtTokens({
-      sub: userId,
-      sid: sessionId,
-    });
-    const refreshTokenHash = refreshTokenDigest(refreshToken);
-
-    const refreshMaxAge = getRefreshMaxAge(this.configService);
-    const expiresAt = new Date(Date.now() + refreshMaxAge);
-
-    this.authSessionsService.createSession({
-      id: sessionId,
-      userId,
-      refreshTokenHash,
-      expiresAt,
-      userAgent: req?.headers['user-agent'] ?? null,
-      ip: req?.ip ?? null,
-    });
-
-    return { accessToken, refreshToken };
-  }
-
-  private async rotateRefreshToken(
-    payload: RefreshTokenPayload,
-    session: AuthSession,
-  ): Promise<AuthTokens> {
-    const { accessToken, refreshToken } = await this.generateJwtTokens({
-      sub: payload.sub,
-      sid: payload.sid,
-    });
-    const refreshTokenHash = refreshTokenDigest(refreshToken);
-
-    const rotated = await this.authSessionsService.rotateSession(
-      payload.sid,
-      session.refreshTokenHash,
-      refreshTokenHash,
-    );
-
-    if (!rotated) {
-      throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
-    }
-
-    return { accessToken, refreshToken };
-  }
-
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, AUTH_PASSWORD.HASH_ROUNDS);
-  }
-
-  private async generateJwtTokens(
-    payload: JwtTokensPayload,
-  ): Promise<AuthTokens> {
-    const accessToken = await generateAccessToken(
-      this.jwtService,
-      this.configService,
-      {
-        sub: payload.sub,
-      },
-    );
-
-    const refreshToken = await generateRefreshToken(
-      this.jwtService,
-      this.configService,
-      {
-        sub: payload.sub,
-        sid: payload.sid,
-      },
-    );
-
-    return { accessToken, refreshToken };
-  }
-
-  private async verifyRefreshJwt(
-    refreshToken: string,
-  ): Promise<RefreshTokenPayload> {
-    return verifyRefreshToken(
-      this.jwtService,
-      this.configService,
-      refreshToken,
-    );
   }
 
   private async assertValidLogin(
