@@ -4,7 +4,6 @@ import { Request } from 'express';
 
 import { UsersService } from '../users/users.service';
 import { AuthTokenService } from './services/auth-token.service';
-import { AuthSessionsService } from './services/auth-sessions.service';
 import { OneTimeTokenService } from './services/one-time-token.service';
 
 import { User } from '../users/entity/user.entity';
@@ -33,7 +32,6 @@ import { normalizeEmail } from 'src/common/utils';
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
-    private readonly authSessionsService: AuthSessionsService,
     private readonly authTokenService: AuthTokenService,
     private readonly oneTimeTokenService: OneTimeTokenService,
   ) {}
@@ -151,7 +149,7 @@ export class AuthService {
       password: hashedPassword,
     });
 
-    await this.authSessionsService.revokeAllUserSessions(userId);
+    await this.authTokenService.revokeAllSessions(userId);
     await this.oneTimeTokenService.invalidateAllActive(userId, tokenType);
 
     return { message: AUTH_MESSAGE.PASSWORD_RESET_SUCCESS };

@@ -75,16 +75,24 @@ export class AuthTokenService {
 
   async logout(userId: string, refreshToken?: string): Promise<void> {
     if (!refreshToken) {
-      await this.authSessionsService.revokeAllUserSessions(userId);
+      await this.revokeAllSessions(userId);
       return;
     }
 
     try {
       const payload = await this.verifyRefreshJwtOrThrow(refreshToken);
-      await this.authSessionsService.revokeSession(payload.sid);
+      await this.revokeSessionBySid(payload.sid);
     } catch {
-      await this.authSessionsService.revokeAllUserSessions(userId);
+      await this.revokeAllSessions(userId);
     }
+  }
+
+  async revokeAllSessions(userId: string): Promise<void> {
+    this.authSessionsService.revokeAllUserSessions(userId);
+  }
+
+  async revokeSessionBySid(sid: string): Promise<void> {
+    this.authSessionsService.revokeSession(sid);
   }
 
   // =========================
