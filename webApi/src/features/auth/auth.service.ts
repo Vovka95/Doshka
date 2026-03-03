@@ -7,8 +7,10 @@ import { Request } from 'express';
 import { UsersService } from '../users/users.service';
 import { EmailService } from '../../infrastructure/email/email.service';
 import { AuthSessionsService } from './services/auth-sessions.service';
+import { UserTokensService } from './services/user-tokens.service';
 
-import { User } from '../users/entity/user.entity';
+import { AuthSession } from './entity/auth-session.entity';
+
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from '../users/dto/user-response.dto';
@@ -39,11 +41,10 @@ import {
   hashOneTimeToken,
   refreshTokenDigest,
   refreshTokenDigestMatches,
+  getRefreshMaxAge,
 } from './utils';
-import { isResendCooldownPassed } from 'src/common/utils';
-import ms from 'ms';
-import { getRefreshMaxAge } from './utils/refresh-age.utils';
-import { AuthSession } from './entity/auth-session.entity';
+
+import { UserTokenType } from './enum/user-token-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -53,6 +54,7 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly emailService: EmailService,
     private readonly authSessionsService: AuthSessionsService,
+    private readonly userTokensService: UserTokensService,
   ) {}
 
   async signup(dto: SignupDto): Promise<MessageResult> {
@@ -63,14 +65,16 @@ export class AuthService {
       throwConflictException(AUTH_ERROR.EMAIL_ALREADY_EXISTS);
     }
 
-    if (
-      existingUser?.emailConfirmSentAt &&
-      !isResendCooldownPassed(
-        existingUser?.emailConfirmSentAt,
+    if (existingUser) {
+      const canSend = await this.userTokensService.canSend(
+        existingUser.id,
+        UserTokenType.EMAIL_CONFIRM,
         AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
-      )
-    ) {
-      return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
+      );
+
+      if (!canSend) {
+        return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT };
+      }
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -87,14 +91,19 @@ export class AuthService {
     const emailConfirmSentAt = new Date();
 
     if (!existingUser) {
-      await this.usersService.createUser({
+      const user = await this.usersService.createUser({
         ...dto,
         email,
         password: hashedPassword,
         isEmailConfirmed: false,
-        emailConfirmTokenHash,
-        emailConfirmTokenExpiresAt,
-        emailConfirmSentAt,
+      });
+
+      await this.userTokensService.createAndInvalidatePrevious({
+        userId: user.id,
+        type: UserTokenType.EMAIL_CONFIRM,
+        tokenHash: emailConfirmTokenHash,
+        expiresAt: emailConfirmTokenExpiresAt,
+        sentAt: emailConfirmSentAt,
       });
 
       await this.emailService.sendEmailConfirmation(
@@ -108,9 +117,14 @@ export class AuthService {
 
     await this.usersService.update(existingUser.id, {
       password: hashedPassword,
-      emailConfirmTokenHash,
-      emailConfirmTokenExpiresAt,
-      emailConfirmSentAt,
+    });
+
+    await this.userTokensService.createAndInvalidatePrevious({
+      userId: existingUser.id,
+      type: UserTokenType.EMAIL_CONFIRM,
+      tokenHash: emailConfirmTokenHash,
+      expiresAt: emailConfirmTokenExpiresAt,
+      sentAt: emailConfirmSentAt,
     });
 
     await this.emailService.sendEmailConfirmation(
@@ -144,15 +158,28 @@ export class AuthService {
     return { ...tokens, user: this.usersService.mapToUserResponse(user) };
   }
 
-  async logout(userId: string, sid?: string): Promise<void> {
-    if (sid) {
-      this.authSessionsService.revokeSession(sid);
+  async logout(userId: string, refreshToken?: string): Promise<void> {
+    if (refreshToken) {
+      try {
+        const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
+          refreshToken,
+          {
+            secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
+          },
+        );
+
+        this.authSessionsService.revokeSession(payload.sid);
+      } catch {
+        await this.authSessionsService.revokeAllUserSessions(userId);
+      }
     } else {
       await this.authSessionsService.revokeAllUserSessions(userId);
     }
   }
 
-  async refreshTokens(refreshToken: string): Promise<AuthTokens> {
+  async refreshTokens(refreshToken?: string): Promise<AuthTokens> {
+    if (!refreshToken) throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
+
     let payload: RefreshTokenPayload;
 
     try {
@@ -192,25 +219,30 @@ export class AuthService {
     }
 
     const tokenHash = hashOneTimeToken(token);
-    const user = await this.usersService.findByEmailConfirmTokenHash(tokenHash);
 
-    if (!user) {
+    const result = await this.userTokensService.consume(
+      UserTokenType.EMAIL_CONFIRM,
+      tokenHash,
+    );
+
+    if (!result.ok) {
+      if (result.reason === 'EXPIRED')
+        throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
+
+      if (result.reason === 'USED')
+        throwBadRequestException(AUTH_ERROR.TOKEN_ALREADY_USED);
+
       throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
     }
 
-    if (
-      !user.emailConfirmTokenExpiresAt ||
-      user.emailConfirmTokenExpiresAt < new Date()
-    ) {
-      throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
-    }
-
-    await this.usersService.update(user.id, {
+    await this.usersService.update(result.token.userId, {
       isEmailConfirmed: true,
-      emailConfirmTokenHash: null,
-      emailConfirmTokenExpiresAt: null,
-      emailConfirmSentAt: null,
     });
+
+    await this.userTokensService.invalidateAllActive(
+      result.token.userId,
+      UserTokenType.EMAIL_CONFIRM,
+    );
 
     return { message: AUTH_MESSAGE.EMAIL_CONFIRMED };
   }
@@ -223,13 +255,13 @@ export class AuthService {
       return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
     }
 
-    if (
-      user?.emailConfirmSentAt &&
-      !isResendCooldownPassed(
-        user?.emailConfirmSentAt,
-        AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
-      )
-    ) {
+    const canSend = await this.userTokensService.canSend(
+      user.id,
+      UserTokenType.EMAIL_CONFIRM,
+      AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
+    );
+
+    if (!canSend) {
       return { message: AUTH_MESSAGE.CONFIRMATION_EMAIL_SENT_IF_EXISTS };
     }
 
@@ -241,10 +273,12 @@ export class AuthService {
 
     const emailConfirmSentAt = new Date();
 
-    await this.usersService.update(user.id, {
-      emailConfirmTokenHash,
-      emailConfirmTokenExpiresAt,
-      emailConfirmSentAt,
+    await this.userTokensService.createAndInvalidatePrevious({
+      userId: user.id,
+      type: UserTokenType.EMAIL_CONFIRM,
+      tokenHash: emailConfirmTokenHash,
+      expiresAt: emailConfirmTokenExpiresAt,
+      sentAt: emailConfirmSentAt,
     });
 
     await this.emailService.sendEmailConfirmation(
@@ -264,13 +298,13 @@ export class AuthService {
       return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
     }
 
-    if (
-      user?.passwordResetSentAt &&
-      !isResendCooldownPassed(
-        user?.passwordResetSentAt,
-        AUTH_RESET_PASSWORD.RESEND_COOLDOWN_SECONDS,
-      )
-    ) {
+    const canSend = await this.userTokensService.canSend(
+      user.id,
+      UserTokenType.PASSWORD_RESET,
+      AUTH_CONFIRM.RESEND_COOLDOWN_SECONDS,
+    );
+
+    if (!canSend) {
       return { message: AUTH_MESSAGE.RESET_PASSWORD_EMAIL_SENT_IF_EXISTS };
     }
 
@@ -282,10 +316,12 @@ export class AuthService {
 
     const passwordResetSentAt = new Date();
 
-    await this.usersService.update(user.id, {
-      passwordResetTokenHash,
-      passwordResetTokenExpiresAt,
-      passwordResetSentAt,
+    await this.userTokensService.createAndInvalidatePrevious({
+      userId: user.id,
+      type: UserTokenType.PASSWORD_RESET,
+      tokenHash: passwordResetTokenHash,
+      expiresAt: passwordResetTokenExpiresAt,
+      sentAt: passwordResetSentAt,
     });
 
     await this.emailService.sendResetPasswordEmail(
@@ -303,18 +339,20 @@ export class AuthService {
     }
 
     const tokenHash = hashOneTimeToken(dto.token);
-    const user =
-      await this.usersService.findByPasswordResetTokenHash(tokenHash);
 
-    if (!user) {
+    const result = await this.userTokensService.consume(
+      UserTokenType.PASSWORD_RESET,
+      tokenHash,
+    );
+
+    if (!result.ok) {
+      if (result.reason === 'EXPIRED')
+        throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
+
+      if (result.reason === 'USED')
+        throwBadRequestException(AUTH_ERROR.TOKEN_ALREADY_USED);
+
       throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
-    }
-
-    if (
-      !user?.passwordResetTokenExpiresAt ||
-      user.passwordResetTokenExpiresAt < new Date()
-    ) {
-      throwBadRequestException(AUTH_ERROR.TOKEN_EXPIRED);
     }
 
     const hashedPassword = await bcrypt.hash(
@@ -322,14 +360,15 @@ export class AuthService {
       AUTH_PASSWORD.HASH_ROUNDS,
     );
 
-    await this.usersService.update(user.id, {
+    await this.usersService.update(result.token.userId, {
       password: hashedPassword,
-      passwordResetTokenHash: null,
-      passwordResetTokenExpiresAt: null,
-      passwordResetSentAt: null,
     });
 
-    await this.authSessionsService.revokeAllUserSessions(user.id);
+    await this.authSessionsService.revokeAllUserSessions(result.token.userId);
+    await this.userTokensService.invalidateAllActive(
+      result.token.userId,
+      UserTokenType.PASSWORD_RESET,
+    );
 
     return { message: AUTH_MESSAGE.PASSWORD_RESET_SUCCESS };
   }

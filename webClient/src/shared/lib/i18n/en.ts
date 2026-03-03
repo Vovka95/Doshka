@@ -256,6 +256,11 @@ export const en = {
                     description:
                         "This link is not valid. Open the link from your email again.",
                 },
+                alreadyUsed: {
+                    title: "Token already used",
+                    description:
+                        "This link already used. Open the last link from your email again.",
+                },
             },
             redirect: {
                 error: {

@@ -12,6 +12,11 @@ export class UsersService {
     private readonly userRepository: Repository<User>,
   ) {}
 
+  async createUser(data: Partial<User>): Promise<User> {
+    const user = this.userRepository.create(data);
+    return this.userRepository.save(user);
+  }
+
   async findById(userId: string): Promise<User | null> {
     return this.userRepository.findOne({ where: { id: userId } });
   }
@@ -20,23 +25,6 @@ export class UsersService {
     return this.userRepository.findOne({
       where: { email: email.trim().toLowerCase() },
     });
-  }
-
-  async findByEmailConfirmTokenHash(hash: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { emailConfirmTokenHash: hash },
-    });
-  }
-
-  async findByPasswordResetTokenHash(hash: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { passwordResetTokenHash: hash },
-    });
-  }
-
-  async createUser(data: Partial<User>): Promise<User> {
-    const user = this.userRepository.create(data);
-    return this.userRepository.save(user);
   }
 
   async update(userId: string, data: Partial<User>): Promise<void> {

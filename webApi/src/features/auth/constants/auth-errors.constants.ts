@@ -31,4 +31,8 @@ export const AUTH_ERROR = {
     code: 'AUTH_TOKEN_EXPIRED',
     message: 'Token expired',
   },
+  TOKEN_ALREADY_USED: {
+    code: 'AUTH_TOKEN_ALREADY_USED',
+    message: 'Token already used',
+  },
 } as const;

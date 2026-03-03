@@ -25,19 +25,14 @@ import { AuthTokensResponseDto } from './dto/auth-tokens-response.dto';
 import { ResendConfirmationDto } from './dto/resend-confirmation.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import {
-  RefreshTokenPayload,
-  type AccessTokenPayload,
-} from './interfaces/jwt-payload.interface';
+import { type AccessTokenPayload } from './interfaces/jwt-payload.interface';
 import { MessageResult } from '../../common/types/message-result.type';
-import { AUTH_ERROR } from './constants';
+
 import {
   clearRefreshCookie,
   getRefreshCookie,
   setRefreshCookie,
 } from './utils/auth-cookies.utils';
-import { throwForbiddenException } from 'src/common/errors/throw-api-error';
-import { JwtService } from '@nestjs/jwt';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -45,7 +40,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-    private readonly jwtService: JwtService,
   ) {}
 
   @Post('signup')
@@ -77,22 +71,8 @@ export class AuthController {
     @CurrentUser() user: AccessTokenPayload,
   ): Promise<void> {
     const refreshToken = getRefreshCookie(req);
-    let sid: string | undefined;
 
-    if (refreshToken) {
-      try {
-        const payload = await this.jwtService.verifyAsync<RefreshTokenPayload>(
-          refreshToken,
-          {
-            secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
-          },
-        );
-
-        sid = payload.sid;
-      } catch {}
-    }
-
-    await this.authService.logout(user.sub, sid);
+    await this.authService.logout(user.sub, refreshToken);
 
     clearRefreshCookie(res, this.configService);
   }
@@ -104,7 +84,6 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AuthTokensResponseDto> {
     const refreshToken = getRefreshCookie(req);
-    if (!refreshToken) throwForbiddenException(AUTH_ERROR.ACCESS_DENIED);
 
     const { accessToken, refreshToken: newRefresh } =
       await this.authService.refreshTokens(refreshToken);

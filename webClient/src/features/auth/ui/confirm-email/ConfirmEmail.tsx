@@ -14,6 +14,7 @@ type Status =
     | "success"
     | "invalid-token"
     | "expired-token"
+    | "token-already-used"
     | "error";
 
 export type ConfirmEmailProps = {
@@ -31,9 +32,11 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
     const isSuccess = status === "success";
     const isInvalid = status === "invalid-token";
     const isExpired = status === "expired-token";
+    const isAlreadyUsed = status === "token-already-used";
     const isFailed =
         isExpired ||
         isInvalid ||
+        isAlreadyUsed ||
         status === "error" ||
         (!isSuccess && !isPending);
 
@@ -61,6 +64,11 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
                     return;
                 }
 
+                if (apiError.code === "AUTH_TOKEN_ALREADY_USED") {
+                    setStatus("token-already-used");
+                    return;
+                }
+
                 setStatus("error");
             }
         })();
@@ -71,6 +79,8 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
         if (isSuccess) return t("auth.confirmEmail.state.success.title");
         if (isExpired) return t("auth.confirmEmail.state.expired.title");
         if (isInvalid) return t("auth.confirmEmail.state.invalid.title");
+        if (isAlreadyUsed)
+            return t("auth.confirmEmail.state.alreadyUsed.title");
         return t("auth.confirmEmail.state.default.title");
     }, [isPending, isSuccess, isExpired, isInvalid]);
 
@@ -79,6 +89,8 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
         if (isSuccess) return t("auth.confirmEmail.state.success.description");
         if (isExpired) return t("auth.confirmEmail.state.expired.description");
         if (isInvalid) return t("auth.confirmEmail.state.invalid.description");
+        if (isAlreadyUsed)
+            return t("auth.confirmEmail.state.alreadyUsed.description");
         return t("auth.confirmEmail.state.default.description");
     }, [isPending, isSuccess, isExpired, isInvalid]);
 

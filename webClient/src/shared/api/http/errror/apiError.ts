@@ -6,6 +6,7 @@ export type ApiErrorCode =
     | "AUTH_USER_NOT_FOUND"
     | "AUTH_INVALID_TOKEN"
     | "AUTH_TOKEN_EXPIRED"
+    | "AUTH_TOKEN_ALREADY_USED"
     | "UNKNOWN";
 
 export type ApiError = {
