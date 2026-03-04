@@ -28,15 +28,11 @@ services:
             target: development
         env_file:
             - .env
-            - ../webApi/.env.backend
         ports:
             - "${BACKEND_PORT}:${BACKEND_PORT}"
         environment:
-            DATABASE_HOST: ${DATABASE_HOST}
-            DATABASE_PORT: ${DATABASE_PORT}
-            DATABASE_USERNAME: ${DATABASE_USERNAME}
-            DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-            DATABASE_NAME: ${DATABASE_NAME}
+            DATABASE_URL: ${DATABASE_URL}
+            DATABASE_SSL: ${DATABASE_SSL}
             DATABASE_SYNCHRONIZE: ${DATABASE_SYNCHRONIZE}
         volumes:
             - ../webApi:/app
