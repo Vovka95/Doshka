@@ -2,7 +2,7 @@ FROM node:20-alpine AS development
 
 WORKDIR /app
 
-COPY ../../webApi/package.json ./
+COPY ../../webApi/package.json ../../webApi/package-lock.json ./
 
 RUN npm install
 
