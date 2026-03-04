@@ -22,7 +22,7 @@
     "migration:revert": "typeorm migration:revert -d dist/infrastructure/config/typeorm-data-source.js",
     "migration:show": "typeorm migration:show -d dist/infrastructure/config/typeorm-data-source.js",
     "migration:generate": "npm run build && typeorm migration:generate -d dist/infrastructure/config/typeorm-data-source.js",
-    "migration:create": "typeorm migration:create src/migrations/ManualMigration"
+    "migration:create": "typeorm migration:create"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
