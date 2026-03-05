@@ -1,4 +1,5 @@
 import { ThemeToggle } from "@/shared/ui";
+
 import { SidebarToggle } from "./SidebarToggle";
 import { LogoutButton } from "@/features/auth/ui";
 
