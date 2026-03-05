@@ -1,8 +1,7 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
 
-import { Spinner } from "../Spinner";
-
 import { cn } from "@/shared/lib/cn";
+import { Spinner } from "@/shared/ui";
 
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
 export type ButtonSize = "sm" | "md" | "lg";
