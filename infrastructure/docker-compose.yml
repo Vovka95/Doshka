@@ -28,6 +28,7 @@ services:
             target: development
         env_file:
             - .env
+            - ../webApi/.env.backend
         ports:
             - "${BACKEND_PORT}:${BACKEND_PORT}"
         environment:
