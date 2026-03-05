@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Spinner } from "../Spinner";
+import { Spinner } from "@/shared/ui";
 
 import { cn } from "@/shared/lib/cn";
 

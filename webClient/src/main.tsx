@@ -7,8 +7,6 @@ import "@/app/styles/globals.css";
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        <AppProviders>
-            <></>
-        </AppProviders>
+        <AppProviders />
     </StrictMode>,
 );

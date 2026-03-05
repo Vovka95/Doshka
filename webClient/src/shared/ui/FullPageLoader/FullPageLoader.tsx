@@ -1,4 +1,4 @@
-import { Spinner } from "../Spinner";
+import { Spinner } from "@/shared/ui";
 
 export const FullPageLoader = () => {
     return (
