@@ -1,0 +1,18 @@
+{
+    "scripts": {
+        "docker:build": "docker compose -f infrastructure/docker-compose.yml build",
+        "docker:build:no-cache": "docker compose -f infrastructure/docker-compose.yml build --no-cache",
+        "docker:dev": "docker compose -f infrastructure/docker-compose.yml up -d && npm run docker:migration:run",
+        "docker:stop": "docker compose -f infrastructure/docker-compose.yml down",
+        "docker:stop:volumes": "docker compose -f infrastructure/docker-compose.yml down -v",
+        "docker:reset": "npm run docker:stop:volumes && npm run docker:build:no-cache && npm run docker:dev",
+        "docker:logs": "docker compose -f infrastructure/docker-compose.yml logs -f",
+        "docker:ps": "docker compose -f infrastructure/docker-compose.yml ps",
+        "docker:webApi": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_api sh",
+        "docker:webClient": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_client sh",
+        "docker:db": "docker compose -f infrastructure/docker-compose.yml exec doshka_db psql -U $DATABASE_USERNAME -d $DATABASE_NAME",
+        "docker:pgAdmin": "open http://localhost:$PGADMIN_PORT",
+        "docker:migration:run": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_api npm run migration:run",
+        "docker:migration:generate": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_api npm run migration:generate"
+    }
+}

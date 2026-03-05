@@ -9,25 +9,25 @@ The development environment is fully containerized using Docker Compose, enablin
 
 ### Frontend (webClient):
 
--   React + Vite + TypeScript
--   React Query
--   TailwindCSS
--   Axios
--   React Router
+- React + Vite + TypeScript
+- React Query
+- TailwindCSS
+- Axios
+- React Router
 
 ### Backend (webApi):
 
--   NestJS
--   TypeScript
--   TypeORM
--   PostgreSQL
--   JWT Authentication
+- NestJS
+- TypeScript
+- TypeORM
+- PostgreSQL
+- JWT Authentication
 
 ### Infrastructure:
 
--   Docker
--   Docker Compose
--   Centralized .env configuration
+- Docker
+- Docker Compose
+- Centralized .env configuration
 
 ## 🗂️ Monorepo Structure
 
@@ -93,28 +93,39 @@ BACKEND_PORT=******
 FRONTEND_PORT=******
 
 # Database
-DATABASE_HOST=******
 DATABASE_PORT=******
 DATABASE_USERNAME=******
 DATABASE_PASSWORD=******
 DATABASE_NAME=******
 
+DATABASE_URL=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@database:5432/${DATABASE_NAME}
+DATABASE_SSL=false
+DATABASE_SYNCHRONIZE=false
+
 # Node environment
 NODE_ENV=development
+
+PGADMIN_EMAIL=*****
+PGADMIN_PASSWORD=*****
+PGADMIN_PORT=*****
 ```
 
 Inside webApi/, create a file named .env.backend:
 
 ```
 # Nest.js Environment Variables
-PORT=******
+
+BACKEND_PORT=4000
 
 # Database
-DATABASE_HOST=******
 DATABASE_PORT=******
 DATABASE_USERNAME=******
 DATABASE_PASSWORD=******
 DATABASE_NAME=******
+
+DATABASE_URL=postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@localhost:${DATABASE_PORT}/${DATABASE_NAME}
+DATABASE_SSL=false
+DATABASE_SYNCHRONIZE=false
 
 # JWT
 JWT_SECRET=******
@@ -122,6 +133,10 @@ JWT_EXPIRES_IN=15m
 
 JWT_REFRESH_SECRET=******
 JWT_REFRESH_EXPIRES_IN=7d
+
+# Resend (mailer tool)
+EMAIL_FROM=onboarding@resend.dev
+RESEND_API_KEY=*****
 
 # Frontend origine
 FRONTEND_ORIGIN=*****
@@ -144,7 +159,7 @@ VITE_APP_NAME=*****
 
 This will start:
 
--   webApi (NestJS backend) → http://localhost:{BACKEND_PORT}/api
--   API Swagger Docs → http://localhost:{BACKEND_PORT}/api/docs
--   webClient (React frontend) → http://localhost:{FRONTEND_PORT}
--   db (PostgreSQL) → {DATABASE_PORT}
+- webApi (NestJS backend) → http://localhost:{BACKEND_PORT}/api
+- API Swagger Docs → http://localhost:{BACKEND_PORT}/api/docs
+- webClient (React frontend) → http://localhost:{FRONTEND_PORT}
+- db (PostgreSQL) → {DATABASE_PORT}
