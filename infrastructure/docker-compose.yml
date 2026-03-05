@@ -30,7 +30,7 @@ services:
             - .env
             - ../webApi/.env.backend
         ports:
-            - "${BACKEND_PORT}:${BACKEND_PORT}"
+            - "${PORT}:${PORT}"
         environment:
             DATABASE_URL: ${DATABASE_URL}
             DATABASE_SSL: ${DATABASE_SSL}
