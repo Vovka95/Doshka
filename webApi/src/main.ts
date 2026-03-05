@@ -11,10 +11,14 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
 
-  const frontendOrigin = configService.get<string>('FRONTEND_ORIGIN');
   app.use(cookieParser());
 
-  app.enableCors({ origin: frontendOrigin, credentials: true });
+  const origins = [
+    configService.get<string>('FRONTEND_ORIGIN'),
+    configService.get<string>('FRONTEND_ORIGIN_WWW'),
+  ].filter(Boolean);
+
+  app.enableCors({ origin: origins, credentials: true });
 
   app.setGlobalPrefix('api');
 
