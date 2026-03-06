@@ -2,14 +2,15 @@ FROM node:20-alpine AS development
 
 WORKDIR /app
 
-COPY ../../webApi/package.json ../../webApi/package-lock.json ./
+COPY package.json package-lock.json ./
+COPY webApi/package.json ./webApi/package.json
 
-RUN npm install
+RUN npm run api:ci
 
-COPY ../../webApi .
+COPY webApi ./webApi
 
-RUN npm run build
+RUN npm run api:build
 
-EXPOSE ${BACKEND_PORT}
+EXPOSE ${PORT}
 
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "api:start:dev"]

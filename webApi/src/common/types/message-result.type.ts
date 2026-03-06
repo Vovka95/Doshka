@@ -1,3 +1,3 @@
 export type MessageResult = {
-  message: string;
+    message: string;
 };

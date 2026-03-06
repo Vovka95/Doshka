@@ -2,12 +2,13 @@ FROM node:20-alpine AS development
 
 WORKDIR /app
 
-COPY ../../webClient/package.json ../../webClient/package-lock.json ./
+COPY package.json package-lock.json ./
+COPY webClient/package.json ./webClient/package.json
 
-RUN npm install
+RUN npm run web:ci
 
-COPY ../../webClient .
+COPY webClient ./webClient
 
 EXPOSE ${FRONTEND_PORT}
 
-CMD ["npm", "run", "dev", "--", "--host"]
+CMD ["npm", "run", "web:dev"]

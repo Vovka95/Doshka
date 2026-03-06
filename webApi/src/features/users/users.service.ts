@@ -9,32 +9,32 @@ import { normalizeEmail } from 'src/common/utils';
 
 @Injectable()
 export class UsersService {
-  constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
-  ) {}
+    constructor(
+        @InjectRepository(User)
+        private readonly userRepository: Repository<User>,
+    ) {}
 
-  async createUser(data: Partial<User>): Promise<User> {
-    const user = this.userRepository.create(data);
-    return this.userRepository.save(user);
-  }
+    async createUser(data: Partial<User>): Promise<User> {
+        const user = this.userRepository.create(data);
+        return this.userRepository.save(user);
+    }
 
-  async findById(userId: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { id: userId } });
-  }
+    async findById(userId: string): Promise<User | null> {
+        return this.userRepository.findOne({ where: { id: userId } });
+    }
 
-  async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({
-      where: { email: normalizeEmail(email) },
-    });
-  }
+    async findByEmail(email: string): Promise<User | null> {
+        return this.userRepository.findOne({
+            where: { email: normalizeEmail(email) },
+        });
+    }
 
-  async update(userId: string, data: Partial<User>): Promise<void> {
-    await this.userRepository.update(userId, data);
-  }
+    async update(userId: string, data: Partial<User>): Promise<void> {
+        await this.userRepository.update(userId, data);
+    }
 
-  mapToUserResponse(user: User): UserResponseDto {
-    const { id, email, firstName, lastName, avatarUrl } = user;
-    return { id, email, firstName, lastName, avatarUrl };
-  }
+    mapToUserResponse(user: User): UserResponseDto {
+        const { id, email, firstName, lastName, avatarUrl } = user;
+        return { id, email, firstName, lastName, avatarUrl };
+    }
 }
