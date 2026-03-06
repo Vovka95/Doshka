@@ -1,8 +1,8 @@
-import type { RouteObject } from "react-router-dom";
+import type { RouteObject } from 'react-router-dom';
 
-const NotFoundPage = () => <div className="text-sm">Not found</div>;
+import { NotFoundPage } from '@/pages/pages';
 
 export const notFoundRoute: RouteObject = {
-    path: "*",
+    path: '*',
     element: <NotFoundPage />,
 };

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 type Primitive = string | number | boolean | null | undefined | bigint | symbol;
 
 export type DotPaths<T> = T extends Primitive

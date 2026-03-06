@@ -1,9 +1,13 @@
-import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
 
-import { routes } from "@/app/config/routes";
-import { useMeQuery } from "@/features/auth/model/hooks/useMeQuery";
+import { routes } from '@/app/config/routes';
+import { useMeQuery } from '@/features/auth/model/hooks/useMeQuery';
 
-import { FullPageLoader } from "@/shared/ui";
+import { FullPageLoader } from '@/shared/ui';
+
+type LocationState = {
+    from?: string;
+};
 
 export const GuestGuard = () => {
     const location = useLocation();
@@ -14,7 +18,7 @@ export const GuestGuard = () => {
     }
 
     if (me.data) {
-        const from = (location.state as any)?.from as string | undefined;
+        const from = (location.state as LocationState)?.from;
         return <Navigate to={from || routes.app()} replace />;
     }
 

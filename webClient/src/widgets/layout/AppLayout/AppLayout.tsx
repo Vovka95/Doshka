@@ -1,11 +1,16 @@
-import { Outlet } from "react-router-dom";
+import type { CSSProperties } from 'react';
+import { Outlet } from 'react-router-dom';
 
-import { AppSidebar } from "./AppSidebar";
-import { AppTopbar } from "./AppTopbar";
+import { AppSidebar } from './AppSidebar';
+import { AppTopbar } from './AppTopbar';
 
-import { useUIStore } from "@/shared/store/ui";
-import { useIsMobile } from "@/shared/lib/hooks/media-query";
-import { cn } from "@/shared/lib/cn";
+import { useUIStore } from '@/shared/store/ui';
+import { useIsMobile } from '@/shared/lib/hooks/media-query';
+import { cn } from '@/shared/lib/cn';
+
+type AppLayoutStyle = CSSProperties & {
+    '--sidebar-w': string;
+};
 
 export const AppLayout = () => {
     const isMobile = useIsMobile();
@@ -13,13 +18,14 @@ export const AppLayout = () => {
     const isSidebarMobileOpen = useUIStore((s) => s.isSidebarMobileOpen);
     const closeSidebarMobile = useUIStore((s) => s.closeSidebarMobile);
 
-    const sidebarWidth = isSidebarCollapsed ? "60px" : "260px";
+    const sidebarWidth = isSidebarCollapsed ? '60px' : '260px';
+
+    const layoutStyle: AppLayoutStyle = {
+        '--sidebar-w': sidebarWidth,
+    };
 
     return (
-        <div
-            className="min-h-dvh bg-bg text-fg"
-            style={{ ["--sidebar-w" as any]: sidebarWidth }}
-        >
+        <div className="min-h-dvh bg-bg text-fg" style={layoutStyle}>
             <div className="grid min-h-dvh p-2 grid-cols-1 lg:grid-cols-[var(--sidebar-w)_1fr] lg:transition-[grid-template-columns] lg:duration-200">
                 {!isMobile && <AppSidebar collapsed={isSidebarCollapsed} />}
                 <div className="flex min-w-0 flex-col">
@@ -27,8 +33,8 @@ export const AppLayout = () => {
 
                     <main
                         className={cn([
-                            "rounded-sm border border-border bg-card min-w-0 flex-1 p-6",
-                            isSidebarMobileOpen && "overflow-hidden",
+                            'rounded-sm border border-border bg-card min-w-0 flex-1 p-6',
+                            isSidebarMobileOpen && 'overflow-hidden',
                         ])}
                     >
                         <Outlet />
