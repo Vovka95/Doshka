@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Options = {
     initialSeconds?: number;
@@ -9,25 +9,30 @@ export function useCooldown(
     seconds: number,
     { initialSeconds = seconds, autoStart = false }: Options = {},
 ) {
-    const [secondsLeft, setSecondsLeft] = useState(0);
+    const [secondsLeft, setSecondsLeft] = useState(() =>
+        autoStart && initialSeconds > 0 ? initialSeconds : 0,
+    );
     const intervalRef = useRef<number | null>(null);
 
-    const clear = () => {
+    const clear = useCallback(() => {
         if (intervalRef.current !== null) {
             window.clearInterval(intervalRef.current);
             intervalRef.current = null;
         }
-    };
+    }, []);
 
-    const start = (value: number = initialSeconds) => {
-        if (value <= 0) return;
-        setSecondsLeft(value);
-    };
+    const start = useCallback(
+        (value: number = initialSeconds) => {
+            if (value <= 0) return;
+            setSecondsLeft(value);
+        },
+        [initialSeconds],
+    );
 
-    const reset = () => {
+    const reset = useCallback(() => {
         clear();
         setSecondsLeft(0);
-    };
+    }, [clear]);
 
     useEffect(() => {
         if (secondsLeft <= 0) {
@@ -37,16 +42,11 @@ export function useCooldown(
 
         clear();
         intervalRef.current = window.setInterval(() => {
-            setSecondsLeft((s) => (s <= 1 ? 0 : s - 1));
+            setSecondsLeft((current) => (current <= 1 ? 0 : current - 1));
         }, 1000);
 
         return clear;
-    }, [secondsLeft]);
-
-    useEffect(() => {
-        if (autoStart) start(initialSeconds);
-        return clear;
-    }, []);
+    }, [secondsLeft, clear]);
 
     const isCoolingDown = secondsLeft > 0;
 

@@ -1,6 +1,6 @@
-import type { FieldError } from "react-hook-form";
-import { tUnsafe } from "../i18n";
-import type { ZodI18nMessage } from "./zodMessage";
+import type { FieldError } from 'react-hook-form';
+import { tUnsafe } from '../i18n';
+import type { ZodI18nMessage } from './zodMessage';
 
 export const translateFormFieldError = (error: FieldError | undefined) => {
     if (!error?.message) return error;
@@ -10,13 +10,15 @@ export const translateFormFieldError = (error: FieldError | undefined) => {
     try {
         const parsed = JSON.parse(raw) as Partial<ZodI18nMessage>;
 
-        if (parsed && typeof parsed.key === "string") {
+        if (parsed && typeof parsed.key === 'string') {
             return {
                 ...error,
                 message: tUnsafe(parsed.key, parsed.params),
             };
         }
-    } catch {}
+    } catch (error) {
+        console.error(error);
+    }
 
     return {
         ...error,

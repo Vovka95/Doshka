@@ -7,41 +7,44 @@ import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+    const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
+    const configService = app.get(ConfigService);
 
-  app.use(cookieParser());
+    app.use(cookieParser());
 
-  const origins = [
-    configService.get<string>('FRONTEND_ORIGIN'),
-    configService.get<string>('FRONTEND_ORIGIN_WWW'),
-  ].filter(Boolean);
+    const origins = [
+        configService.get<string>('FRONTEND_ORIGIN'),
+        configService.get<string>('FRONTEND_ORIGIN_WWW'),
+    ].filter((origin): origin is string => Boolean(origin));
 
-  app.enableCors({ origin: origins, credentials: true });
+    app.enableCors({ origin: origins, credentials: true });
 
-  app.setGlobalPrefix('api');
+    app.setGlobalPrefix('api');
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            forbidNonWhitelisted: true,
+            transform: true,
+        }),
+    );
 
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('Doshka API')
-    .setDescription('API documentation for the Doshka project management tool')
-    .setVersion('1.0.0')
-    .addBearerAuth()
-    .build();
+    const swaggerConfig = new DocumentBuilder()
+        .setTitle('Doshka API')
+        .setDescription(
+            'API documentation for the Doshka project management tool',
+        )
+        .setVersion('1.0.0')
+        .addBearerAuth()
+        .build();
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
-  SwaggerModule.setup('api/docs', app, document);
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('api/docs', app, document);
 
-  const port = configService.get<number>('PORT') || 4000;
+    const port = configService.get<number>('PORT') || 4000;
 
-  await app.listen(port);
+    await app.listen(port);
 }
-bootstrap();
+
+void bootstrap();

@@ -1,21 +1,21 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { AuthCard, AuthRedirect } from "@/widgets/auth";
-import { Spinner } from "@/shared/ui";
+import { AuthCard, AuthRedirect } from '@/widgets/auth';
+import { Spinner } from '@/shared/ui';
 
-import { useConfirmEmailMutation } from "../../model/hooks";
+import { useConfirmEmailMutation } from '../../model/hooks';
 
-import { normalizeApiError } from "@/shared/api/http/errror";
-import { routes } from "@/app/config/routes";
-import { t } from "@/shared/lib/i18n";
+import { normalizeApiError } from '@/shared/api/http/errror';
+import { routes } from '@/app/config/routes';
+import { t } from '@/shared/lib/i18n';
 
 type Status =
-    | "pending"
-    | "success"
-    | "invalid-token"
-    | "expired-token"
-    | "token-already-used"
-    | "error";
+    | 'pending'
+    | 'success'
+    | 'invalid-token'
+    | 'expired-token'
+    | 'token-already-used'
+    | 'error';
 
 export type ConfirmEmailProps = {
     onSuccess: () => void;
@@ -24,20 +24,20 @@ export type ConfirmEmailProps = {
 
 export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
     const confirmEmailMutation = useConfirmEmailMutation();
-    const [status, setStatus] = useState<Status>("pending");
+    const [status, setStatus] = useState<Status>('pending');
 
     const startedRef = useRef(false);
 
-    const isPending = status === "pending";
-    const isSuccess = status === "success";
-    const isInvalid = status === "invalid-token";
-    const isExpired = status === "expired-token";
-    const isAlreadyUsed = status === "token-already-used";
+    const isPending = status === 'pending';
+    const isSuccess = status === 'success';
+    const isInvalid = status === 'invalid-token';
+    const isExpired = status === 'expired-token';
+    const isAlreadyUsed = status === 'token-already-used';
     const isFailed =
         isExpired ||
         isInvalid ||
         isAlreadyUsed ||
-        status === "error" ||
+        status === 'error' ||
         (!isSuccess && !isPending);
 
     useEffect(() => {
@@ -50,49 +50,49 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
 
                 onSuccess();
 
-                setStatus("success");
+                setStatus('success');
             } catch (error) {
                 const apiError = normalizeApiError(error);
 
-                if (apiError.code === "AUTH_INVALID_TOKEN") {
-                    setStatus("invalid-token");
+                if (apiError.code === 'AUTH_INVALID_TOKEN') {
+                    setStatus('invalid-token');
                     return;
                 }
 
-                if (apiError.code === "AUTH_TOKEN_EXPIRED") {
-                    setStatus("expired-token");
+                if (apiError.code === 'AUTH_TOKEN_EXPIRED') {
+                    setStatus('expired-token');
                     return;
                 }
 
-                if (apiError.code === "AUTH_TOKEN_ALREADY_USED") {
-                    setStatus("token-already-used");
+                if (apiError.code === 'AUTH_TOKEN_ALREADY_USED') {
+                    setStatus('token-already-used');
                     return;
                 }
 
-                setStatus("error");
+                setStatus('error');
             }
         })();
-    }, [token]);
+    }, [token, confirmEmailMutation, onSuccess]);
 
     const title = useMemo(() => {
-        if (isPending) return t("auth.confirmEmail.state.pending.title");
-        if (isSuccess) return t("auth.confirmEmail.state.success.title");
-        if (isExpired) return t("auth.confirmEmail.state.expired.title");
-        if (isInvalid) return t("auth.confirmEmail.state.invalid.title");
+        if (isPending) return t('auth.confirmEmail.state.pending.title');
+        if (isSuccess) return t('auth.confirmEmail.state.success.title');
+        if (isExpired) return t('auth.confirmEmail.state.expired.title');
+        if (isInvalid) return t('auth.confirmEmail.state.invalid.title');
         if (isAlreadyUsed)
-            return t("auth.confirmEmail.state.alreadyUsed.title");
-        return t("auth.confirmEmail.state.default.title");
-    }, [isPending, isSuccess, isExpired, isInvalid]);
+            return t('auth.confirmEmail.state.alreadyUsed.title');
+        return t('auth.confirmEmail.state.default.title');
+    }, [isPending, isSuccess, isExpired, isInvalid, isAlreadyUsed]);
 
     const description = useMemo(() => {
-        if (isPending) return t("auth.confirmEmail.state.pending.description");
-        if (isSuccess) return t("auth.confirmEmail.state.success.description");
-        if (isExpired) return t("auth.confirmEmail.state.expired.description");
-        if (isInvalid) return t("auth.confirmEmail.state.invalid.description");
+        if (isPending) return t('auth.confirmEmail.state.pending.description');
+        if (isSuccess) return t('auth.confirmEmail.state.success.description');
+        if (isExpired) return t('auth.confirmEmail.state.expired.description');
+        if (isInvalid) return t('auth.confirmEmail.state.invalid.description');
         if (isAlreadyUsed)
-            return t("auth.confirmEmail.state.alreadyUsed.description");
-        return t("auth.confirmEmail.state.default.description");
-    }, [isPending, isSuccess, isExpired, isInvalid]);
+            return t('auth.confirmEmail.state.alreadyUsed.description');
+        return t('auth.confirmEmail.state.default.description');
+    }, [isPending, isSuccess, isExpired, isInvalid, isAlreadyUsed]);
 
     return (
         <AuthCard
@@ -106,7 +106,7 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
                         <AuthRedirect
                             to={routes.login()}
                             linkText={t(
-                                "auth.confirmEmail.redirect.success.linkText",
+                                'auth.confirmEmail.redirect.success.linkText',
                             )}
                             isButton
                         />
@@ -116,7 +116,7 @@ export const ConfirmEmail = ({ token, onSuccess }: ConfirmEmailProps) => {
                         <AuthRedirect
                             to={routes.signup()}
                             linkText={t(
-                                "auth.confirmEmail.redirect.error.linkText",
+                                'auth.confirmEmail.redirect.error.linkText',
                             )}
                             isButton
                         />

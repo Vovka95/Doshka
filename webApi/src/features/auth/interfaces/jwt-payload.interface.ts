@@ -1,9 +1,10 @@
 export interface AccessTokenPayload {
-  sub: string;
+    sub: string;
 }
 
 export interface RefreshTokenPayload extends AccessTokenPayload {
-  sid: string;
+    sid: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export interface JwtTokensPayload extends RefreshTokenPayload {}
