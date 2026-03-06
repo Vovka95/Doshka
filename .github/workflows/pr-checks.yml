@@ -11,10 +11,6 @@ jobs:
         name: WebClient - lint, build, test
         runs-on: ubuntu-latest
 
-        defaults:
-            run:
-                working-directory: webClient
-
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
@@ -28,12 +24,15 @@ jobs:
 
             - name: Install dependencies
               run: npm ci
+              working-directory: webClient
 
             - name: Lint
               run: npm run lint
+              working-directory: webClient
 
             - name: Build
               run: npm run build
+              working-directory: webClient
 
             # - name: Test
             #   run: npm test -- --runInBand
@@ -41,10 +40,6 @@ jobs:
     webapi:
         name: WebApi - lint, build, test
         runs-on: ubuntu-latest
-
-        defaults:
-            run:
-                working-directory: webApi
 
         steps:
             - name: Checkout repository
@@ -59,12 +54,15 @@ jobs:
 
             - name: Install dependencies
               run: npm ci
+              working-directory: webApi
 
             - name: Lint
               run: npm run lint
+              working-directory: webApi
 
             - name: Build
               run: npm run build
+              working-directory: webApi
 
             # - name: Test
             #   run: npm test -- --runInBand
