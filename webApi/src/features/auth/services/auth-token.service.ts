@@ -46,7 +46,7 @@ export class AuthTokenService {
         const refreshMaxAge = getRefreshMaxAge(this.configService);
         const expiresAt = new Date(Date.now() + refreshMaxAge);
 
-        this.authSessionsService.createSession({
+        await this.authSessionsService.createSession({
             id: sessionId,
             userId,
             refreshTokenHash,
@@ -88,11 +88,11 @@ export class AuthTokenService {
     }
 
     async revokeAllSessions(userId: string): Promise<void> {
-        this.authSessionsService.revokeAllUserSessions(userId);
+        await this.authSessionsService.revokeAllUserSessions(userId);
     }
 
     async revokeSessionBySid(sid: string): Promise<void> {
-        this.authSessionsService.revokeSession(sid);
+        await this.authSessionsService.revokeSession(sid);
     }
 
     // =========================

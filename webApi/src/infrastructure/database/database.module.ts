@@ -13,6 +13,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
         }),
         TypeOrmModule.forRootAsync({
             inject: [ConfigService],
+            // eslint-disable-next-line @typescript-eslint/require-await
             useFactory: async (configService: ConfigService) =>
                 configService.getOrThrow<TypeOrmModuleOptions>('typeormConfig'),
         }),

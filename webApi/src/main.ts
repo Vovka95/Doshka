@@ -16,7 +16,7 @@ async function bootstrap() {
     const origins = [
         configService.get<string>('FRONTEND_ORIGIN'),
         configService.get<string>('FRONTEND_ORIGIN_WWW'),
-    ].filter(Boolean);
+    ].filter((origin): origin is string => Boolean(origin));
 
     app.enableCors({ origin: origins, credentials: true });
 
@@ -46,4 +46,5 @@ async function bootstrap() {
 
     await app.listen(port);
 }
-bootstrap();
+
+void bootstrap();

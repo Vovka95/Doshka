@@ -8,7 +8,7 @@ export const decodeJwtPayload = (token: string): DecodedJwtPayload => {
         }
 
         const json = Buffer.from(payloadBase64, 'base64url').toString('utf8');
-        return JSON.parse(json);
+        return JSON.parse(json) as DecodedJwtPayload;
     } catch {
         return {};
     }

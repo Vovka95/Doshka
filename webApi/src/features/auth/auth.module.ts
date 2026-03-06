@@ -28,6 +28,7 @@ import { ExpiresIn } from './types/expires-in.type';
         JwtModule.registerAsync({
             imports: [ConfigModule],
             inject: [ConfigService],
+            // eslint-disable-next-line @typescript-eslint/require-await
             useFactory: async (
                 configService: ConfigService,
             ): Promise<JwtModuleOptions> => ({
