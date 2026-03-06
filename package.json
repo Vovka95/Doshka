@@ -21,7 +21,20 @@
         "docker:webClient": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_client sh",
         "docker:db": "docker compose -f infrastructure/docker-compose.yml exec doshka_db psql -U $DATABASE_USERNAME -d $DATABASE_NAME",
         "docker:pgAdmin": "open http://localhost:$PGADMIN_PORT",
-        "docker:migration:run": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_api npm run migration:run",
-        "docker:migration:generate": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_api npm run migration:generate"
-    }
+        "docker:migration:run": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_api npm run migration:run -w webApi",
+        "docker:migration:generate": "docker compose -f infrastructure/docker-compose.yml exec doshka_web_api npm run migration:generate -w webApi",
+
+        "web:ci": "npm ci --include=dev -w webClient",
+        "web:i": "npm install -w webClient",
+        "web:dev": "npm run dev -w webClient -- --host",
+        "web:build": "npm run build -w webClient",
+        "web:lint": "npm run lint -w webClient",
+
+        "api:ci": "npm ci --include=dev -w webApi",
+        "api:i": "npm install -w webApi",
+        "api:start:dev": "npm run start:dev -w webApi",
+        "api:build": "npm run build -w webApi",
+        "api:lint": "npm run lint -w webApi"
+
+      }
 }

@@ -20,19 +20,16 @@ jobs:
               with:
                   node-version: 20
                   cache: npm
-                  cache-dependency-path: webClient/package-lock.json
+                  cache-dependency-path: package-lock.json
 
             - name: Install dependencies
-              run: npm ci
-              working-directory: webClient
+              run: npm run web:ci
 
             - name: Lint
-              run: npm run lint
-              working-directory: webClient
+              run: npm run web:lint
 
             - name: Build
-              run: npm run build
-              working-directory: webClient
+              run: npm run web:build
 
             # - name: Test
             #   run: npm test -- --runInBand
@@ -50,19 +47,16 @@ jobs:
               with:
                   node-version: 20
                   cache: npm
-                  cache-dependency-path: webApi/package-lock.json
+                  cache-dependency-path: package-lock.json
 
             - name: Install dependencies
-              run: npm ci
-              working-directory: webApi
+              run: npm run api:ci
 
             - name: Lint
-              run: npm run lint
-              working-directory: webApi
+              run: npm run api:lint
 
             - name: Build
-              run: npm run build
-              working-directory: webApi
+              run: npm run api:build
 
             # - name: Test
-            #   run: npm test -- --runInBand
+            #   run: npm run api:test -- --runInBand
