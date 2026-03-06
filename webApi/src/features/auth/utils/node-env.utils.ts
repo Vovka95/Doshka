@@ -1,10 +1,10 @@
 import { ConfigService } from '@nestjs/config';
 
 export const getIsProdEnv = (configService: ConfigService) =>
-  configService.get('NODE_ENV') === 'production';
+    configService.get('NODE_ENV') === 'production';
 
 export const getCookieDomainEnv = (configService: ConfigService) =>
-  configService.get('COOKIE_DOMAIN');
+    configService.get('COOKIE_DOMAIN');
 
 export const getCookieSecureEnv = (configService: ConfigService) =>
-  configService.get('COOKIE_SECURE');
+    configService.get('COOKIE_SECURE');

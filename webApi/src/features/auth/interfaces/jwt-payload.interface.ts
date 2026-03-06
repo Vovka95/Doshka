@@ -1,9 +1,9 @@
 export interface AccessTokenPayload {
-  sub: string;
+    sub: string;
 }
 
 export interface RefreshTokenPayload extends AccessTokenPayload {
-  sid: string;
+    sid: string;
 }
 
 export interface JwtTokensPayload extends RefreshTokenPayload {}

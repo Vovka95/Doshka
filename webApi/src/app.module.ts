@@ -8,8 +8,8 @@ import { AuthModule } from './features/auth/auth.module';
 import { UsersModule } from './features/users/users.module';
 
 @Module({
-  imports: [DatabaseModule, EmailModule, AuthModule, UsersModule],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [DatabaseModule, EmailModule, AuthModule, UsersModule],
+    controllers: [AppController],
+    providers: [AppService],
 })
 export class AppModule {}
