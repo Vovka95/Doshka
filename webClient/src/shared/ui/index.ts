@@ -8,6 +8,8 @@ export * from './Input';
 export * from './Form';
 export * from './Navigation';
 export * from './Spinner';
+export * from './Menubar';
+export * from './Menu';
 
 export * from './Avatar';
 export * from './ThemeToggle';

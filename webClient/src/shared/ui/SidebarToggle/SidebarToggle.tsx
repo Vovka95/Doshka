@@ -1,9 +1,11 @@
-import { MenuIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from "lucide-react";
+import { MenuIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from 'lucide-react';
 
-import { IconButton } from "@/shared/ui/IconButton";
+import { IconButton } from '@/shared/ui/IconButton';
 
-import { useUIStore } from "@/shared/store/ui";
-import { useIsMobile } from "@/shared/lib/hooks/media-query";
+import { useUIStore } from '@/shared/store/ui';
+import { useIsMobile } from '@/shared/lib/hooks/media-query';
+
+const iconSize = 24;
 
 export const SidebarToggle = () => {
     const isMobile = useIsMobile();
@@ -21,18 +23,18 @@ export const SidebarToggle = () => {
 
     const ariaLabel = isMobile
         ? isSidebarMobileOpen
-            ? "Close sidebar"
-            : "Open sidebar"
+            ? 'Close sidebar'
+            : 'Open sidebar'
         : isSidebarCollapsed
-          ? "Expand sidebar"
-          : "Collapse sidebar";
+          ? 'Expand sidebar'
+          : 'Collapse sidebar';
 
     const icon = isMobile ? (
-        <MenuIcon />
+        <MenuIcon size={iconSize} />
     ) : isSidebarCollapsed ? (
-        <PanelLeftOpenIcon />
+        <PanelLeftOpenIcon size={iconSize} />
     ) : (
-        <PanelLeftCloseIcon />
+        <PanelLeftCloseIcon size={iconSize} />
     );
 
     return (

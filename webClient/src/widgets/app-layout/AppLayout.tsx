@@ -1,11 +1,13 @@
 import type { CSSProperties } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import { AppSidebar } from './AppSidebar';
 import { AppTopbar } from './AppTopbar';
+import { AppSidebar } from './AppSidebar';
+import { AppSidebarMobile } from './AppSidebarMobile';
 
 import { useUIStore } from '@/shared/store/ui';
 import { useIsMobile } from '@/shared/lib/hooks/media-query';
+
 import { cn } from '@/shared/lib/cn';
 
 type AppLayoutStyle = CSSProperties & {
@@ -16,9 +18,8 @@ export const AppLayout = () => {
     const isMobile = useIsMobile();
     const isSidebarCollapsed = useUIStore((s) => s.isSidebarCollapsed);
     const isSidebarMobileOpen = useUIStore((s) => s.isSidebarMobileOpen);
-    const closeSidebarMobile = useUIStore((s) => s.closeSidebarMobile);
 
-    const sidebarWidth = isSidebarCollapsed ? '60px' : '260px';
+    const sidebarWidth = isSidebarCollapsed ? '64px' : '260px';
 
     const layoutStyle: AppLayoutStyle = {
         '--sidebar-w': sidebarWidth,
@@ -42,20 +43,7 @@ export const AppLayout = () => {
                 </div>
             </div>
 
-            {isMobile && isSidebarMobileOpen ? (
-                <div className="fixed inset-0 z-50">
-                    <div
-                        className="absolute inset-0 bg-black/50"
-                        onClick={closeSidebarMobile}
-                    />
-                    <div className="absolute inset-y-0 left-0 w-70 bg-card shadow-xl">
-                        <AppSidebar
-                            collapsed={false}
-                            onNavigate={closeSidebarMobile}
-                        />
-                    </div>
-                </div>
-            ) : null}
+            {isMobile && isSidebarMobileOpen && <AppSidebarMobile />}
         </div>
     );
 };

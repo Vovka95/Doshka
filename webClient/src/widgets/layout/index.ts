@@ -1,3 +1,3 @@
-export * from "./AppLayout";
-export * from "./AuthLayout";
-export * from "./RootLayout";
+export * from '../app-layout';
+export * from './AuthLayout';
+export * from './RootLayout';
