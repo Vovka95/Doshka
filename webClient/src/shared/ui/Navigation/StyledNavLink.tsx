@@ -46,7 +46,7 @@ export const StyledNavLink = ({
                     {icon && (
                         <span
                             className={cn(
-                                'flex shrink-0 items-center justify-center',
+                                'inline-flex shrink-0 items-center justify-center',
                                 isActive && 'text-fg',
                             )}
                         >

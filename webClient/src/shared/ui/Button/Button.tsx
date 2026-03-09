@@ -1,10 +1,10 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
-import { cn } from "@/shared/lib/cn";
-import { Spinner } from "@/shared/ui";
+import { cn } from '@/shared/lib/cn';
+import { Spinner } from '@/shared/ui';
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: ButtonVariant;
@@ -15,29 +15,29 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const sizes: Record<ButtonSize, string> = {
-    sm: "h-8 px-3 text-sm",
-    md: "h-9 px-3.5 text-sm",
-    lg: "h-10 px-4 text-sm",
+    sm: 'h-8 px-3 text-sm',
+    md: 'h-9 px-3.5 text-sm',
+    lg: 'h-10 px-4 text-sm',
 };
 
 const variants: Record<ButtonVariant, string> = {
-    primary: "bg-primary text-primary-fg hover:opacity-90",
-    secondary: "bgr-muted text-fg border border-border hover:bg-hover",
-    ghost: "bg-transparent text-fg hover:bg-hover",
-    danger: "bg-danger text-danger-fg hover:opacity-90",
+    primary: 'bg-primary text-primary-fg hover:opacity-90',
+    secondary: 'bgr-muted text-fg border border-border hover:bg-hover',
+    ghost: 'bg-transparent text-fg hover:bg-hover',
+    danger: 'bg-danger text-danger-fg hover:opacity-90',
 };
 
 const base =
-    "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium " +
-    "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring " +
-    "disabled:pointer-events-none disabled:opacity-50";
+    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ' +
+    'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ' +
+    'disabled:pointer-events-none disabled:opacity-50';
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     (
         {
             className,
-            variant = "primary",
-            size = "sm",
+            variant = 'primary',
+            size = 'sm',
             isLoading = false,
             leftIcon,
             rightIcon,
@@ -53,7 +53,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         return (
             <button
                 ref={ref}
-                type={type ?? "button"}
+                type={type ?? 'button'}
                 className={cn(base, sizes[size], variants[variant], className)}
                 disabled={isDisabled}
                 aria-busy={isLoading || undefined}
@@ -62,7 +62,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 {isLoading ? (
                     <Spinner />
                 ) : leftIcon ? (
-                    <span className="inline-flex shrink-0 items-center">
+                    <span className="inline-flex shrink-0 items-center justify-center">
                         {leftIcon}
                     </span>
                 ) : null}
@@ -70,7 +70,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
                 <span className="inline-flex items-center">{children}</span>
 
                 {!isLoading && rightIcon ? (
-                    <span className="inline-flex shrink-0 items-center">
+                    <span className="inline-flex shrink-0 items-center justify-center">
                         {rightIcon}
                     </span>
                 ) : null}
@@ -79,4 +79,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     },
 );
 
-Button.displayName = "Button";
+Button.displayName = 'Button';
