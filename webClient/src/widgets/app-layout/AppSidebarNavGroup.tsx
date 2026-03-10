@@ -3,11 +3,11 @@ import type { LucideIcon } from 'lucide-react';
 import { AppSidebarNavGroupLabel } from './AppSidebarNavGroupLabel';
 import { StyledNavLink } from '@/shared/ui';
 
-import { tUnsafe } from '@/shared/lib/i18n';
+import { t, type TKey } from '@/shared/lib/i18n';
 
 type NavGroupType = {
-    label?: string;
-    items: { label: string; to: string; icon: LucideIcon }[];
+    label?: TKey;
+    items: { label: TKey; to: string; icon: LucideIcon }[];
 };
 
 type AppSidebarNavGroupProps = {
@@ -27,7 +27,7 @@ export const AppSidebarNavGroup = ({
         <>
             {navGroup.label && (
                 <AppSidebarNavGroupLabel collapsed={collapsed}>
-                    {tUnsafe(navGroup.label)}
+                    {t(navGroup.label)}
                 </AppSidebarNavGroupLabel>
             )}
             {navGroup.items.map((item) => {
@@ -40,7 +40,7 @@ export const AppSidebarNavGroup = ({
                         collapsed={collapsed}
                         onClick={onNavigate}
                     >
-                        {tUnsafe(item.label)}
+                        {t(item.label)}
                     </StyledNavLink>
                 );
             })}
