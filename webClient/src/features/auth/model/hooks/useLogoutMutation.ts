@@ -1,6 +1,6 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation } from '@tanstack/react-query';
 
-import { authApi } from "@/features/auth/api/authApi";
+import { authApi } from '@/features/auth/api/authApi';
 
 export const useLogoutMutation = () => {
     return useMutation({

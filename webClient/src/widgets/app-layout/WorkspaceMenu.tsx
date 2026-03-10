@@ -1,24 +1,28 @@
 import { ChevronDown } from 'lucide-react';
 
+import { LogoutMenuActionItem } from '@/features/auth/ui';
+
 import {
     Button,
     Menubar,
     MenubarContent,
-    MenubarItem,
     MenubarMenu,
     MenubarSeparator,
     MenubarTrigger,
-    MenuActionItem,
     MenuLinkItem,
     IconButton,
 } from '@/shared/ui';
+import { WorkspaceAvatar } from '@/shared/ui/Avatar';
 
 import { routes } from '@/app/config/routes';
-import { WorkspaceAvatar } from '@/shared/ui/Avatar';
 
 type WorkspaceMenuProps = {
     collapsed?: boolean;
     onNavigate?: () => void;
+};
+
+const TestWorspaceData = {
+    name: 'Doshka',
 };
 
 export const WorkspaceMenu = ({
@@ -34,7 +38,12 @@ export const WorkspaceMenu = ({
                             size="lg"
                             variant="ghost"
                             aria-label="Open side menu"
-                            icon={<WorkspaceAvatar size="xs" name={'Doshka'} />}
+                            icon={
+                                <WorkspaceAvatar
+                                    size="xs"
+                                    name={TestWorspaceData.name}
+                                />
+                            }
                             className="px-3 w-full justify-start"
                         />
                     ) : (
@@ -43,12 +52,15 @@ export const WorkspaceMenu = ({
                             variant="ghost"
                             aria-label="Open side menu"
                             leftIcon={
-                                <WorkspaceAvatar size="xs" name={'Doshka'} />
+                                <WorkspaceAvatar
+                                    size="xs"
+                                    name={TestWorspaceData.name}
+                                />
                             }
                             rightIcon={<ChevronDown size={16} />}
                             className="px-3 w-full justify-start"
                         >
-                            Doshka
+                            {TestWorspaceData.name}
                         </Button>
                     )}
                 </MenubarTrigger>
@@ -59,10 +71,9 @@ export const WorkspaceMenu = ({
                     alignOffset={0}
                     onClick={onNavigate}
                 >
-                    <MenuLinkItem to={routes.inbox()}>Test</MenuLinkItem>
-                    <MenubarItem>Test</MenubarItem>
+                    <MenuLinkItem to={routes.settings()}>Settings</MenuLinkItem>
                     <MenubarSeparator />
-                    <MenuActionItem>Log out</MenuActionItem>
+                    <LogoutMenuActionItem />
                 </MenubarContent>
             </MenubarMenu>
         </Menubar>
