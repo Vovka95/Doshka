@@ -1,3 +1,4 @@
+import { SidebarHeader } from '@/shared/ui';
 import { WorkspaceMenu } from './WorkspaceMenu';
 
 type AppSidebarHeaderProps = {
@@ -10,8 +11,8 @@ export const AppSidebarHeader = ({
     onNavigate,
 }: AppSidebarHeaderProps) => {
     return (
-        <div className="px-2 pb-2 shrink-0">
+        <SidebarHeader>
             <WorkspaceMenu onNavigate={onNavigate} collapsed={collapsed} />
-        </div>
+        </SidebarHeader>
     );
 };
