@@ -6,11 +6,10 @@ import {
     ListTodoIcon,
 } from 'lucide-react';
 
-import { AppSidebarNavGroup } from './AppSidebarNavGroup';
-
 import { routes } from '@/app/config/routes';
 
 import type { TKey } from '@/shared/lib/i18n';
+import { NavGroup, Navigation } from '@/shared/ui';
 
 const navGroups = [
     {
@@ -59,14 +58,14 @@ export const AppSidebarNav = ({
     onNavigate,
 }: AppSidebarNavProps) => {
     return (
-        <nav className="flex-1 px-2 pb-4 overflow-y-auto">
+        <Navigation>
             {navGroups.map((navGroup) => (
-                <AppSidebarNavGroup
+                <NavGroup
                     navGroup={navGroup}
                     collapsed={collapsed}
                     onNavigate={onNavigate}
                 />
             ))}
-        </nav>
+        </Navigation>
     );
 };
