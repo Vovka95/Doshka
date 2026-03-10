@@ -1,14 +1,17 @@
 import { SidebarMobile } from '@/shared/ui';
-import { AppSidebar } from './AppSidebar';
+import { SettingsSidebar } from './SettingsSidebar';
 
 import { useUIStore } from '@/shared/store/ui';
 
-export const AppSidebarMobile = () => {
+export const SettingsSidebarMobile = () => {
     const closeSidebarMobile = useUIStore((s) => s.closeSidebarMobile);
 
     return (
         <SidebarMobile onClose={closeSidebarMobile}>
-            <AppSidebar collapsed={false} onNavigate={closeSidebarMobile} />
+            <SettingsSidebar
+                collapsed={false}
+                onNavigate={closeSidebarMobile}
+            />
         </SidebarMobile>
     );
 };
