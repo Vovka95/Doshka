@@ -11,7 +11,7 @@ export const AppSidebar = ({
     onNavigate,
 }: AppSidebarProps) => {
     return (
-        <aside className="h-dvh overflow-hidden">
+        <aside className="h-full flex flex-col overflow-hidden">
             <AppSidebarHeader collapsed={collapsed} onNavigate={onNavigate} />
             <AppSidebarNav collapsed={collapsed} onNavigate={onNavigate} />
         </aside>

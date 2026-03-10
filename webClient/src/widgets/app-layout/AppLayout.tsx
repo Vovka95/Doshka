@@ -26,15 +26,18 @@ export const AppLayout = () => {
     };
 
     return (
-        <div className="min-h-dvh bg-bg text-fg" style={layoutStyle}>
-            <div className="grid min-h-dvh p-2 grid-cols-1 lg:grid-cols-[var(--sidebar-w)_1fr] lg:transition-[grid-template-columns] lg:duration-200">
+        <div
+            className="h-dvh overflow-hidden bg-bg text-fg"
+            style={layoutStyle}
+        >
+            <div className="grid h-full p-2 grid-cols-1 lg:grid-cols-[var(--sidebar-w)_1fr] lg:transition-[grid-template-columns] lg:duration-200">
                 {!isMobile && <AppSidebar collapsed={isSidebarCollapsed} />}
                 <div className="flex min-w-0 flex-col">
                     <AppTopbar />
 
                     <main
                         className={cn([
-                            'rounded-sm border border-border bg-card min-w-0 flex-1 p-6',
+                            'rounded-sm border border-border bg-card min-w-0 flex-1 p-6 overflow-auto',
                             isSidebarMobileOpen && 'overflow-hidden',
                         ])}
                     >
