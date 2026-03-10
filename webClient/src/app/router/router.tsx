@@ -1,12 +1,12 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate } from 'react-router-dom';
 
-import { authRoutes, appRoutes, notFoundRoute } from "./routes";
+import { authRoutes, appRoutes, notFoundRoute } from './routes';
 
-import { RootLayout } from "@/widgets/layout";
+import { RootLayout } from '@/widgets/root-layout';
 
 export const router = createBrowserRouter([
     {
-        path: "/",
+        path: '/',
         element: <RootLayout />,
         children: [
             {

@@ -1,11 +1,8 @@
-import { ThemeToggle } from "@/shared/ui";
-
-import { SidebarToggle } from "./SidebarToggle";
-import { LogoutButton } from "@/features/auth/ui";
+import { Header, SidebarToggle, ThemeToggle } from '@/shared/ui';
 
 export const AppTopbar = () => {
     return (
-        <header className="flex h-14 items-center justify-between">
+        <Header>
             <div className="flex items-center gap-2">
                 <SidebarToggle />
             </div>
@@ -13,8 +10,6 @@ export const AppTopbar = () => {
             <div className="flex items-center gap-2">
                 <ThemeToggle />
             </div>
-
-            <LogoutButton />
-        </header>
+        </Header>
     );
 };

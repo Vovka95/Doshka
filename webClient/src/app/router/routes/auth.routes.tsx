@@ -1,7 +1,7 @@
-import { Navigate, type RouteObject } from "react-router-dom";
+import { Navigate, type RouteObject } from 'react-router-dom';
 
-import { GuestGuard } from "@/features/auth/ui";
-import { AuthLayout } from "@/widgets/layout";
+import { GuestGuard } from '@/features/auth/ui';
+import { AuthLayout } from '@/widgets/auth-layout';
 
 import {
     LoginPage,
@@ -9,26 +9,26 @@ import {
     ConfirmEmailPage,
     ForgotPasswordPage,
     ResetPasswordPage,
-} from "@/pages/auth";
+} from '@/pages/auth';
 
 export const authRoutes: RouteObject[] = [
     {
-        path: "auth",
+        path: 'auth',
         element: <GuestGuard />,
         children: [
             {
                 element: <AuthLayout />,
                 children: [
                     { index: true, element: <Navigate to="login" replace /> },
-                    { path: "login", element: <LoginPage /> },
-                    { path: "signup", element: <SignupPage /> },
-                    { path: "confirm-email", element: <ConfirmEmailPage /> },
+                    { path: 'login', element: <LoginPage /> },
+                    { path: 'signup', element: <SignupPage /> },
+                    { path: 'confirm-email', element: <ConfirmEmailPage /> },
                     {
-                        path: "forgot-password",
+                        path: 'forgot-password',
                         element: <ForgotPasswordPage />,
                     },
                     {
-                        path: "reset-password",
+                        path: 'reset-password',
                         element: <ResetPasswordPage />,
                     },
                 ],
