@@ -6,13 +6,34 @@ import {
     ListTodoIcon,
 } from 'lucide-react';
 
-import { StyledNavLink } from '@/shared/ui';
+import { AppSidebarNavGroup } from './AppSidebarNavGroup';
 
 import { routes } from '@/app/config/routes';
 
-import { cn } from '@/shared/lib/cn';
-
-const navLinkIconSize = 24;
+const navGroups = [
+    {
+        items: [
+            { label: 'app.nav.inbox', to: routes.inbox(), icon: InboxIcon },
+            {
+                label: 'app.nav.myIssues',
+                to: routes.myIssues(),
+                icon: BookmarkCheckIcon,
+            },
+        ],
+    },
+    {
+        label: 'app.nav.workspace',
+        items: [
+            { label: 'app.nav.projects', to: routes.projects(), icon: BoxIcon },
+            {
+                label: 'app.nav.issues',
+                to: routes.issues(),
+                icon: ListTodoIcon,
+            },
+            { label: 'app.nav.wiki', to: routes.wiki(), icon: FormIcon },
+        ],
+    },
+];
 
 type AppSidebarNavProps = {
     collapsed?: boolean;
@@ -25,56 +46,13 @@ export const AppSidebarNav = ({
 }: AppSidebarNavProps) => {
     return (
         <nav className="px-2 pb-4">
-            <StyledNavLink
-                to={routes.inbox()}
-                icon={<InboxIcon size={navLinkIconSize} />}
-                collapsed={collapsed}
-                onClick={onNavigate}
-            >
-                Inbox
-            </StyledNavLink>
-            <StyledNavLink
-                to={routes.myIssues()}
-                icon={<BookmarkCheckIcon size={navLinkIconSize} />}
-                collapsed={collapsed}
-                onClick={onNavigate}
-            >
-                My issues
-            </StyledNavLink>
-
-            <div
-                className={cn(
-                    'mt-4 px-3 text-xs font-medium text-muted-fg',
-                    collapsed && 'overflow-hidden opacity-0',
-                )}
-            >
-                Workspace
-            </div>
-
-            <StyledNavLink
-                to={routes.projects()}
-                icon={<BoxIcon size={navLinkIconSize} />}
-                collapsed={collapsed}
-                onClick={onNavigate}
-            >
-                Projects
-            </StyledNavLink>
-            <StyledNavLink
-                to={routes.issues()}
-                icon={<ListTodoIcon size={navLinkIconSize} />}
-                collapsed={collapsed}
-                onClick={onNavigate}
-            >
-                Issues
-            </StyledNavLink>
-            <StyledNavLink
-                to={routes.wiki()}
-                icon={<FormIcon size={navLinkIconSize} />}
-                collapsed={collapsed}
-                onClick={onNavigate}
-            >
-                Wiki
-            </StyledNavLink>
+            {navGroups.map((navGroup) => (
+                <AppSidebarNavGroup
+                    navGroup={navGroup}
+                    collapsed={collapsed}
+                    onNavigate={onNavigate}
+                />
+            ))}
         </nav>
     );
 };

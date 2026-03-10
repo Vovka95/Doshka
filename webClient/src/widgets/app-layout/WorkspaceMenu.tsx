@@ -16,6 +16,8 @@ import { WorkspaceAvatar } from '@/shared/ui/Avatar';
 
 import { routes } from '@/app/config/routes';
 
+import { t } from '@/shared/lib/i18n';
+
 type WorkspaceMenuProps = {
     collapsed?: boolean;
     onNavigate?: () => void;
@@ -71,7 +73,9 @@ export const WorkspaceMenu = ({
                     alignOffset={0}
                     onClick={onNavigate}
                 >
-                    <MenuLinkItem to={routes.settings()}>Settings</MenuLinkItem>
+                    <MenuLinkItem to={routes.settings()}>
+                        {t('app.workspace.menu.settings')}
+                    </MenuLinkItem>
                     <MenubarSeparator />
                     <LogoutMenuActionItem />
                 </MenubarContent>
