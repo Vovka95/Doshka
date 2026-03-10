@@ -1,3 +1,5 @@
+import { Sidebar } from '@/shared/ui';
+
 import { AppSidebarHeader } from './AppSidebarHeader';
 import { AppSidebarNav } from './AppSidebarNav';
 
@@ -11,9 +13,9 @@ export const AppSidebar = ({
     onNavigate,
 }: AppSidebarProps) => {
     return (
-        <aside className="h-full flex flex-col overflow-hidden">
+        <Sidebar>
             <AppSidebarHeader collapsed={collapsed} onNavigate={onNavigate} />
             <AppSidebarNav collapsed={collapsed} onNavigate={onNavigate} />
-        </aside>
+        </Sidebar>
     );
 };

@@ -1,14 +1,11 @@
 import { cn } from '@/shared/lib/cn';
 
-type SidebarNavGroupLabelProps = {
+type NavGroupLabelProps = {
     children: React.ReactNode;
     collapsed?: boolean;
 };
 
-export const AppSidebarNavGroupLabel = ({
-    collapsed,
-    children,
-}: SidebarNavGroupLabelProps) => {
+export const NavGroupLabel = ({ collapsed, children }: NavGroupLabelProps) => {
     return (
         <div
             className={cn(

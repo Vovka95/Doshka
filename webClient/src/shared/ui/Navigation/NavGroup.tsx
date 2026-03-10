@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 
-import { AppSidebarNavGroupLabel } from './AppSidebarNavGroupLabel';
-import { StyledNavLink } from '@/shared/ui';
+import { NavGroupLabel } from './NavGroupLabel';
+import { StyledNavLink } from './StyledNavLink';
 
 import { t, type TKey } from '@/shared/lib/i18n';
 
@@ -10,7 +10,7 @@ type NavGroupType = {
     items: { label: TKey; to: string; icon: LucideIcon }[];
 };
 
-type AppSidebarNavGroupProps = {
+type NavGroupProps = {
     navGroup: NavGroupType;
     collapsed?: boolean;
     onNavigate?: () => void;
@@ -18,17 +18,17 @@ type AppSidebarNavGroupProps = {
 
 const navLinkIconSize = 24;
 
-export const AppSidebarNavGroup = ({
+export const NavGroup = ({
     navGroup,
     collapsed,
     onNavigate,
-}: AppSidebarNavGroupProps) => {
+}: NavGroupProps) => {
     return (
         <>
             {navGroup.label && (
-                <AppSidebarNavGroupLabel collapsed={collapsed}>
+                <NavGroupLabel collapsed={collapsed}>
                     {t(navGroup.label)}
-                </AppSidebarNavGroupLabel>
+                </NavGroupLabel>
             )}
             {navGroup.items.map((item) => {
                 const Icon = item.icon;

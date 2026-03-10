@@ -1,8 +1,8 @@
-import { SidebarToggle, ThemeToggle } from '@/shared/ui';
+import { Header, SidebarToggle, ThemeToggle } from '@/shared/ui';
 
 export const AppTopbar = () => {
     return (
-        <header className="flex justify-between px-2 pb-2">
+        <Header>
             <div className="flex items-center gap-2">
                 <SidebarToggle />
             </div>
@@ -10,6 +10,6 @@ export const AppTopbar = () => {
             <div className="flex items-center gap-2">
                 <ThemeToggle />
             </div>
-        </header>
+        </Header>
     );
 };

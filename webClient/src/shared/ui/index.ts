@@ -14,3 +14,6 @@ export * from './Menu';
 export * from './Avatar';
 export * from './ThemeToggle';
 export * from './SidebarToggle';
+export * from './Sidebar';
+export * from './AppShell';
+export * from './Header';
