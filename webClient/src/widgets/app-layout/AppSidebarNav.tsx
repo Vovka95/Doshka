@@ -59,7 +59,7 @@ export const AppSidebarNav = ({
     onNavigate,
 }: AppSidebarNavProps) => {
     return (
-        <nav className="px-2 pb-4">
+        <nav className="flex-1 px-2 pb-4 overflow-y-auto">
             {navGroups.map((navGroup) => (
                 <AppSidebarNavGroup
                     navGroup={navGroup}
