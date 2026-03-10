@@ -10,7 +10,7 @@ export const AppSidebarHeader = ({
     onNavigate,
 }: AppSidebarHeaderProps) => {
     return (
-        <div className="px-2 pb-2">
+        <div className="px-2 pb-2 shrink-0">
             <WorkspaceMenu onNavigate={onNavigate} collapsed={collapsed} />
         </div>
     );
