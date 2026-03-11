@@ -290,4 +290,13 @@ export const en = {
             },
         },
     },
+
+    settings: {
+        nav: {
+            backToApp: 'Back to app',
+            preferences: 'Preferences',
+            profile: 'Profile',
+            security: 'Security & access',
+        },
+    },
 } as const;

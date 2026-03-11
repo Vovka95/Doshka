@@ -4,7 +4,7 @@ import { cn } from '@/shared/lib/cn';
 import { Spinner } from '@/shared/ui';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
     variant?: ButtonVariant;
@@ -15,9 +15,10 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const sizes: Record<ButtonSize, string> = {
-    sm: 'h-8 px-3 text-sm',
-    md: 'h-9 px-3.5 text-sm',
-    lg: 'h-10 px-4 text-sm',
+    xs: 'h-7 text-xs rounded-xs',
+    sm: 'h-8 text-sm rounded-sm',
+    md: 'h-9 text-sm rounded-md',
+    lg: 'h-10 text-lg rounded-md',
 };
 
 const variants: Record<ButtonVariant, string> = {
@@ -28,8 +29,7 @@ const variants: Record<ButtonVariant, string> = {
 };
 
 const base =
-    'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ' +
-    'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ' +
+    'inline-flex items-center justify-center gap-2 px-3 whitespace-nowrap rounded-md text-sm font-medium ' +
     'disabled:pointer-events-none disabled:opacity-50';
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(

@@ -13,6 +13,7 @@ export * from './Menu';
 
 export * from './Avatar';
 export * from './ThemeToggle';
+export * from './SizeToggle';
 export * from './SidebarToggle';
 export * from './Sidebar';
 export * from './AppShell';

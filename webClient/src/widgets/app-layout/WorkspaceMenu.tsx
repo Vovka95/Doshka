@@ -3,16 +3,17 @@ import { ChevronDown } from 'lucide-react';
 import { LogoutMenuActionItem } from '@/features/auth/ui';
 
 import {
-    Button,
     Menubar,
     MenubarContent,
     MenubarMenu,
     MenubarSeparator,
     MenubarTrigger,
     MenuLinkItem,
-    IconButton,
+    SidebarActionButton,
 } from '@/shared/ui';
 import { WorkspaceAvatar } from '@/shared/ui/Avatar';
+
+import { useUIStore } from '@/shared/store/ui';
 
 import { routes } from '@/app/config/routes';
 
@@ -31,40 +32,28 @@ export const WorkspaceMenu = ({
     collapsed,
     onNavigate,
 }: WorkspaceMenuProps) => {
+    const appSize = useUIStore((s) => s.size);
+
     return (
-        <Menubar>
+        <Menubar className="w-full">
             <MenubarMenu>
                 <MenubarTrigger asChild>
-                    {collapsed ? (
-                        <IconButton
-                            size="lg"
-                            variant="ghost"
-                            aria-label="Open side menu"
-                            icon={
-                                <WorkspaceAvatar
-                                    size="xs"
-                                    name={TestWorspaceData.name}
-                                />
-                            }
-                            className="px-3 w-full justify-start"
-                        />
-                    ) : (
-                        <Button
-                            size="lg"
-                            variant="ghost"
-                            aria-label="Open side menu"
-                            leftIcon={
-                                <WorkspaceAvatar
-                                    size="xs"
-                                    name={TestWorspaceData.name}
-                                />
-                            }
-                            rightIcon={<ChevronDown size={16} />}
-                            className="px-3 w-full justify-start"
-                        >
-                            {TestWorspaceData.name}
-                        </Button>
-                    )}
+                    <SidebarActionButton
+                        variant="ghost"
+                        size={appSize}
+                        collapsed={collapsed}
+                        aria-label="Open side menu"
+                        leftIcon={
+                            <WorkspaceAvatar
+                                size={appSize}
+                                name={TestWorspaceData.name}
+                            />
+                        }
+                        rightIcon={<ChevronDown size={16} />}
+                        className="bg-hover"
+                    >
+                        {TestWorspaceData.name}
+                    </SidebarActionButton>
                 </MenubarTrigger>
                 <MenubarContent
                     className="min-w-57"
@@ -73,11 +62,11 @@ export const WorkspaceMenu = ({
                     alignOffset={0}
                     onClick={onNavigate}
                 >
-                    <MenuLinkItem to={routes.settings()}>
+                    <MenuLinkItem size={appSize} to={routes.settings()}>
                         {t('app.workspace.menu.settings')}
                     </MenuLinkItem>
                     <MenubarSeparator />
-                    <LogoutMenuActionItem />
+                    <LogoutMenuActionItem size={appSize} />
                 </MenubarContent>
             </MenubarMenu>
         </Menubar>

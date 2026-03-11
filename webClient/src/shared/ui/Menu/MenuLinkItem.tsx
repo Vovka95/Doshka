@@ -17,7 +17,13 @@ export const MenuLinkItem = ({
 }: MenuLinkItemProps) => {
     return (
         <MenubarItem asChild>
-            <StyledNavLink {...props} variant="menu" icon={icon}>
+            <StyledNavLink
+                {...props}
+                className="font-normal"
+                variant="menu"
+                icon={icon}
+                collapsed={false}
+            >
                 {children}
             </StyledNavLink>
         </MenubarItem>

@@ -5,6 +5,8 @@ import { StyledNavLink } from './StyledNavLink';
 
 import { t, type TKey } from '@/shared/lib/i18n';
 
+import { useUIStore } from '@/shared/store/ui';
+
 type NavGroupType = {
     label?: TKey;
     items: { label: TKey; to: string; icon: LucideIcon }[];
@@ -16,17 +18,19 @@ type NavGroupProps = {
     onNavigate?: () => void;
 };
 
-const navLinkIconSize = 24;
+const iconSize = 24;
 
 export const NavGroup = ({
     navGroup,
     collapsed,
     onNavigate,
 }: NavGroupProps) => {
+    const appSize = useUIStore((s) => s.size);
+
     return (
-        <>
+        <div className="flex flex-col gap-0.5 mb-4">
             {navGroup.label && (
-                <NavGroupLabel collapsed={collapsed}>
+                <NavGroupLabel size={appSize} collapsed={collapsed}>
                     {t(navGroup.label)}
                 </NavGroupLabel>
             )}
@@ -34,9 +38,10 @@ export const NavGroup = ({
                 const Icon = item.icon;
                 return (
                     <StyledNavLink
+                        size={appSize}
                         key={item.to}
                         to={item.to}
-                        icon={<Icon size={navLinkIconSize} />}
+                        icon={<Icon size={iconSize} />}
                         collapsed={collapsed}
                         onClick={onNavigate}
                     >
@@ -44,6 +49,6 @@ export const NavGroup = ({
                     </StyledNavLink>
                 );
             })}
-        </>
+        </div>
     );
 };

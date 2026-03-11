@@ -30,7 +30,7 @@ export const AppSidebar = ({
             <Navigation>
                 {navGroups.map((navGroup) => (
                     <NavGroup
-                        key={`navGroup-${navGroup.label ?? navGroup.items[0].to}`}
+                        key={`navGroup-${navGroup.items[0].to}`}
                         navGroup={navGroup}
                         collapsed={collapsed}
                         onNavigate={onNavigate}

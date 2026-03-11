@@ -1,6 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query';
 
-import { MenuActionItem } from '@/shared/ui';
+import { MenuActionItem, type MenuActionItemProps } from '@/shared/ui';
 
 import { authSession } from '../../lib/authSession';
 
@@ -10,7 +10,11 @@ import { useUIStore } from '@/shared/store/ui';
 import { normalizeApiError } from '@/shared/api/http/errror';
 import { t } from '@/shared/lib/i18n';
 
-export const LogoutMenuActionItem = () => {
+type LogoutMenuActionItemProps = Omit<MenuActionItemProps, 'children'>;
+
+export const LogoutMenuActionItem = ({
+    ...props
+}: LogoutMenuActionItemProps) => {
     const queryClient = useQueryClient();
     const toast = useUIStore((s) => s.toast);
     const logoutMutation = useLogoutMutation();
@@ -41,6 +45,7 @@ export const LogoutMenuActionItem = () => {
 
     return (
         <MenuActionItem
+            {...props}
             onClick={handleOnClick}
             disabled={logoutMutation.isPending}
         >

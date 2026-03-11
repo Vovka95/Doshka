@@ -9,4 +9,7 @@ export const routes = {
     issues: () => '/app/issues',
     wiki: () => '/app/wiki',
     settings: () => '/settings',
+    preferences: () => '/settings/preferences',
+    profile: () => '/settings/profile',
+    security: () => '/settings/security',
 } as const;
