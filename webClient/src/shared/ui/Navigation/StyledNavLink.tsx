@@ -52,7 +52,7 @@ export const StyledNavLink = ({
             {...props}
             style={
                 {
-                    '--collapsed-w': '3rem',
+                    '--collapsed-w': '2.5rem',
                     '--px-x': '0.75rem',
                     '--gap-x': '0.5rem',
                     '--icon-slot-w':

@@ -16,6 +16,8 @@ export const SidebarToggle = () => {
     const isSidebarMobileOpen = useUIStore((s) => s.isSidebarMobileOpen);
     const toggleSidebarMobile = useUIStore((s) => s.toggleSidebarMobile);
 
+    const appSize = useUIStore((s) => s.size);
+
     const handleOnClick = () => {
         if (isMobile) toggleSidebarMobile();
         else toggleSidebarCollapsed();
@@ -39,7 +41,7 @@ export const SidebarToggle = () => {
 
     return (
         <IconButton
-            size="xs"
+            size={appSize}
             aria-label={ariaLabel}
             variant="ghost"
             className="text-muted-fg"

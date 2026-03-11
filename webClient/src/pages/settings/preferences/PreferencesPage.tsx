@@ -1,4 +1,4 @@
-import { ThemeToggle } from '@/shared/ui';
+import { SizeToggle, ThemeToggle } from '@/shared/ui';
 
 export const PreferencesPage = () => {
     return (
@@ -6,6 +6,9 @@ export const PreferencesPage = () => {
             Preferences
             <div className="flex justify-center">
                 <ThemeToggle />
+            </div>
+            <div className="flex justify-center">
+                <SizeToggle />
             </div>
         </div>
     );

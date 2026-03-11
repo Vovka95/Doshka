@@ -21,7 +21,6 @@ export const MenuLinkItem = ({
                 {...props}
                 className="font-normal"
                 variant="menu"
-                size="xs"
                 icon={icon}
                 collapsed={false}
             >

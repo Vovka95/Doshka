@@ -1,30 +1,19 @@
-import * as React from 'react';
-
 import { MenubarItem } from '../Menubar';
 
-import { Button } from '../Button';
+import { Button, type ButtonProps } from '../Button';
 
-type MenuActionItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    icon?: React.ReactNode;
-};
+export type MenuActionItemProps = Omit<ButtonProps, 'variant'>;
 
-export const MenuActionItem = React.forwardRef<
-    HTMLButtonElement,
-    MenuActionItemProps
->(({ className, icon, children, ...props }, ref) => {
+export const MenuActionItem = ({ children, ...props }: MenuActionItemProps) => {
     return (
         <MenubarItem asChild>
             <Button
                 {...props}
-                ref={ref}
                 className="w-full justify-start font-normal"
                 variant="ghost"
-                size="xs"
             >
                 {children}
             </Button>
         </MenubarItem>
     );
-});
-
-MenuActionItem.displayName = 'MenuActionItem';
+};

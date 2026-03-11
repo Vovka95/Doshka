@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { ChevronLeftIcon } from 'lucide-react';
 
 import { SidebarActionButton } from '@/shared/ui';
 
+import { useUIStore } from '@/shared/store/ui';
+
 import { t } from '@/shared/lib/i18n';
-import { useNavigate } from 'react-router-dom';
 import { routes } from '@/app/config/routes';
 
 type BackToAppButtonProps = {
@@ -11,12 +13,13 @@ type BackToAppButtonProps = {
 };
 
 export const BackToAppButton = ({ collapsed }: BackToAppButtonProps) => {
+    const appSize = useUIStore((s) => s.size);
     const navigate = useNavigate();
 
     return (
         <SidebarActionButton
             variant="ghost"
-            size="xs"
+            size={appSize}
             collapsed={collapsed}
             onClick={() => navigate(routes.app())}
             leftIcon={<ChevronLeftIcon size={16} />}

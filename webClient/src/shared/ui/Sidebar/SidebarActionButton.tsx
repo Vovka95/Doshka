@@ -75,7 +75,7 @@ export const SidebarActionButton = forwardRef<
                 aria-busy={isLoading || undefined}
                 style={
                     {
-                        '--collapsed-w': '3rem',
+                        '--collapsed-w': '2.5rem',
                         '--px-x': '0.75rem',
                         '--gap-x': '0.5rem',
                         '--icon-slot-w':
@@ -124,53 +124,3 @@ export const SidebarActionButton = forwardRef<
 );
 
 SidebarActionButton.displayName = 'SidebarActionButton';
-
-// const componentTest = ({
-//     collapsed,
-//     leftIcon,
-//     rightIcon,
-//     children,
-// }: {
-//     collapsed: boolean;
-//     leftIcon: ReactNode;
-//     rightIcon: ReactNode;
-//     children: ReactNode;
-// }) => {
-//     return (
-//         <button
-//             style={
-//                 {
-//                     '--collapsed-w': '3rem', // w-12
-//                     '--px-x': '0.5rem', // px-2
-//                     '--gap-x': '0.5rem', // gap-2
-//                     '--icon-slot-w':
-//                         'calc(var(--collapsed-w) - (var(--px-x) * 2))',
-//                 } as React.CSSProperties
-//             }
-//             className="flex w-full items-center px-(--px-x)"
-//         >
-//             <span
-//                 className={cn(
-//                     'flex shrink-0 items-center justify-center w-(--icon-slot-w)',
-//                 )}
-//             >
-//                 {leftIcon}
-//             </span>
-//             <span
-//                 className={cn(
-//                     'ml-(--gap-x) flex min-w-0 flex-1 items-center justify-between overflow-hidden whitespace-nowrap origin-left transition-all duration-200 ease-in-out',
-//                     collapsed
-//                         ? 'scale-x-0 opacity-0'
-//                         : 'scale-x-100 opacity-100',
-//                 )}
-//                 aria-hidden={collapsed || undefined}
-//             >
-//                 <span className="truncate">{children}</span>
-
-//                 {rightIcon ? (
-//                     <span className="ml-2 shrink-0">{rightIcon}</span>
-//                 ) : null}
-//             </span>
-//         </button>
-//     );
-// };

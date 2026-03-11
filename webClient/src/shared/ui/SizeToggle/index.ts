@@ -1,0 +1,1 @@
+export { SizeToggle } from './SizeToggle';

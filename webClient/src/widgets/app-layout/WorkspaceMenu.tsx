@@ -13,6 +13,8 @@ import {
 } from '@/shared/ui';
 import { WorkspaceAvatar } from '@/shared/ui/Avatar';
 
+import { useUIStore } from '@/shared/store/ui';
+
 import { routes } from '@/app/config/routes';
 
 import { t } from '@/shared/lib/i18n';
@@ -30,18 +32,20 @@ export const WorkspaceMenu = ({
     collapsed,
     onNavigate,
 }: WorkspaceMenuProps) => {
+    const appSize = useUIStore((s) => s.size);
+
     return (
         <Menubar className="w-full">
             <MenubarMenu>
                 <MenubarTrigger asChild>
                     <SidebarActionButton
                         variant="ghost"
-                        size="xs"
+                        size={appSize}
                         collapsed={collapsed}
                         aria-label="Open side menu"
                         leftIcon={
                             <WorkspaceAvatar
-                                size="xs"
+                                size={appSize}
                                 name={TestWorspaceData.name}
                             />
                         }
@@ -58,11 +62,11 @@ export const WorkspaceMenu = ({
                     alignOffset={0}
                     onClick={onNavigate}
                 >
-                    <MenuLinkItem to={routes.settings()}>
+                    <MenuLinkItem size={appSize} to={routes.settings()}>
                         {t('app.workspace.menu.settings')}
                     </MenuLinkItem>
                     <MenubarSeparator />
-                    <LogoutMenuActionItem />
+                    <LogoutMenuActionItem size={appSize} />
                 </MenubarContent>
             </MenubarMenu>
         </Menubar>
