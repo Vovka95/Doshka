@@ -18,3 +18,6 @@ export * from './SidebarToggle';
 export * from './Sidebar';
 export * from './AppShell';
 export * from './Header';
+
+export * from './PageHeader';
+export * from './Settings';
