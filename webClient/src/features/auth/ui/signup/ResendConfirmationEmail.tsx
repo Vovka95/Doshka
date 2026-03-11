@@ -1,9 +1,9 @@
-import { Button } from "@/shared/ui";
-import { useResendConfirmationMutation } from "../../model";
-import { useCooldown } from "@/shared/lib/hooks/cooldown";
-import { useUIStore } from "@/shared/store/ui";
-import { normalizeApiError } from "@/shared/api/http/errror";
-import { t } from "@/shared/lib/i18n";
+import { Button } from '@/shared/ui';
+import { useResendConfirmationMutation } from '../../model';
+import { useCooldown } from '@/shared/lib/hooks/cooldown';
+import { useUIStore } from '@/shared/store/ui';
+import { normalizeApiError } from '@/shared/api/http/errror';
+import { t } from '@/shared/lib/i18n';
 
 const RESEND_COOLDOWN_SEC = 60;
 
@@ -29,16 +29,16 @@ export const ResendConfirmationEmail = ({
             cooldown.start(RESEND_COOLDOWN_SEC);
 
             toast({
-                variant: "success",
-                title: t("auth.resendConfirmationEmail.toast.success.title"),
+                variant: 'success',
+                title: t('auth.resendConfirmationEmail.toast.success.title'),
                 message: response.message,
             });
         } catch (error) {
             const apiError = normalizeApiError(error);
 
             toast({
-                variant: "error",
-                title: t("auth.resendConfirmationEmail.toast.error.title"),
+                variant: 'error',
+                title: t('auth.resendConfirmationEmail.toast.error.title'),
                 message: apiError.messages[0],
             });
         }
@@ -46,6 +46,7 @@ export const ResendConfirmationEmail = ({
 
     return (
         <Button
+            size="md"
             onClick={handleOnClick}
             disabled={
                 resendConfirmationMutation.isPending || cooldown.isCoolingDown
@@ -53,10 +54,10 @@ export const ResendConfirmationEmail = ({
             isLoading={resendConfirmationMutation.isPending}
         >
             {cooldown.isCoolingDown
-                ? t("auth.resendConfirmationEmail.button.cooldown", {
+                ? t('auth.resendConfirmationEmail.button.cooldown', {
                       seconds: cooldown.secondsLeft,
                   })
-                : t("auth.resendConfirmationEmail.button.idle")}
+                : t('auth.resendConfirmationEmail.button.idle')}
         </Button>
     );
 };
