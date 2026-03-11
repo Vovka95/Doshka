@@ -1,9 +1,8 @@
 import * as React from 'react';
 
 import { MenubarItem } from '../Menubar';
-import { menuItemClassName } from './menuItemClassName';
 
-import { cn } from '@/shared/lib/cn';
+import { Button } from '../Button';
 
 type MenuActionItemProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
     icon?: React.ReactNode;
@@ -15,22 +14,15 @@ export const MenuActionItem = React.forwardRef<
 >(({ className, icon, children, ...props }, ref) => {
     return (
         <MenubarItem asChild>
-            <button
+            <Button
                 {...props}
                 ref={ref}
-                type={props.type ?? 'button'}
-                className={cn(menuItemClassName, className)}
+                className="w-full justify-start font-normal"
+                variant="ghost"
+                size="xs"
             >
-                {icon ? (
-                    <span className="inline-flex shrink-0 items-center justify-center">
-                        {icon}
-                    </span>
-                ) : null}
-
-                <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
-                    <span className="truncate">{children}</span>
-                </span>
-            </button>
+                {children}
+            </Button>
         </MenubarItem>
     );
 });

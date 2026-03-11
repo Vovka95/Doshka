@@ -3,14 +3,13 @@ import { ChevronDown } from 'lucide-react';
 import { LogoutMenuActionItem } from '@/features/auth/ui';
 
 import {
-    Button,
     Menubar,
     MenubarContent,
     MenubarMenu,
     MenubarSeparator,
     MenubarTrigger,
     MenuLinkItem,
-    IconButton,
+    SidebarActionButton,
 } from '@/shared/ui';
 import { WorkspaceAvatar } from '@/shared/ui/Avatar';
 
@@ -32,39 +31,25 @@ export const WorkspaceMenu = ({
     onNavigate,
 }: WorkspaceMenuProps) => {
     return (
-        <Menubar>
+        <Menubar className="w-full">
             <MenubarMenu>
                 <MenubarTrigger asChild>
-                    {collapsed ? (
-                        <IconButton
-                            size="lg"
-                            variant="ghost"
-                            aria-label="Open side menu"
-                            icon={
-                                <WorkspaceAvatar
-                                    size="xs"
-                                    name={TestWorspaceData.name}
-                                />
-                            }
-                            className="px-3 w-full justify-start"
-                        />
-                    ) : (
-                        <Button
-                            size="lg"
-                            variant="ghost"
-                            aria-label="Open side menu"
-                            leftIcon={
-                                <WorkspaceAvatar
-                                    size="xs"
-                                    name={TestWorspaceData.name}
-                                />
-                            }
-                            rightIcon={<ChevronDown size={16} />}
-                            className="px-3 w-full justify-start"
-                        >
-                            {TestWorspaceData.name}
-                        </Button>
-                    )}
+                    <SidebarActionButton
+                        variant="ghost"
+                        size="xs"
+                        collapsed={collapsed}
+                        aria-label="Open side menu"
+                        leftIcon={
+                            <WorkspaceAvatar
+                                size="xs"
+                                name={TestWorspaceData.name}
+                            />
+                        }
+                        rightIcon={<ChevronDown size={16} />}
+                        className="bg-hover"
+                    >
+                        {TestWorspaceData.name}
+                    </SidebarActionButton>
                 </MenubarTrigger>
                 <MenubarContent
                     className="min-w-57"

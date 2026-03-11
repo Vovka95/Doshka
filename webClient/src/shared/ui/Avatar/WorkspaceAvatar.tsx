@@ -14,10 +14,10 @@ type WorkspaceAvatarProps = {
 };
 
 const sizes: Record<WorkspaceAvatarSize, string> = {
-    xs: 'h-6 w-6 text-xs',
-    sm: 'h-8 w-8 text-sm',
-    md: 'h-10 w-10 text-sm',
-    lg: 'h-12 w-12 text-base',
+    xs: 'h-5 w-5 text-xs rounded-xs',
+    sm: 'h-8 w-8 text-sm rounded-sm',
+    md: 'h-10 w-10 text-sm rounded-md',
+    lg: 'h-12 w-12 text-base rounded-md',
 };
 
 export const WorkspaceAvatar = ({
@@ -30,13 +30,17 @@ export const WorkspaceAvatar = ({
     const fallbackColorClassName = getAvatarColorClassName(name);
 
     return (
-        <Avatar className={cn('rounded-sm', sizes[size], className)}>
+        <Avatar className={cn(sizes[size], className)}>
             {imageUrl ? (
-                <AvatarImage src={imageUrl} alt={name ?? 'Workspace'} />
+                <AvatarImage
+                    className={cn(sizes[size])}
+                    src={imageUrl}
+                    alt={name ?? 'Workspace'}
+                />
             ) : null}
 
             <AvatarFallback
-                className={cn(['rounded-sm', fallbackColorClassName])}
+                className={cn([sizes[size], fallbackColorClassName])}
             >
                 {initials}
             </AvatarFallback>

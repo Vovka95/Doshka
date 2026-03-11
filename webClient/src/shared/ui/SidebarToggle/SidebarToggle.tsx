@@ -39,6 +39,7 @@ export const SidebarToggle = () => {
 
     return (
         <IconButton
+            size="xs"
             aria-label={ariaLabel}
             variant="ghost"
             className="text-muted-fg"

@@ -7,7 +7,16 @@ import * as MenubarPrimitive from '@radix-ui/react-menubar';
 
 import { cn } from '@/shared/lib/cn';
 
-export const Menubar = MenubarPrimitive.Root;
+export const Menubar = forwardRef<
+    ComponentRef<typeof MenubarPrimitive.Root>,
+    ComponentPropsWithoutRef<typeof MenubarPrimitive.Root>
+>(({ className, ...props }, ref) => (
+    <MenubarPrimitive.Root
+        ref={ref}
+        className={cn('flex items-center', className)}
+        {...props}
+    />
+));
 
 export const MenubarMenu = MenubarPrimitive.Menu;
 
@@ -61,8 +70,8 @@ export const MenubarItem = forwardRef<
     <MenubarPrimitive.Item
         ref={ref}
         className={cn(
-            'relative flex cursor-default select-none items-center rounded-sm px-3 py-2 text-sm outline-none',
-            'text-fg transition-colors',
+            'relative flex cursor-default select-none items-center outline-none',
+            'transition-colors',
             'focus:bg-hover data-highlighted:bg-hover',
             'data-disabled:pointer-events-none data-disabled:opacity-50',
             inset && 'pl-8',

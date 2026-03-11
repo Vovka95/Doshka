@@ -16,7 +16,7 @@ type NavGroupProps = {
     onNavigate?: () => void;
 };
 
-const navLinkIconSize = 24;
+const navLinkIconSize = 20;
 
 export const NavGroup = ({
     navGroup,
@@ -24,9 +24,9 @@ export const NavGroup = ({
     onNavigate,
 }: NavGroupProps) => {
     return (
-        <>
+        <div className="flex flex-col gap-0.5 mb-4">
             {navGroup.label && (
-                <NavGroupLabel collapsed={collapsed}>
+                <NavGroupLabel size="xs" collapsed={collapsed}>
                     {t(navGroup.label)}
                 </NavGroupLabel>
             )}
@@ -34,6 +34,7 @@ export const NavGroup = ({
                 const Icon = item.icon;
                 return (
                     <StyledNavLink
+                        size="xs"
                         key={item.to}
                         to={item.to}
                         icon={<Icon size={navLinkIconSize} />}
@@ -44,6 +45,6 @@ export const NavGroup = ({
                     </StyledNavLink>
                 );
             })}
-        </>
+        </div>
     );
 };

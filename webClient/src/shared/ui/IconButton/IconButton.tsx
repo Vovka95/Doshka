@@ -5,7 +5,7 @@ import { Spinner } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 
 export type IconButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
-export type IconButtonSize = 'sm' | 'md' | 'lg';
+export type IconButtonSize = 'xs' | 'sm' | 'md' | 'lg';
 
 export type IconButtonProps = Omit<
     React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -19,14 +19,15 @@ export type IconButtonProps = Omit<
 };
 
 const base =
-    'inline-flex shrink-0 items-center justify-center rounded-sm transition-colors ' +
+    'inline-flex shrink-0 items-center justify-center rounded-md text-sm transition-colors ' +
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ' +
     'disabled:pointer-events-none disabled:opacity-50';
 
 const sizes: Record<IconButtonSize, string> = {
-    sm: 'h-8 w-8',
-    md: 'h-9 w-9',
-    lg: 'h-10 w-10',
+    xs: 'h-7 w-6 rounded-xs',
+    sm: 'h-8 w-8 rounded-sm',
+    md: 'h-9 w-9 rounded-md',
+    lg: 'h-10 w-10 rounded-md',
 };
 
 const variants: Record<IconButtonVariant, string> = {
