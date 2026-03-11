@@ -84,6 +84,7 @@ export const StyledNavLink = ({
                             className={cn(
                                 'flex shrink-0 items-center justify-center w-(--icon-slot-w)',
                                 isActive && 'text-fg',
+                                collapsed && 'w-10',
                             )}
                         >
                             {icon}
