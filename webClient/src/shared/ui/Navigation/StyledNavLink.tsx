@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import { NavLink, type NavLinkProps } from 'react-router-dom';
 
 import { cn } from '@/shared/lib/cn';
@@ -50,14 +50,21 @@ export const StyledNavLink = ({
     return (
         <NavLink
             {...props}
+            style={
+                {
+                    '--collapsed-w': '3rem',
+                    '--px-x': '0.75rem',
+                    '--gap-x': '0.5rem',
+                    '--icon-slot-w':
+                        'calc(var(--collapsed-w) - (var(--px-x) * 2))',
+                } as CSSProperties
+            }
             className={({ isActive, isPending }) =>
                 cn(
                     base,
                     sizes[size],
                     variants[variant],
-                    collapsed
-                        ? 'justify-center gap-0 px-0'
-                        : 'justify-start gap-2 px-3',
+                    'px-(--px-x)',
                     isActive && activeVariants[variant],
                     isPending && 'opacity-70',
                     typeof className === 'function'
@@ -75,9 +82,8 @@ export const StyledNavLink = ({
                     {icon && (
                         <span
                             className={cn(
-                                'flex w-7 shrink-0 items-center justify-center transition-all duration-200 ease-in-ou',
+                                'flex shrink-0 items-center justify-center w-(--icon-slot-w)',
                                 isActive && 'text-fg',
-                                collapsed && 'w-10',
                             )}
                         >
                             {icon}
@@ -87,6 +93,7 @@ export const StyledNavLink = ({
                     <span
                         className={cn(
                             'flex min-w-0 flex-1 items-center justify-between overflow-hidden whitespace-nowrap origin-left transition-all duration-200 ease-in-out',
+                            icon && 'ml-(--gap-x)',
                             collapsed
                                 ? 'scale-x-0 opacity-0'
                                 : 'scale-x-100 opacity-100',

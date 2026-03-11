@@ -11,7 +11,7 @@ export const AppLayout = () => {
     const isSidebarCollapsed = useUIStore((s) => s.isSidebarCollapsed);
     const isSidebarMobileOpen = useUIStore((s) => s.isSidebarMobileOpen);
 
-    const sidebarWidth = isSidebarCollapsed ? '64px' : '260px';
+    const sidebarWidth = isSidebarCollapsed ? '4rem' : '16.25rem';
 
     return (
         <AppShell
