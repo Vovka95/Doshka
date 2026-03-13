@@ -64,9 +64,10 @@ export class AuthService {
             });
         }
 
-        await this.oneTimeTokenService.sendEmailConfirmation(user);
+        const { data, ok } =
+            await this.oneTimeTokenService.sendEmailConfirmation(user);
 
-        return response;
+        return ok ? { ...response, data } : response;
     }
 
     async login(dto: LoginDto, req: Request): Promise<AuthResult> {
@@ -115,9 +116,10 @@ export class AuthService {
             return response;
         }
 
-        await this.oneTimeTokenService.sendEmailConfirmation(user);
+        const { data, ok } =
+            await this.oneTimeTokenService.sendEmailConfirmation(user);
 
-        return response;
+        return ok ? { ...response, data } : response;
     }
 
     async forgotPassword(emailRaw: string): Promise<MessageResult> {
@@ -132,9 +134,10 @@ export class AuthService {
             return response;
         }
 
-        await this.oneTimeTokenService.sendPasswordReset(user);
+        const { data, ok } =
+            await this.oneTimeTokenService.sendPasswordReset(user);
 
-        return response;
+        return ok ? { ...response, data } : response;
     }
 
     async resetPassword(dto: ResetPasswordDto): Promise<MessageResult> {

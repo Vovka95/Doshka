@@ -1,19 +1,19 @@
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
-import { FormField, Input } from "@/shared/ui";
-import { AuthForm } from "../auth-form";
+import { FormField, Input } from '@/shared/ui';
+import { AuthForm } from '../auth-form';
 
 import {
     signupSchema,
     type SignupValues,
     useSignupMutation,
-} from "../../model";
+} from '../../model';
 
-import { useUIStore } from "@/shared/store/ui";
-import { normalizeApiError } from "@/shared/api/http/errror";
-import { t } from "@/shared/lib/i18n";
-import { translateFormFieldError } from "@/shared/lib/forms/translateFormFieldError";
+import { useUIStore } from '@/shared/store/ui';
+import { normalizeApiError } from '@/shared/api/http/errror';
+import { t } from '@/shared/lib/i18n';
+import { translateFormFieldError } from '@/shared/lib/forms/translateFormFieldError';
 
 export type SignupFormProps = {
     onSuccess: (email: string) => void;
@@ -32,40 +32,40 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
     } = useForm<SignupValues>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
-            firstName: "",
-            lastName: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            confirmPassword: '',
         },
-        mode: "onSubmit",
+        mode: 'onSubmit',
     });
 
     const onSubmit = async (values: SignupValues) => {
         try {
-            clearErrors("root");
+            clearErrors('root');
 
             const response = await signupMutation.mutateAsync(values);
 
             onSuccess(values.email);
 
             toast({
-                variant: "success",
-                title: t("auth.signup.toast.success.title"),
+                variant: 'success',
+                title: t('auth.signup.toast.success.title'),
                 message: response.message,
             });
         } catch (error) {
             const apiError = normalizeApiError(error);
 
             toast({
-                variant: "error",
-                title: t("auth.signup.toast.error.title"),
+                variant: 'error',
+                title: t('auth.signup.toast.error.title'),
                 message: apiError.messages[0],
             });
 
-            setError("root", {
-                type: "server",
-                message: apiError.messages.join("\n"),
+            setError('root', {
+                type: 'server',
+                message: apiError.messages.join('\n'),
             });
         }
     };
@@ -74,14 +74,14 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
         <AuthForm
             onSubmit={handleSubmit(onSubmit)}
             submitButton={{
-                title: t("auth.signup.form.button.submit"),
+                title: t('auth.signup.form.button.submit'),
                 disabled: signupMutation.isPending || isSubmitting,
                 isLoading: signupMutation.isPending || isSubmitting,
             }}
             errorMessage={errors.root?.message}
         >
             <FormField
-                label={t("auth.signup.form.input.firstName.label")}
+                label={t('auth.signup.form.input.firstName.label')}
                 htmlFor="firstName"
                 required
                 error={translateFormFieldError(errors.firstName)}
@@ -89,15 +89,15 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                 <Input
                     id="firstName"
                     placeholder={t(
-                        "auth.signup.form.input.firstName.placeholder",
+                        'auth.signup.form.input.firstName.placeholder',
                     )}
-                    {...register("firstName")}
+                    {...register('firstName')}
                     hasError={!!errors.firstName}
                 />
             </FormField>
 
             <FormField
-                label={t("auth.signup.form.input.lastName.label")}
+                label={t('auth.signup.form.input.lastName.label')}
                 htmlFor="lastName"
                 required
                 error={translateFormFieldError(errors.lastName)}
@@ -105,15 +105,15 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                 <Input
                     id="lastName"
                     placeholder={t(
-                        "auth.signup.form.input.lastName.placeholder",
+                        'auth.signup.form.input.lastName.placeholder',
                     )}
-                    {...register("lastName")}
+                    {...register('lastName')}
                     hasError={!!errors.lastName}
                 />
             </FormField>
 
             <FormField
-                label={t("auth.signup.form.input.email.label")}
+                label={t('auth.signup.form.input.email.label')}
                 htmlFor="email"
                 required
                 error={translateFormFieldError(errors.email)}
@@ -122,14 +122,14 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                     id="email"
                     type="email"
                     autoComplete="email"
-                    placeholder={t("auth.signup.form.input.email.placeholder")}
-                    {...register("email")}
+                    placeholder={t('auth.signup.form.input.email.placeholder')}
+                    {...register('email')}
                     hasError={!!errors.email}
                 />
             </FormField>
 
             <FormField
-                label={t("auth.signup.form.input.password.label")}
+                label={t('auth.signup.form.input.password.label')}
                 htmlFor="password"
                 required
                 error={translateFormFieldError(errors.password)}
@@ -139,15 +139,15 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                     type="password"
                     autoComplete="new-password"
                     placeholder={t(
-                        "auth.signup.form.input.password.placeholder",
+                        'auth.signup.form.input.password.placeholder',
                     )}
-                    {...register("password")}
+                    {...register('password')}
                     hasError={!!errors.password}
                 />
             </FormField>
 
             <FormField
-                label={t("auth.signup.form.input.confirmPassword.label")}
+                label={t('auth.signup.form.input.confirmPassword.label')}
                 htmlFor="confirmPassword"
                 required
                 error={translateFormFieldError(errors.confirmPassword)}
@@ -156,9 +156,9 @@ export const SignupForm = ({ onSuccess }: SignupFormProps) => {
                     id="confirmPassword"
                     type="password"
                     placeholder={t(
-                        "auth.signup.form.input.confirmPassword.placeholder",
+                        'auth.signup.form.input.confirmPassword.placeholder',
                     )}
-                    {...register("confirmPassword")}
+                    {...register('confirmPassword')}
                     hasError={!!errors.confirmPassword}
                 />
             </FormField>

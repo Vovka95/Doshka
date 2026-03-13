@@ -1,5 +1,5 @@
-import { Button } from "@/shared/ui";
-import { Link } from "react-router-dom";
+import { Button } from '@/shared/ui';
+import { Link } from 'react-router-dom';
 
 export type AuthRedirectProps = {
     question?: string;
@@ -22,7 +22,7 @@ export const AuthRedirect = ({
 
             {isButton ? (
                 <Link to={to}>
-                    <Button size="lg">{linkText}</Button>
+                    <Button size="md">{linkText}</Button>
                 </Link>
             ) : (
                 <Link className="text-sm underline hover:opacity-80" to={to}>
