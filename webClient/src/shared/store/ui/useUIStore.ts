@@ -55,7 +55,7 @@ type UIState = {
 };
 
 export const useUIStore = create<UIState>((set) => ({
-    size: 'xs',
+    size: 'sm',
     setSize: (v) => set({ size: v }),
 
     // Desktop collapse

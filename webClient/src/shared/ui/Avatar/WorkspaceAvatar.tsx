@@ -15,9 +15,9 @@ type WorkspaceAvatarProps = {
 
 const sizes: Record<WorkspaceAvatarSize, string> = {
     xs: 'h-4 w-4 text-xs rounded-xs',
-    sm: 'h-5 w-5 text-sm rounded-sm',
-    md: 'h-6 w-6 text-md rounded-md',
-    lg: 'h-7 w-7 text-base rounded-md',
+    sm: 'h-5 w-5 text-sm rounded-xs',
+    md: 'h-6 w-6 text-md rounded-xs',
+    lg: 'h-6 w-6 text-base rounded-xs',
 };
 
 export const WorkspaceAvatar = ({

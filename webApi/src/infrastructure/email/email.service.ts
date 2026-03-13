@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 import { join } from 'path';
@@ -10,7 +10,10 @@ export class EmailService {
     private readonly resend: Resend;
     private readonly templateDir: string;
 
-    constructor(private readonly configService: ConfigService) {
+    constructor(
+        private readonly configService: ConfigService,
+        private readonly logger = new Logger(EmailService.name),
+    ) {
         this.resend = new Resend(
             this.configService.getOrThrow<string>('RESEND_API_KEY'),
         );
@@ -26,6 +29,10 @@ export class EmailService {
         return `Doshka Team <${this.configService.getOrThrow<string>('EMAIL_FROM')}>`;
     }
 
+    async getEmailById(id: string) {
+        return this.resend.emails.get(id);
+    }
+
     async sendEmailConfirmation(to: string, token: string, firstName: string) {
         const confirmEmailUrl = `${this.frontendOrigin}/auth/confirm-email?token=${encodeURIComponent(token)}`;
 
@@ -38,12 +45,19 @@ export class EmailService {
             },
         );
 
-        await this.resend.emails.send({
+        const { data, error } = await this.resend.emails.send({
             from: this.from,
             to,
             subject: 'Confirm your email',
             html,
         });
+
+        if (error) {
+            this.logger.error('Failed to send confirmation email', error);
+            return null;
+        }
+
+        return data;
     }
 
     async sendResetPasswordEmail(to: string, token: string, firstName: string) {
@@ -58,11 +72,18 @@ export class EmailService {
             },
         );
 
-        await this.resend.emails.send({
+        const { data, error } = await this.resend.emails.send({
             from: this.from,
             to,
             subject: 'Reset your Doshka password',
             html,
         });
+
+        if (error) {
+            this.logger.error('Failed to send reset password email', error);
+            return null;
+        }
+
+        return data;
     }
 }

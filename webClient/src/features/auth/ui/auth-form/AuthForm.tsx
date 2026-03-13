@@ -1,6 +1,6 @@
-import { cn } from "@/shared/lib/cn";
-import { Button, FormError } from "@/shared/ui";
-import type { FormEventHandler, ReactNode } from "react";
+import { cn } from '@/shared/lib/cn';
+import { Button, FormError } from '@/shared/ui';
+import type { FormEventHandler, ReactNode } from 'react';
 
 export type AuthFormProps = {
     onSubmit: FormEventHandler<HTMLFormElement>;
@@ -11,7 +11,7 @@ export type AuthFormProps = {
         disabled?: boolean;
     };
     errorMessage?: string;
-    autoComplete?: "on" | "off";
+    autoComplete?: 'on' | 'off';
     className?: string;
 };
 
@@ -20,18 +20,18 @@ export const AuthForm = ({
     children,
     submitButton: { title, disabled, isLoading },
     errorMessage,
-    autoComplete = "on",
+    autoComplete = 'on',
     className,
 }: AuthFormProps) => {
     return (
         <form
-            className={cn(["grid gap-4", className])}
+            className={cn(['grid gap-4', className])}
             autoComplete={autoComplete}
             onSubmit={onSubmit}
         >
             {children}
             <Button
-                size="lg"
+                size="md"
                 type="submit"
                 disabled={disabled}
                 isLoading={isLoading}
