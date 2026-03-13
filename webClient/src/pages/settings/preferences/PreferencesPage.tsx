@@ -1,15 +1,33 @@
-import { SizeToggle, ThemeToggle } from '@/shared/ui';
+import {
+    PageHeader,
+    SettingsSection,
+    SettingsGroup,
+    SettingsRow,
+    ThemeToggle,
+    SizeToggle,
+} from '@/shared/ui';
+import { SettingsPageLayout } from '@/widgets/settings-layout';
 
 export const PreferencesPage = () => {
     return (
-        <div className="flex flex-col gap-4 text-sm">
-            Preferences
-            <div className="flex justify-center">
-                <ThemeToggle />
-            </div>
-            <div className="flex justify-center">
-                <SizeToggle />
-            </div>
-        </div>
+        <SettingsPageLayout>
+            <PageHeader title="Preferences" />
+
+            <SettingsSection title="Interface and theme">
+                <SettingsGroup>
+                    <SettingsRow
+                        title="Font size"
+                        description="Adjust the size of text across the app"
+                        control={<SizeToggle />}
+                    />
+
+                    <SettingsRow
+                        title="Interface theme"
+                        description="Select or customize your interface color scheme"
+                        control={<ThemeToggle />}
+                    />
+                </SettingsGroup>
+            </SettingsSection>
+        </SettingsPageLayout>
     );
 };
