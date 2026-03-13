@@ -1,0 +1,52 @@
+import { MenuIcon, PanelLeftCloseIcon, PanelLeftOpenIcon } from 'lucide-react';
+
+import { IconButton } from '@/shared/ui/IconButton';
+
+import { useUIStore } from '@/shared/store/ui';
+import { useIsMobile } from '@/shared/lib/hooks/media-query';
+
+const iconSize = 24;
+
+export const SidebarToggle = () => {
+    const isMobile = useIsMobile();
+
+    const isSidebarCollapsed = useUIStore((s) => s.isSidebarCollapsed);
+    const toggleSidebarCollapsed = useUIStore((s) => s.toggleSidebarCollapsed);
+
+    const isSidebarMobileOpen = useUIStore((s) => s.isSidebarMobileOpen);
+    const toggleSidebarMobile = useUIStore((s) => s.toggleSidebarMobile);
+
+    const appSize = useUIStore((s) => s.size);
+
+    const handleOnClick = () => {
+        if (isMobile) toggleSidebarMobile();
+        else toggleSidebarCollapsed();
+    };
+
+    const ariaLabel = isMobile
+        ? isSidebarMobileOpen
+            ? 'Close sidebar'
+            : 'Open sidebar'
+        : isSidebarCollapsed
+          ? 'Expand sidebar'
+          : 'Collapse sidebar';
+
+    const icon = isMobile ? (
+        <MenuIcon size={iconSize} />
+    ) : isSidebarCollapsed ? (
+        <PanelLeftOpenIcon size={iconSize} />
+    ) : (
+        <PanelLeftCloseIcon size={iconSize} />
+    );
+
+    return (
+        <IconButton
+            size={appSize}
+            aria-label={ariaLabel}
+            variant="ghost"
+            className="text-muted-fg"
+            icon={icon}
+            onClick={handleOnClick}
+        />
+    );
+};

@@ -1,8 +1,9 @@
-import { genUUID } from "@/shared/lib/genUUID";
-import type { ReactNode } from "react";
-import { create } from "zustand";
+import type { ReactNode } from 'react';
+import { create } from 'zustand';
 
-export type ModalSize = "sm" | "md" | "lg";
+import { genUUID } from '@/shared/lib/genUUID';
+
+export type ModalSize = 'sm' | 'md' | 'lg';
 
 export type ModalPayload = {
     title?: string;
@@ -11,7 +12,7 @@ export type ModalPayload = {
     dismissible?: boolean;
 };
 
-export type ToastVariant = "default" | "success" | "warning" | "error";
+export type ToastVariant = 'default' | 'success' | 'warning' | 'error';
 
 export type ToastPayload = {
     id?: string;
@@ -21,9 +22,15 @@ export type ToastPayload = {
     durationMs?: number;
 };
 
-export type ToastItem = Required<Omit<ToastPayload, "id">> & { id: string };
+export type ToastItem = Required<Omit<ToastPayload, 'id'>> & { id: string };
+
+export type Size = 'xs' | 'sm' | 'md' | 'lg';
 
 type UIState = {
+    // Size
+    size: Size;
+    setSize: (v: Size) => void;
+
     // Desktop collapse
     isSidebarCollapsed: boolean;
     toggleSidebarCollapsed: () => void;
@@ -36,7 +43,7 @@ type UIState = {
     toggleSidebarMobile: () => void;
 
     // Modal
-    modal: (Required<Pick<ModalPayload, "content">> & ModalPayload) | null;
+    modal: (Required<Pick<ModalPayload, 'content'>> & ModalPayload) | null;
     openModal: (payload: ModalPayload) => void;
     closeModal: () => void;
 
@@ -48,6 +55,9 @@ type UIState = {
 };
 
 export const useUIStore = create<UIState>((set) => ({
+    size: 'sm',
+    setSize: (v) => set({ size: v }),
+
     // Desktop collapse
     isSidebarCollapsed: false,
     toggleSidebarCollapsed: () =>
@@ -64,7 +74,7 @@ export const useUIStore = create<UIState>((set) => ({
     // Modal
     modal: null,
     openModal: (payload) =>
-        set({ modal: { size: "md", dismissible: true, ...payload } }),
+        set({ modal: { size: 'md', dismissible: true, ...payload } }),
     closeModal: () => set({ modal: null }),
 
     // Toast
@@ -74,8 +84,8 @@ export const useUIStore = create<UIState>((set) => ({
         const item: ToastItem = {
             id,
             title: payload.title,
-            message: payload.message ?? "",
-            variant: payload.variant ?? "default",
+            message: payload.message ?? '',
+            variant: payload.variant ?? 'default',
             durationMs: payload.durationMs ?? 3500,
         };
 

@@ -6,6 +6,7 @@ import { EmailService } from 'src/infrastructure/email/email.service';
 import { User } from 'src/features/users/entity/user.entity';
 
 import { OneTimeTokenEmailStrategy } from '../types/one-time-token-email-strategy.type';
+import { OneTimeTokenSendResponse } from '../types/one-time-token-send-response.type';
 import { UserTokenType } from '../enum/user-token-type.enum';
 
 import { throwBadRequestException } from 'src/common/errors/throw-api-error';
@@ -21,11 +22,11 @@ export class OneTimeTokenService {
         private readonly emailService: EmailService,
     ) {}
 
-    async sendEmailConfirmation(user: User): Promise<boolean> {
+    async sendEmailConfirmation(user: User): Promise<OneTimeTokenSendResponse> {
         return this.sendTokenEmail(user, UserTokenType.EMAIL_CONFIRM);
     }
 
-    async sendPasswordReset(user: User): Promise<boolean> {
+    async sendPasswordReset(user: User): Promise<OneTimeTokenSendResponse> {
         return this.sendTokenEmail(user, UserTokenType.PASSWORD_RESET);
     }
 
@@ -92,7 +93,7 @@ export class OneTimeTokenService {
     private async sendTokenEmail(
         user: User,
         type: UserTokenType,
-    ): Promise<boolean> {
+    ): Promise<OneTimeTokenSendResponse> {
         const strategy = this.strategies[type];
         if (!strategy) throwBadRequestException(AUTH_ERROR.INVALID_TOKEN);
 
@@ -102,7 +103,7 @@ export class OneTimeTokenService {
             strategy.cooldownSeconds,
         );
 
-        if (!canSend) return false;
+        if (!canSend) return { ok: false, data: null };
 
         const email = normalizeEmail(user.email);
         const sentAt = new Date();
@@ -118,8 +119,8 @@ export class OneTimeTokenService {
             sentAt,
         });
 
-        await strategy.send(email, token, user.firstName);
+        const data = await strategy.send(email, token, user.firstName);
 
-        return true;
+        return data ? { ok: true, data } : { ok: false, data };
     }
 }

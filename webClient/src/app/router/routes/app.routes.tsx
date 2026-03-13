@@ -1,7 +1,7 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 
 import { AuthGuard } from '@/features/auth/ui';
-import { AppLayout } from '@/widgets/layout';
+import { AppLayout } from '@/widgets/app-layout';
 
 import {
     InboxPage,
