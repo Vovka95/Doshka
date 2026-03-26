@@ -9,11 +9,9 @@ import { renderEmailTemplate } from './utils/email-templates';
 export class EmailService {
     private readonly resend: Resend;
     private readonly templateDir: string;
+    private readonly logger = new Logger(EmailService.name);
 
-    constructor(
-        private readonly configService: ConfigService,
-        private readonly logger = new Logger(EmailService.name),
-    ) {
+    constructor(private readonly configService: ConfigService) {
         this.resend = new Resend(
             this.configService.getOrThrow<string>('RESEND_API_KEY'),
         );
