@@ -24,7 +24,7 @@ export const setRefreshCookie = (
         httpOnly: true,
         secure: cookieSecure,
         sameSite: isProd ? 'none' : 'lax',
-        path: '/api/auth/refresh',
+        path: '/api/auth',
         domain: isProd ? cookieDomain : undefined,
         maxAge: refreshMaxAge,
     });
@@ -42,7 +42,7 @@ export const clearRefreshCookie = (
         httpOnly: true,
         secure: cookieSecure,
         sameSite: isProd ? 'none' : 'lax',
-        path: '/api/auth/refresh',
+        path: '/api/auth',
         domain: isProd ? cookieDomain : undefined,
     });
 };
