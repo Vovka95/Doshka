@@ -1,11 +1,11 @@
-import type { QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from '@tanstack/react-query';
 
-import { authApi } from "@/features/auth/api/authApi";
+import { authApi } from '@/features/auth/api/authApi';
 
-import { accessTokenStore } from "../model/store/accessTokenStore";
+import { accessTokenStore } from '../model/store/accessTokenStore';
 
-import type { LoginResponse } from "../model";
-import { qk } from "@/shared/lib/react-query/keys";
+import type { LoginResponse } from '../model';
+import { qk } from '@/shared/lib/react-query/keys';
 
 let refreshPromise: Promise<string> | null = null;
 
@@ -40,6 +40,7 @@ export const authSession = {
         accessTokenStore.clear();
 
         if (queryClient) {
+            queryClient.cancelQueries({ queryKey: qk.me() });
             queryClient.setQueryData(qk.me(), null);
         }
     },

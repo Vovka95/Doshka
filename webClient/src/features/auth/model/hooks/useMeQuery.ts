@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery } from '@tanstack/react-query';
 
-import { authApi } from "../../api";
-import { qk } from "@/shared/lib/react-query/keys";
+import { authApi } from '../../api';
+import { qk } from '@/shared/lib/react-query/keys';
 
 export const useMeQuery = (enabled: boolean = true) => {
     return useQuery({
@@ -9,6 +9,7 @@ export const useMeQuery = (enabled: boolean = true) => {
         queryFn: authApi.me,
         enabled,
         retry: false,
-        staleTime: 60_000,
+        staleTime: 0,
+        refetchOnMount: 'always',
     });
 };
