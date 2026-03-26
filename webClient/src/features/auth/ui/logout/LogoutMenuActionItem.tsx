@@ -1,11 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { MenuActionItem, type MenuActionItemProps } from '@/shared/ui';
-
 import { authSession } from '../../lib/authSession';
-
 import { useLogoutMutation } from '../../model';
 
+import { routes } from '@/app/config/routes';
+import { MenuActionItem, type MenuActionItemProps } from '@/shared/ui';
 import { useUIStore } from '@/shared/store/ui';
 import { normalizeApiError } from '@/shared/api/http/errror';
 import { t } from '@/shared/lib/i18n';
@@ -16,6 +16,8 @@ export const LogoutMenuActionItem = ({
     ...props
 }: LogoutMenuActionItemProps) => {
     const queryClient = useQueryClient();
+    const navigate = useNavigate();
+
     const toast = useUIStore((s) => s.toast);
     const logoutMutation = useLogoutMutation();
 
@@ -23,16 +25,12 @@ export const LogoutMenuActionItem = ({
         try {
             await logoutMutation.mutateAsync();
 
-            authSession.clear(queryClient);
-
             toast({
                 variant: 'success',
                 title: t('auth.logout.toast.success.title'),
                 message: t('auth.logout.toast.success.message'),
             });
         } catch (error) {
-            authSession.clear(queryClient);
-
             const apiError = normalizeApiError(error);
 
             toast({
@@ -40,6 +38,9 @@ export const LogoutMenuActionItem = ({
                 title: t('auth.logout.toast.error.title'),
                 message: apiError.messages[0],
             });
+        } finally {
+            authSession.clear(queryClient);
+            navigate(routes.login(), { replace: true });
         }
     };
 
