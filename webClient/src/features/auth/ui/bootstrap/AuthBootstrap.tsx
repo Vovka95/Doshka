@@ -21,7 +21,9 @@ export const AuthBootstrap = ({ children }: PropsWithChildren) => {
                 console.error(error);
                 authSession.clear(queryClient);
             } finally {
-                setReady(true);
+                if (isActive) {
+                    setReady(true);
+                }
             }
         })();
 
