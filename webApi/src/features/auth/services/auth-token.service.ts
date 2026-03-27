@@ -73,9 +73,8 @@ export class AuthTokenService {
         return await this.rotate(payload, session!);
     }
 
-    async logout(userId: string, refreshToken?: string): Promise<void> {
+    async logoutCurrentSession(refreshToken?: string): Promise<void> {
         if (!refreshToken) {
-            await this.revokeAllSessions(userId);
             return;
         }
 
@@ -83,8 +82,37 @@ export class AuthTokenService {
             const payload = await this.verifyRefreshJwtOrThrow(refreshToken);
             await this.revokeSessionBySid(payload.sid);
         } catch {
-            await this.revokeAllSessions(userId);
+            return;
         }
+    }
+
+    async logoutSessionById(
+        userId: string,
+        refreshToken?: string,
+    ): Promise<void> {
+        if (!refreshToken) {
+            return;
+        }
+
+        try {
+            const payload = await this.verifyRefreshJwtOrThrow(refreshToken);
+
+            const session = await this.authSessionsService.findById(
+                payload.sid,
+            );
+
+            if (!session || session.userId !== userId) {
+                return;
+            }
+
+            await this.revokeSessionBySid(session.id);
+        } catch {
+            return;
+        }
+    }
+
+    async logoutAllSessions(userId: string): Promise<void> {
+        await this.revokeAllSessions(userId);
     }
 
     async revokeAllSessions(userId: string): Promise<void> {
