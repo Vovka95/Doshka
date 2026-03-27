@@ -79,8 +79,19 @@ export class AuthService {
         return { ...tokens, user: this.usersService.mapToUserResponse(user!) };
     }
 
-    async logout(userId: string, refreshToken?: string): Promise<void> {
-        return this.authTokenService.logout(userId, refreshToken);
+    async logout(refreshToken?: string): Promise<void> {
+        return this.authTokenService.logoutCurrentSession(refreshToken);
+    }
+
+    async logoutSessionById(
+        userId: string,
+        refreshToken?: string,
+    ): Promise<void> {
+        return this.authTokenService.logoutSessionById(userId, refreshToken);
+    }
+
+    async logoutAllSessions(userId: string) {
+        return this.authTokenService.logoutAllSessions(userId);
     }
 
     async refreshTokens(refreshToken?: string): Promise<AuthTokens> {
