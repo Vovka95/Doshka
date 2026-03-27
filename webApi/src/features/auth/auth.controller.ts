@@ -62,20 +62,46 @@ export class AuthController {
         return { accessToken, user };
     }
 
-    @UseGuards(JwtAuthGuard)
-    @ApiBearerAuth()
     @HttpCode(204)
     @Post('logout')
     async logout(
+        @Req() req: Request,
+        @Res({ passthrough: true }) res: Response,
+    ): Promise<void> {
+        const refreshToken = getRefreshCookie(req);
+
+        clearRefreshCookie(res, this.configService);
+
+        await this.authService.logout(refreshToken);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @HttpCode(204)
+    @Post('logout-session-by-id')
+    async logoutSessionById(
         @Req() req: Request,
         @Res({ passthrough: true }) res: Response,
         @CurrentUser() user: AccessTokenPayload,
     ): Promise<void> {
         const refreshToken = getRefreshCookie(req);
 
-        await this.authService.logout(user.sub, refreshToken);
-
         clearRefreshCookie(res, this.configService);
+
+        await this.authService.logoutSessionById(user.sub, refreshToken);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @ApiBearerAuth()
+    @HttpCode(204)
+    @Post('logout-all-sessions')
+    async logoutAllSessions(
+        @Res({ passthrough: true }) res: Response,
+        @CurrentUser() user: AccessTokenPayload,
+    ): Promise<void> {
+        clearRefreshCookie(res, this.configService);
+
+        await this.authService.logoutAllSessions(user.sub);
     }
 
     @HttpCode(200)

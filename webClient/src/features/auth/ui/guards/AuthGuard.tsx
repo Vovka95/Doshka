@@ -4,10 +4,21 @@ import { routes } from '@/app/config/routes';
 import { useMeQuery } from '@/features/auth/model/hooks/useMeQuery';
 
 import { FullPageLoader } from '@/shared/ui';
+import { authSession } from '../../lib/authSession';
 
 export const AuthGuard = () => {
     const location = useLocation();
-    const me = useMeQuery(true);
+    const me = useMeQuery();
+
+    if (authSession.getIsLoggingOut()) {
+        return (
+            <Navigate
+                to={routes.login()}
+                replace
+                state={{ from: location.pathname + location.search }}
+            />
+        );
+    }
 
     if (me.isLoading) {
         return <FullPageLoader />;

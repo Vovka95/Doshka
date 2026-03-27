@@ -5,13 +5,19 @@ import { useMeQuery } from '@/features/auth/model/hooks/useMeQuery';
 
 import { FullPageLoader } from '@/shared/ui';
 
+import { authSession } from '../../lib/authSession';
+
 type LocationState = {
     from?: string;
 };
 
 export const GuestGuard = () => {
     const location = useLocation();
-    const me = useMeQuery(true);
+    const me = useMeQuery();
+
+    if (authSession.getIsLoggingOut()) {
+        return <Outlet />;
+    }
 
     if (me.isLoading) {
         return <FullPageLoader />;
