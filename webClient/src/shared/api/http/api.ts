@@ -1,9 +1,9 @@
-import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
+import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 
-import { httpConfig } from "./httpConfig";
+import { httpConfig } from './httpConfig';
 
-import { accessTokenStore } from "@/features/auth/model/store/accessTokenStore";
-import { authSession } from "@/features/auth/lib/authSession";
+import { accessTokenStore } from '@/features/auth/model/store/accessTokenStore';
+import { authSession } from '@/features/auth/lib/authSession';
 
 export const api = axios.create({
     baseURL: httpConfig.baseUrl,
@@ -34,9 +34,14 @@ api.interceptors.response.use(
         }
 
         if (
-            original.url?.includes("/auth/refresh") ||
-            original.url?.includes("/auth/login")
+            original.url?.includes('/auth/refresh') ||
+            original.url?.includes('/auth/login') ||
+            original.url?.includes('/auth/logout')
         ) {
+            return Promise.reject(error);
+        }
+
+        if (authSession.getIsLoggingOut()) {
             return Promise.reject(error);
         }
 
